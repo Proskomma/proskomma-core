@@ -3,7 +3,6 @@
 const path = require('path');
 const test = require('tape');
 const fse = require('fs-extra');
-const deepEqual = require('deep-equal');
 
 const { Proskomma } = require('../../src');
 
@@ -294,89 +293,6 @@ test(
       t.ok('mainText' in result.data.documents[0]);
       t.ok(result.data.documents[0].mainText.startsWith('In the days when'));
       t.ok(result.data.documents[0].normalized.startsWith('In the days when'));
-    } catch (err) {
-      console.log(err);
-    }
-  },
-);
-
-test(
-  `perf (${testGroup})`,
-  async function (t) {
-    try {
-      t.plan(9);
-      let query = '{ documents { perf } }';
-      let result = await pk.gqlQuery(query);
-      t.equal(result.errors, undefined);
-      t.ok('documents' in result.data);
-      t.ok('perf' in result.data.documents[0]);
-      let perfJSON;
-      t.doesNotThrow(() => perfJSON = JSON.parse(result.data.documents[0].perf));
-      query = '{ documents { perf(indent:2) } }';
-      result = await pk.gqlQuery(query);
-      t.equal(result.errors, undefined);
-      t.ok('documents' in result.data);
-      t.ok('perf' in result.data.documents[0]);
-      let perfJSON2;
-      t.doesNotThrow(() => perfJSON2 = JSON.parse(result.data.documents[0].perf));
-      t.ok(deepEqual(perfJSON, perfJSON2));
-    } catch (err) {
-      console.log(err);
-    }
-  },
-);
-
-test(
-  `sofria (${testGroup})`,
-  async function (t) {
-    try {
-      t.plan(9);
-      let query = '{ documents { sofria } }';
-      let result = await pk3.gqlQuery(query);
-      t.equal(result.errors, undefined);
-      t.ok('documents' in result.data);
-      t.ok('sofria' in result.data.documents[0]);
-      let sofriaJSON;
-      t.doesNotThrow(() => sofriaJSON = JSON.parse(result.data.documents[0].sofria));
-      query = '{ documents { sofria(indent:2) } }';
-      result = await pk3.gqlQuery(query);
-      t.equal(result.errors, undefined);
-      t.ok('documents' in result.data);
-      t.ok('sofria' in result.data.documents[0]);
-      let sofriaJSON2;
-      t.doesNotThrow(() => sofriaJSON2 = JSON.parse(result.data.documents[0].sofria));
-      t.ok(deepEqual(sofriaJSON, sofriaJSON2));
-    } catch (err) {
-      console.log(err);
-    }
-  },
-);
-
-test(
-  `usfm (${testGroup})`,
-  async function (t) {
-    try {
-      t.plan(4);
-      let query = '{ documents { usfm } }';
-      let result = await pk3.gqlQuery(query);
-      t.equal(result.errors, undefined);
-      t.ok('documents' in result.data);
-      t.ok('usfm' in result.data.documents[0]);
-
-      let rawUsfm = fse.readFileSync(path.resolve(__dirname, '../test_data/usfm/78-GALspavbl.usfm')).toString();
-      let tabRawUsfm = rawUsfm.split(/(\\[a-z]+[\d\*]?|\n)/g).filter((e) => e !== '' && e !== ' ' && e !== '\n');
-
-      let outputUsfm = result.data.documents[0].usfm;
-      let tabOutputUsfm = outputUsfm.split(/(\\[a-z]+[\d\*]?|\n)/g).filter((e) => e !== '' && e !== ' ' && e !== '\n');
-
-      let diff = [];
-
-      tabRawUsfm.forEach((elem, i) => {
-        if (!tabOutputUsfm[i] || elem.trim() != tabOutputUsfm[i].trim()) {
-          diff.push([tabOutputUsfm[i], elem]);
-        }
-      });
-      t.equal(diff.join(''), '');
     } catch (err) {
       console.log(err);
     }
