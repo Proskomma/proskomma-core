@@ -16,16 +16,11 @@ module.exports = {
     // globalObject: 'this',
     // one day we might need 'library' instead of 'libraryTarget'
     // https://github.com/webpack/webpack/issues/11800
-    library: { type: 'commonjs-static' },
+    library: { type: 'commonjs2' },
     // libraryTarget: 'module',
     hashFunction: 'xxhash64',
   },
-  externalsType: 'commonjs2',
-  externals: {
-    'fs-extra': 'fs-extra',
-    'crypto-browserify': 'crypto-browserify',
-  },
-  // experiments: { outputModule: true },
+  externalsPresets: { node: true },
   module: {
     rules: [
       {
@@ -43,17 +38,13 @@ module.exports = {
     ],
   },
   resolve: {
-    fallback: {
-      fs: require.resolve('fs-extra'),
-      string_decoder: require.resolve('string_decoder'),
-      crypto: require.resolve('crypto-browserify'),
-      path: require.resolve('path-browserify'),
-    },
+    fallback: { fs: require.resolve('fs-extra') },
     alias: { process: 'process/browser' },
   },
   plugins: [
     new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
     new webpack.ProvidePlugin({ process: 'process/browser' }),
+    new webpack.ProvidePlugin({ Promise: 'es6-promise-promise' }),
     new NodePolyfillPlugin(),
   ],
   target: 'node',
