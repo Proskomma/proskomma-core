@@ -44,7 +44,6 @@ module.exports = {
   plugins: [
     new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
     new webpack.ProvidePlugin({ process: 'process/browser' }),
-    new webpack.ProvidePlugin({ Promise: 'es6-promise-promise' }),
     new NodePolyfillPlugin(),
   ],
   target: 'node',

@@ -10,7 +10,7 @@ module.exports = {
       '@babel/preset-env',
       {
         'targets': { 'esmodules': true },
-        'useBuiltIns': 'usage',
+        'useBuiltIns': 'entry',
         'corejs': '3.25.1',
       },
     ],
