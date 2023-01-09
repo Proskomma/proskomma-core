@@ -1,5 +1,5 @@
 const test = require('tape');
-const {utils} = require("../../../../dist/index");
+const { utils } = require('../../../../dist/index');
 const ByteArray = utils.ByteArray;
 
 const testGroup = 'Byte Array';
@@ -106,65 +106,65 @@ test(
 );
 
 test(
-    `NByte (${testGroup})`,
-    function (t) {
-        try {
-            t.plan(7);
-            const ba = new ByteArray();
-            ba.pushNByte(127);
-            t.equal(ba.byte(0), 127 + 128);
-            t.equal(ba.nByte(0), 127);
-            ba.pushNByte(130);
-            t.equal(ba.byte(1), 2);
-            t.equal(ba.byte(2), 1 + 128);
-            t.equal(ba.nByte(1), 130);
-            t.throws(() => ba.pushNByte('banana'));
-            t.throws(() => ba.nByte(99));
-        } catch (err) {
-            console.log(err);
-        }
-    },
+  `NByte (${testGroup})`,
+  function (t) {
+    try {
+      t.plan(7);
+      const ba = new ByteArray();
+      ba.pushNByte(127);
+      t.equal(ba.byte(0), 127 + 128);
+      t.equal(ba.nByte(0), 127);
+      ba.pushNByte(130);
+      t.equal(ba.byte(1), 2);
+      t.equal(ba.byte(2), 1 + 128);
+      t.equal(ba.nByte(1), 130);
+      t.throws(() => ba.pushNByte('banana'));
+      t.throws(() => ba.nByte(99));
+    } catch (err) {
+      console.log(err);
+    }
+  },
 );
 
 test(
-    `NBytes (${testGroup})`,
-    function (t) {
-        try {
-            t.plan(6);
-            const ba = new ByteArray();
-            ba.pushNByte(127);
-            ba.pushNByte(17000);
-            ba.pushNByte(130);
-            const nBytes = ba.nBytes(0, 3);
-            t.equal(nBytes.length, 3);
-            t.equal(nBytes[0], 127);
-            t.equal(nBytes[1], 17000);
-            t.equal(nBytes[2], 130);
-            t.equal(ba.nBytes(0, 0).length, 0);
-            t.throws(() => ba.nBytes(0, 4));
-        } catch (err) {
-            console.log(err);
-        }
-    },
+  `NBytes (${testGroup})`,
+  function (t) {
+    try {
+      t.plan(6);
+      const ba = new ByteArray();
+      ba.pushNByte(127);
+      ba.pushNByte(17000);
+      ba.pushNByte(130);
+      const nBytes = ba.nBytes(0, 3);
+      t.equal(nBytes.length, 3);
+      t.equal(nBytes[0], 127);
+      t.equal(nBytes[1], 17000);
+      t.equal(nBytes[2], 130);
+      t.equal(ba.nBytes(0, 0).length, 0);
+      t.throws(() => ba.nBytes(0, 4));
+    } catch (err) {
+      console.log(err);
+    }
+  },
 );
 
 test(
-    `pushNBytes (${testGroup})`,
-    function (t) {
-        try {
-            t.plan(5);
-            const ba = new ByteArray();
-            ba.pushNBytes([127, 17000, 130]);
-            const nBytes = ba.nBytes(0, 3);
-            t.equal(nBytes.length, 3);
-            t.equal(nBytes[0], 127);
-            t.equal(nBytes[1], 17000);
-            t.equal(nBytes[2], 130);
-            t.throws(() => ba.pushNBytes([1, "2", 3]));
-        } catch (err) {
-            console.log(err);
-        }
-    },
+  `pushNBytes (${testGroup})`,
+  function (t) {
+    try {
+      t.plan(5);
+      const ba = new ByteArray();
+      ba.pushNBytes([127, 17000, 130]);
+      const nBytes = ba.nBytes(0, 3);
+      t.equal(nBytes.length, 3);
+      t.equal(nBytes[0], 127);
+      t.equal(nBytes[1], 17000);
+      t.equal(nBytes[2], 130);
+      t.throws(() => ba.pushNBytes([1, '2', 3]));
+    } catch (err) {
+      console.log(err);
+    }
+  },
 );
 
 test(
