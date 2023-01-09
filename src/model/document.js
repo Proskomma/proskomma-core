@@ -1,7 +1,7 @@
 import {
   PerfRenderFromProskomma,
   SofriaRenderFromProskomma,
-  transforms,
+  render,
   PipelineHandler,
 } from 'proskomma-json-tools';
 import utils from '../util';
@@ -305,7 +305,7 @@ class Document {
     const cl = new PerfRenderFromProskomma(
       {
         proskomma: this.processor,
-        actions: transforms.perf2perf.identityActions,
+        actions: render.perfToPerf.renderActions.identityActions,
       },
     );
     const output = {};
@@ -340,7 +340,7 @@ class Document {
     const cl = new SofriaRenderFromProskomma(
       {
         proskomma: this.processor,
-        actions: transforms.sofria2sofria.identityActions,
+        actions: render.sofriaToSofria.renderActions.identityActions,
       },
     );
     const output = {};
