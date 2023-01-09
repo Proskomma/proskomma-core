@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 const test = require('tape');
 
 const { pkWithDocs } = require('../lib/load');
@@ -26,6 +27,7 @@ test(
         ['tokens', 1, 1, 5, 3, 4],
       ];
       t.plan(6 * expected.length);
+
       for (const expectation of expected) {
         const query = `
       {
