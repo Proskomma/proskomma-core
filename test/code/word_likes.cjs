@@ -13,7 +13,7 @@ test(
   `DocSet (${testGroup})`,
   async function (t) {
     try {
-      t.plan(8 );
+      t.plan(8);
       let query =
         '{ docSets { wordLikes } }';
       let result = await pk.gqlQuery(query);
