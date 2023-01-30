@@ -1,5 +1,5 @@
 const xre = require('xregexp');
-const { lexingRegexes } = require('../lexers/lexingRegexes');
+const { lexingRegexes } = require('../lexers/lexingRegexes.cjs');
 
 const tokenTypes = {};
 const unionComponents = [];

@@ -1,32 +1,32 @@
 const {
   addMutationsSchemaString,
   addMutationsResolvers,
-} = require('./add');
+} = require('./add.cjs');
 
 const {
   deleteMutationsSchemaString,
   deleteMutationsResolvers,
-} = require('./delete');
+} = require('./delete.cjs');
 
 const {
   rehashMutationsSchemaString,
   rehashMutationsResolvers,
-} = require('./rehash');
+} = require('./rehash.cjs');
 
 const {
   tagMutationsSchemaString,
   tagMutationsResolvers,
-} = require('./tags');
+} = require('./tags.cjs');
 
 const {
   updateMutationsSchemaString,
   updateMutationsResolvers,
-} = require('./update');
+} = require('./update.cjs');
 
 const {
   versificationMutationsSchemaString,
   versificationMutationsResolvers,
-} = require('./versification');
+} = require('./versification.cjs');
 
 const mutationsSchemaString = `
 type Mutation {

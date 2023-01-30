@@ -1,10 +1,10 @@
-const utils = require('../index');
+const utils = require('../index.cjs');
 const { labelForScope } = utils.scopeDefs;
-const { tokenizeString } = require('../../parser/lib/tokenize');
+const { tokenizeString } = require('../../parser/lib/tokenize.cjs');
 const {
   flattenNodes,
   numberNodes,
-} = require('../../parser/lexers/nodes');
+} = require('../../parser/lexers/nodes.cjs');
 
 const tsvToInputBlock = (tsv, hasHeadings) => {
   const ret = [];

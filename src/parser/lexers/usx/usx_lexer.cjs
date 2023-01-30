@@ -5,11 +5,11 @@ const sax = require('sax');
 const {
   lexingRegexes,
   mainRegex,
-} = require('../lexingRegexes');
+} = require('../lexingRegexes.cjs');
 const {
   preTokenObjectForFragment,
   constructorForFragment,
-} = require('../object_for_fragment');
+} = require('../object_for_fragment.cjs');
 
 class UsxLexer {
   constructor() {

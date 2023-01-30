@@ -17,7 +17,7 @@
             <xsl:value-of select="os:meaning"/>
             <xsl:text>&#x09;</xsl:text>
             <xsl:for-each select="os:meaning/os:def">
-                <xsl:value-of select="concat(./text(), '; ')"/>
+                <xsl:value-of select="concat(./text(), '; .cjs')"/>
             </xsl:for-each>
             <xsl:text>&#x09;</xsl:text>
             <xsl:value-of select="os:usage/text()"/>

@@ -1,4 +1,4 @@
-const utils = require('../../util');
+const utils = require('../../util/index.cjs');
 const ByteArray = utils.ByteArray;
 const {
   pushSuccinctGraftBytes,
@@ -12,7 +12,7 @@ const {
 const { tokenCategory, tokenEnum } = utils.tokenDefs;
 const { headerBytes } = utils.succinct;
 
-const { updateBlockGrafts } = require('../doc_set_helpers/update');
+const { updateBlockGrafts } = require('../doc_set_helpers/update.cjs');
 
 const deleteBlock = (document, seqId, blockN, buildCV) => {
   if (buildCV !== false) {

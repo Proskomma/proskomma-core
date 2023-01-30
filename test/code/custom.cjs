@@ -1,11 +1,11 @@
 /* eslint-disable require-await */
 const test = require('tape');
 
-const { Proskomma } = require('../../src');
+const { Proskomma } = require('../../src/index.cjs');
 const {
   pkWithDoc,
   customPkWithDoc,
-} = require('../lib/load');
+} = require('../lib/load.js');
 
 const testGroup = 'Custom Tags';
 

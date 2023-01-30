@@ -3,7 +3,7 @@ const fse = require('fs-extra');
 const test = require('tape');
 const deepCopy = require('deep-copy-all');
 
-const { pkWithDoc, pkWithDocs } = require('../lib/load');
+const { pkWithDoc, pkWithDocs } = require('../lib/load.js');
 
 const testGroup = 'Verse Mapping';
 

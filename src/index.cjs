@@ -10,20 +10,20 @@ const {
 const BitSet = require('bitset');
 
 const packageJson = require('../package.json');
-const utils = require('./util');
-const { DocSet } = require('./model/doc_set');
-const { Document } = require('./model/document');
+const utils = require('./util/index.cjs');
+const { DocSet } = require('./model/doc_set.cjs');
+const { Document } = require('./model/document.cjs');
 const {
   typeDefs,
   resolvers,
-} = require('./graph');
+} = require('./graph/index.cjs');
 
-const { lexingRegexes } = require('./parser/lexers/lexingRegexes');
-const blocksSpecUtils = require('./util/scriptlike/blocksSpec');
+const { lexingRegexes } = require('./parser/lexers/lexingRegexes.cjs');
+const blocksSpecUtils = require('./util/scriptlike/blocksSpec.cjs');
 const {
   flattenNodes,
   numberNodes,
-} = require('./parser/lexers/nodes');
+} = require('./parser/lexers/nodes.cjs');
 
 const tree2nodes = tree => flattenNodes(numberNodes(tree));
 

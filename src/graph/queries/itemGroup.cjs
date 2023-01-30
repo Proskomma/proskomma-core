@@ -1,4 +1,4 @@
-const { dumpItemGroup } = require('../lib/dump');
+const { dumpItemGroup } = require('../lib/dump.cjs');
 
 const scopeMatchesStartsWith = (sw, s) => {
   if (sw.length === 0) {

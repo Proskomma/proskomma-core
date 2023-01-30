@@ -1,4 +1,4 @@
-const { dumpItems } = require('../lib/dump');
+const { dumpItems } = require('../lib/dump.cjs');
 
 const cIndexSchemaString = `
 """A chapter index entry"""

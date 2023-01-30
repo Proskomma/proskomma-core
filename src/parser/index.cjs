@@ -1,9 +1,9 @@
-const utils = require('../util');
-const { Sequence } = require('./model');
+const utils = require('../util/index.cjs');
+const { Sequence } = require('./model/index.cjs');
 const {
   specs,
   buildSpecLookup,
-} = require('./parser_specs');
+} = require('./parser_specs.cjs');
 
 const { labelForScope } = utils.scopeDefs;
 const parserConstantDef = utils.parserConstants;

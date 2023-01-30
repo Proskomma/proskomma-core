@@ -1,6 +1,6 @@
-const tokenDefs = require('./tokenDefs');
-const scopeDefs = require('./scopeDefs');
-const itemDefs = require('./itemDefs');
+const tokenDefs = require('./tokenDefs.cjs');
+const scopeDefs = require('./scopeDefs.cjs');
+const itemDefs = require('./itemDefs.cjs');
 
 const headerBytes = (succinct, pos) =>{
   const headerByte = succinct.byte(pos);

@@ -1,6 +1,6 @@
 const test = require('tape');
 
-const pkExports = require('../../dist');
+const pkExports = require('../../src/index.cjs');
 
 const testGroup = 'Export lexingRegexes';
 

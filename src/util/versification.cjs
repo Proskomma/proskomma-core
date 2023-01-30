@@ -1,6 +1,6 @@
 const xre = require('xregexp');
 
-const ByteArray = require('./byteArray');
+const ByteArray = require('./byteArray.cjs');
 
 const cvMappingType = 2;
 const bcvMappingType = 3;

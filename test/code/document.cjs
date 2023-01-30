@@ -5,9 +5,9 @@ const test = require('tape');
 const fse = require('fs-extra');
 const deepEqual = require('deep-equal');
 
-const { Proskomma } = require('../../src');
+const { Proskomma } = require('../../src/index.cjs');
 
-const { pkWithDoc } = require('../lib/load');
+const { pkWithDoc } = require('../lib/load.js');
 
 const testGroup = 'Graph Document';
 

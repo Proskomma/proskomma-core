@@ -2,7 +2,7 @@ const test = require('tape');
 const deepCopy = require('deep-copy-all');
 const deepEqual = require('deep-equal');
 
-const { pkWithDoc } = require('../lib/load');
+const { pkWithDoc } = require('../lib/load.js');
 
 const testGroup = 'Modify Sequence Method';
 

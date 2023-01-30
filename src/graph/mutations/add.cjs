@@ -1,5 +1,5 @@
-const utils = require('../../util');
-const { remakeBlocks } = require('../lib/remake_blocks');
+const utils = require('../../util/index.cjs');
+const { remakeBlocks } = require('../lib/remake_blocks.cjs');
 
 const addMutationsSchemaString = `
   """Adds a document which will be assigned to an existing or new docSet on the basis of the specified selectors"""

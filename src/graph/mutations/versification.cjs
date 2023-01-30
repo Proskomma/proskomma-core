@@ -1,4 +1,4 @@
-const utils = require('../../util');
+const utils = require('../../util/index.cjs');
 
 const versificationMutationsSchemaString = `
   """Adds verse mapping tables to the documents in a docSet, where the verse mapping may be provided in legacy .vrs or JSON format"""

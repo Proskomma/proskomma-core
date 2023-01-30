@@ -1,4 +1,4 @@
-const utils = require('../../util');
+const utils = require('../../util/index.cjs');
 
 const verseNumberSchemaString = `
 """Information about a verse number (which may be part of a verse range)"""

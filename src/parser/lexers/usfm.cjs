@@ -3,8 +3,8 @@ const xre = require('xregexp');
 const {
   lexingRegexes,
   mainRegex,
-} = require('./lexingRegexes');
-const { preTokenObjectForFragment } = require('./object_for_fragment');
+} = require('./lexingRegexes.cjs');
+const { preTokenObjectForFragment } = require('./object_for_fragment.cjs');
 
 const parseUsfm = (str, parser) => {
   const matches = xre.match(str, mainRegex, 'all');

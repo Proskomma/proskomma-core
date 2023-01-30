@@ -1,4 +1,4 @@
-const utils = require('../../util');
+const utils = require('../../util/index.cjs');
 
 const ptCompare = (a, b) => {
   const bcA = a.headers.bookCode || 'GEN';

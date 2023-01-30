@@ -1,7 +1,7 @@
 const xre = require('xregexp');
 
-const { expressions, doPredicate } = require('./tribos_expression');
-const { stepActions } = require('./tribos_step');
+const { expressions, doPredicate } = require('./tribos_expression.cjs');
+const { stepActions } = require('./tribos_step.cjs');
 
 class Tribos {
   constructor() {

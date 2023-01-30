@@ -1,7 +1,7 @@
-const utils = require('../../util');
+const utils = require('../../util/index.cjs');
 const { labelForScope } = utils.scopeDefs;
-const { Sequence } = require('../model');
-const { tokenizeString } = require('../lib/tokenize');
+const { Sequence } = require('../model/index.cjs');
+const { tokenizeString } = require('../lib/tokenize.cjs');
 
 const parseTableToDocument = (str, parser, bookCode) => {
   const { rows } = JSON.parse(str);

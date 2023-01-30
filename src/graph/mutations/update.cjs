@@ -1,7 +1,7 @@
 const { PipelineHandler } = require('proskomma-json-tools');
-const { remakeBlocks } = require('../lib/remake_blocks');
-const pipelines = require('../../pipelines/perf2x');
-const customTransforms = require('../../transforms');
+const { remakeBlocks } = require('../lib/remake_blocks.cjs');
+const pipelines = require('../../pipelines/perf2x/index.cjs');
+const customTransforms = require('../../transforms/index.cjs');
 
 const updateMutationsSchemaString = `
   """Replaces the items of a block with a new set of items"""

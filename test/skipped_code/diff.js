@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 const test = require('tape');
 
-const { pkWithDocs } = require('../lib/load');
+const { pkWithDocs } = require('../lib/load.js');
 
 const testGroup = 'Diff';
 

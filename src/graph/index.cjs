@@ -1,126 +1,126 @@
 const {
   keyValueSchemaString,
   keyValueResolvers,
-} = require('./queries/key_value');
+} = require('./queries/key_value.cjs');
 const {
   cvSchemaString,
   cvResolvers,
-} = require('./queries/cv');
+} = require('./queries/cv.cjs');
 const {
   idPartsSchemaString,
   idPartsResolvers,
-} = require('./queries/idParts');
-const { inputAttSpecSchemaString } = require('./queries/input_att_spec');
-const { keyMatchesSchemaString } = require('./queries/input_key_matches');
-const { inputKeyValueSchemaString } = require('./queries/input_key_value');
-const { keyValuesSchemaString } = require('./queries/input_key_values');
-const { inputItemObjectSchemaString } = require('./queries/inputItemObject');
+} = require('./queries/idParts.cjs');
+const { inputAttSpecSchemaString } = require('./queries/input_att_spec.cjs');
+const { keyMatchesSchemaString } = require('./queries/input_key_matches.cjs');
+const { inputKeyValueSchemaString } = require('./queries/input_key_value.cjs');
+const { keyValuesSchemaString } = require('./queries/input_key_values.cjs');
+const { inputItemObjectSchemaString } = require('./queries/inputItemObject.cjs');
 const {
   itemSchemaString,
   itemResolvers,
-} = require('./queries/item');
+} = require('./queries/item.cjs');
 const {
   itemGroupSchemaString,
   itemGroupResolvers,
-} = require('./queries/itemGroup');
+} = require('./queries/itemGroup.cjs');
 const {
   kvEntrySchemaString,
   kvEntryResolvers,
-} = require('./queries/kv_entry');
+} = require('./queries/kv_entry.cjs');
 const {
   regexIndexSchemaString,
   regexIndexResolvers,
-} = require('./queries/regex_index');
-const { rowEqualsSpecSchemaString } = require('./queries/row_equals_spec');
-const { rowMatchSpecSchemaString } = require('./queries/row_match_spec');
-const { verseRangeSchemaString } = require('./queries/verseRange');
-const { origSchemaString } = require('./queries/orig');
+} = require('./queries/regex_index.cjs');
+const { rowEqualsSpecSchemaString } = require('./queries/row_equals_spec.cjs');
+const { rowMatchSpecSchemaString } = require('./queries/row_match_spec.cjs');
+const { verseRangeSchemaString } = require('./queries/verseRange.cjs');
+const { origSchemaString } = require('./queries/orig.cjs');
 const {
   verseNumberSchemaString,
   verseNumberResolvers,
-} = require('./queries/verseNumber');
+} = require('./queries/verseNumber.cjs');
 const {
   cellSchemaString,
   cellResolvers,
-} = require('./queries/cell');
+} = require('./queries/cell.cjs');
 const {
   cIndexSchemaString,
   cIndexResolvers,
-} = require('./queries/cIndex');
+} = require('./queries/cIndex.cjs');
 const {
   cvVerseElementSchemaString,
   cvVerseElementResolvers,
-} = require('./queries/cvVerseElement');
+} = require('./queries/cvVerseElement.cjs');
 const {
   cvVersesSchemaString,
   cvVersesResolvers,
-} = require('./queries/cvVerses');
+} = require('./queries/cvVerses.cjs');
 const {
   cvIndexSchemaString,
   cvIndexResolvers,
-} = require('./queries/cvIndex');
+} = require('./queries/cvIndex.cjs');
 const {
   cvNavigationSchemaString,
   cvNavigationResolvers,
-} = require('./queries/cvNavigation');
-const { inputBlockSpecSchemaString } = require('./queries/inputBlockSpec');
+} = require('./queries/cvNavigation.cjs');
+const { inputBlockSpecSchemaString } = require('./queries/inputBlockSpec.cjs');
 const {
   nodeSchemaString,
   nodeResolvers,
-} = require('./queries/node');
+} = require('./queries/node.cjs');
 const {
   kvSequenceSchemaString,
   kvSequenceResolvers,
-} = require('./queries/kv_sequence');
+} = require('./queries/kv_sequence.cjs');
 const {
   tableSequenceSchemaString,
   tableSequenceResolvers,
-} = require('./queries/table_sequence');
+} = require('./queries/table_sequence.cjs');
 const {
   treeSequenceSchemaString,
   treeSequenceResolvers,
-} = require('./queries/tree_sequence');
+} = require('./queries/tree_sequence.cjs');
 const {
   blockSchemaString,
   blockResolvers,
-} = require('./queries/block');
+} = require('./queries/block.cjs');
 const {
   sequenceSchemaString,
   sequenceResolvers,
-} = require('./queries/sequence');
+} = require('./queries/sequence.cjs');
 const {
   documentSchemaString,
   documentResolvers,
-} = require('./queries/document');
+} = require('./queries/document.cjs');
 const {
   docSetSchemaString,
   docSetResolvers,
-} = require('./queries/doc_set');
+} = require('./queries/doc_set.cjs');
 const {
   querySchemaString,
   queryResolvers,
-} = require('./queries');
+} = require('./queries/index.cjs');
 const {
   selectorSpecSchemaString,
   selectorSpecResolvers,
-} = require('./queries/selector_spec');
-const { inputSelectorSpecSchemaString } = require('./queries/input_selector_spec');
+} = require('./queries/selector_spec.cjs');
+const { inputSelectorSpecSchemaString } = require('./queries/input_selector_spec.cjs');
 const {
   mutationsSchemaString,
   mutationsResolvers,
-} = require('./mutations');
+} = require('./mutations/index.cjs');
 const {
   versificationSchemaString,
   versificationResolvers,
-} = require('./queries/versification');
+} = require('./queries/versification.cjs');
 const {
   cvBookSchemaString,
   cvBookResolvers,
-} = require('./queries/cvBook');
+} = require('./queries/cvBook.cjs');
 const {
   cvChapterSchemaString,
   cvChapterResolvers,
-} = require('./queries/cvChapter');
+} = require('./queries/cvChapter.cjs');
 
 const typeDefs = `
       ${querySchemaString}

@@ -1,6 +1,6 @@
 const test = require('tape');
 
-const { Proskomma } = require('../../dist');
+const { Proskomma } = require('../../src/index.cjs');
 
 const testGroup = 'Document';
 

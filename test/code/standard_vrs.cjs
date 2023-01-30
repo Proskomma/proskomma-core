@@ -2,7 +2,7 @@ const test = require('tape');
 
 const testGroup = 'Standard VRS';
 
-const { Proskomma } = require('../../src');
+const { Proskomma } = require('../../src/index.cjs');
 
 const pk = new Proskomma();
 

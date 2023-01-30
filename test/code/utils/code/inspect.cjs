@@ -2,7 +2,7 @@
 const path = require('path');
 const test = require('tape');
 const fs = require('fs-extra');
-const { utils } = require('../../../../dist/index');
+const { utils } = require('../../../../src/index.cjs');
 const ByteArray = utils.ByteArray;
 const { unpackEnum } = utils.succinct;
 const { inspectEnum, inspectSuccinct } = utils.inspect;

@@ -1,10 +1,10 @@
 const test = require('tape');
 
-const { Proskomma } = require('../../src');
+const { Proskomma } = require('../../src/index.cjs');
 const {
   pkWithDoc,
   pkWithDocs,
-} = require('../lib/load');
+} = require('../lib/load.js');
 
 const testGroup = 'Graph Basics';
 

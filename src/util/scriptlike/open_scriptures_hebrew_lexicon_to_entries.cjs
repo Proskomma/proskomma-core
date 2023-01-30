@@ -1,5 +1,5 @@
 const fse = require('fs-extra');
-const { tokenizeString } = require('./blocksSpec');
+const { tokenizeString } = require('./blocksSpec.cjs');
 
 const itemTokens = str => tokenizeString(str).map(tr => ({
   type: 'token',

@@ -1,6 +1,6 @@
 const { PerfRenderFromJson } = require('proskomma-json-tools');
 const xre = require('xregexp');
-const { lexingRegexes } = require('../parser/lexers/lexingRegexes');
+const { lexingRegexes } = require('../parser/lexers/lexingRegexes.cjs');
 
 const wordLikeRegex = lexingRegexes.filter(r => r[1] === 'wordLike')[0][2];
 const lineSpaceRegex = lexingRegexes.filter(r => r[1] === 'lineSpace')[0][2];

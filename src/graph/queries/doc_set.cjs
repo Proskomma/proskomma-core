@@ -1,11 +1,11 @@
-const utils = require('../../util');
+const utils = require('../../util/index.cjs');
 
-const { bookCodeCompareFunctions } = require('../lib/sort');
+const { bookCodeCompareFunctions } = require('../lib/sort.cjs');
 
 const {
   sequenceHasChars,
   sequenceHasMatchingChars,
-} = require('../lib/sequence_chars');
+} = require('../lib/sequence_chars.cjs');
 
 const docSetSchemaString = `
 """A collection of documents that share the same set of selector values"""

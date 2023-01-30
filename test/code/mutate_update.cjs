@@ -3,10 +3,10 @@ const path = require('path');
 const fse = require('fs-extra');
 const test = require('tape');
 const deepCopy = require('deep-copy-all');
-const { pkWithDoc } = require('../lib/load');
+const { pkWithDoc } = require('../lib/load.js');
 const {
   blocksSpec2Query, object2Query, oneObject2Query,
-} = require('../../src/util/scriptlike/blocksSpec');
+} = require('../../src/util/scriptlike/blocksSpec.cjs');
 
 const testGroup = 'Mutate Update Operations';
 

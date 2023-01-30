@@ -1,4 +1,4 @@
-const utils = require('../../util');
+const utils = require('../../util/index.cjs');
 
 const exactSearchTermIndexes = (docSet, chars, allChars) => {
   let charsIndexesArray = [

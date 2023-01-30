@@ -1,6 +1,6 @@
 const deepCopy = require('deep-copy-all');
 
-const utils = require('../../util');
+const utils = require('../../util/index.cjs');
 
 const gcSequences = document => {
   const usedSequences = new Set();

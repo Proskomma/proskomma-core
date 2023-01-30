@@ -1,12 +1,12 @@
 const test = require('tape');
-const Validator = require('jsonschema').Validator;
-const { utils } = require('../../dist/index');
+const { Validator } = require('proskomma-json-tools');
+const { utils } = require('../../src/index.cjs');
 const serializedSchema = utils.proskommaSerialized;
 const { unpackEnum } = utils.succinct;
 
-const { Proskomma } = require('../../src');
+const { Proskomma } = require('../../src/index.cjs');
 
-const { pkWithDoc } = require('../lib/load');
+const { pkWithDoc } = require('../lib/load.js');
 
 const testGroup = 'Serialize';
 
@@ -24,14 +24,19 @@ test(
   `Serialize WEB RUT (${testGroup})`,
   async function (t) {
     try {
-      t.plan(3);
+      t.plan(4);
       const query = '{ docSets { id } }';
       const result = await pk.gqlQuery(query);
       const docSetId = result.data.docSets[0].id;
       const serialized = pk.serializeSuccinct(docSetId);
       t.ok(serialized);
-      const validationReport = new Validator().validate(serialized, serializedSchema);
-      t.equal(validationReport.errors.length, 0);
+      const validationReport = new Validator().validate('proskomma',
+        'succinct',
+        '0.2.0',
+        serialized
+      );
+      t.ok(validationReport.isValid);
+      t.equal(validationReport.errors, null);
       const wordLikes = unpackEnum(pk.docSets[docSetId].enums['wordLike']);
       t.ok(wordLikes.includes('Ruth'));
     } catch (err) {

@@ -1,16 +1,16 @@
-const ByteArray = require('./byteArray');
-const canons = require('./canons');
-const enums = require('./enums');
-const { generateId } = require('./generateId');
-const graftDefs = require('./graftDefs');
-const inspect = require('./inspectSuccinct');
-const itemDefs = require('./itemDefs');
-const parserConstants = require('./parserConstantDefs');
-const scopeDefs = require('./scopeDefs');
-const succinct = require('./succinct');
-const tags = require('./tags');
-const tokenDefs = require('./tokenDefs');
-const versification = require('./versification');
+const ByteArray = require('./byteArray.cjs');
+const canons = require('./canons.cjs');
+const enums = require('./enums.cjs');
+const { generateId } = require('./generateId.cjs');
+const graftDefs = require('./graftDefs.cjs');
+const inspect = require('./inspectSuccinct.cjs');
+const itemDefs = require('./itemDefs.cjs');
+const parserConstants = require('./parserConstantDefs.cjs');
+const scopeDefs = require('./scopeDefs.cjs');
+const succinct = require('./succinct.cjs');
+const tags = require('./tags.cjs');
+const tokenDefs = require('./tokenDefs.cjs');
+const versification = require('./versification.cjs');
 
 module.exports = {
   ByteArray,

@@ -1,7 +1,7 @@
 const path = require('path');
 const test = require('tape');
 const fse = require('fs-extra');
-const { Proskomma } = require('../../src');
+const { Proskomma } = require('../../src/index.cjs');
 
 const testGroup = 'importUsfmInt';
 

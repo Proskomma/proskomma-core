@@ -1,5 +1,5 @@
-const { bookCodeCompareFunctions } = require('../lib/sort');
-const versifications = require('../../model/versifications');
+const { bookCodeCompareFunctions } = require('../lib/sort.cjs');
+const versifications = require('../../model/versifications/index.cjs');
 
 const querySchemaString = `
 """The top level of Proskomma queries"""

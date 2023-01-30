@@ -1,8 +1,8 @@
-const ByteArray = require('./byteArray');
-const succinct = require('./succinct');
-const itemDefs = require('./itemDefs');
-const tokenDefs = require('./tokenDefs');
-const scopeDefs = require('./scopeDefs');
+const ByteArray = require('./byteArray.cjs');
+const succinct = require('./succinct.cjs');
+const itemDefs = require('./itemDefs.cjs');
+const tokenDefs = require('./tokenDefs.cjs');
+const scopeDefs = require('./scopeDefs.cjs');
 
 const inspectEnum = enumString => {
   const ba = new ByteArray();

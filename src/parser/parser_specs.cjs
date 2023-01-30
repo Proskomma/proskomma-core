@@ -1,6 +1,6 @@
-const utils = require('../util');
+const utils = require('../util/index.cjs');
 const { labelForScope } = utils.scopeDefs;
-const { constructorForFragment } = require('./lexers/object_for_fragment');
+const { constructorForFragment } = require('./lexers/object_for_fragment.cjs');
 
 const buildSpecLookup = specs => {
   const ret = {};

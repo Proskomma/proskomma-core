@@ -4,7 +4,7 @@ const test = require('tape');
 const fse = require('fs-extra');
 const deepEqual = require('deep-equal');
 
-const { utils } = require('../../../../dist/index');
+const { utils } = require('../../../../src/index.cjs');
 const {
   vrs2json,
   reverseVersification,

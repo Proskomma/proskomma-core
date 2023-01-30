@@ -1,6 +1,6 @@
 const test = require('tape');
 
-const { pkWithDoc } = require('../lib/load');
+const { pkWithDoc } = require('../lib/load.js');
 
 const testGroup = 'Fig';
 

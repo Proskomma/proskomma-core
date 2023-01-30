@@ -2,15 +2,15 @@ const path = require('path');
 const fse = require('fs-extra');
 const test = require('tape');
 
-const { Validator } = require('jsonschema');
-const { Proskomma } = require('../../src');
+const { Validator } = require('proskomma-json-tools');
+const { Proskomma } = require('../../src/index.cjs');
 
-const { pkWithDoc } = require('../lib/load');
+const { pkWithDoc } = require('../lib/load.js');
 const {
   tsvToInputBlock,
   blocksSpec2Query,
-} = require('../../src/util/scriptlike/blocksSpec');
-const { utils } = require('../../dist/index');
+} = require('../../src/util/scriptlike/blocksSpec.cjs');
+const { utils } = require('../../src/index.cjs');
 const serializedSchema = utils.proskommaSerialized;
 
 const [pk, pkDoc] = pkWithDoc('../test_data/usfm/66-JUD-ust.usfm', {
@@ -365,7 +365,7 @@ test(
   `Serialize (${testGroup})`,
   async function (t) {
     try {
-      t.plan(2);
+      t.plan(3);
       const pk = new Proskomma();
       importTable(pk);
       const query = '{ docSets { id } }';
@@ -373,8 +373,13 @@ test(
       const docSetId = result.data.docSets[0].id;
       const serialized = pk.serializeSuccinct(docSetId);
       t.ok(serialized);
-      const validationReport = new Validator().validate(serialized, serializedSchema);
-      t.equal(validationReport.errors.length, 0);
+      const validationReport = new Validator().validate('proskomma',
+        'succinct',
+        '0.2.0',
+        serialized
+      );
+      t.ok(validationReport.isValid);
+      t.equal(validationReport.errors, null);
     } catch (err) {
       console.log(err);
     }

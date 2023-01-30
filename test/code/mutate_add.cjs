@@ -1,9 +1,9 @@
 const path = require('path');
 const test = require('tape');
 const fse = require('fs-extra');
-const { Proskomma } = require('../../src');
-const { pkWithDocs } = require('../lib/load');
-const { blocksSpec2Query } = require('../../src/util/scriptlike/blocksSpec');
+const { Proskomma } = require('../../src/index.cjs');
+const { pkWithDocs } = require('../lib/load.js');
+const { blocksSpec2Query } = require('../../src/util/scriptlike/blocksSpec.cjs');
 
 const testGroup = 'Mutate Add Operations';
 

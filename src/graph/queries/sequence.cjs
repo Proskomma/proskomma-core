@@ -3,7 +3,7 @@ const {
   sequenceHasMatchingChars,
   regexSearchTermIndexes,
   exactSearchTermIndexes,
-} = require('../lib/sequence_chars');
+} = require('../lib/sequence_chars.cjs');
 
 const options = {
   tokens: false,

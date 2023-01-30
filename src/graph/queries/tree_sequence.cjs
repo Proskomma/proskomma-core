@@ -1,4 +1,4 @@
-const Tribos = require('../lib/tribos');
+const Tribos = require('../lib/tribos.cjs');
 
 const treeSequenceSchemaString = `
 """The nodes of a tree"""

@@ -1,6 +1,6 @@
 const xre = require('xregexp');
 
-const { do_cv } = require('../lib/do_cv');
+const { do_cv } = require('../lib/do_cv.cjs');
 
 const headerById = (root, id) =>
   (id in root.headers) ? root.headers[id] : null;

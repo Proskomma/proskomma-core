@@ -1,6 +1,6 @@
 const xre = require('xregexp');
-const utils = require('../../util');
-const { dumpBlock } = require('../lib/dump');
+const utils = require('../../util/index.cjs');
+const { dumpBlock } = require('../lib/dump.cjs');
 
 const scopeMatchesStartsWith = (sw, s) => {
   if (sw.length === 0) {

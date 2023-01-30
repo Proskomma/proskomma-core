@@ -4,38 +4,38 @@ const {
   render,
   PipelineHandler,
 } = require('proskomma-json-tools');
-const utils = require('../util');
+const utils = require('../util/index.cjs');
 const {
   parseUsfm,
   parseUsx,
   parseTableToDocument,
   parseNodes,
-} = require('../parser/lexers');
-const { Parser } = require('../parser');
-const pipelines = require('../pipelines/perf2x');
-const customTransforms = require('../transforms');
+} = require('../parser/lexers/index.cjs');
+const { Parser } = require('../parser/index.cjs');
+const pipelines = require('../pipelines/perf2x/index.cjs');
+const customTransforms = require('../transforms/index.cjs');
 const {
   buildChapterVerseIndex,
   chapterVerseIndex,
   chapterIndex,
-} = require('./document_helpers/chapter_verse');
+} = require('./document_helpers/chapter_verse.cjs');
 const {
   modifySequence,
   deleteSequence,
   gcSequences,
   newSequence,
-} = require('./document_helpers/sequences');
+} = require('./document_helpers/sequences.cjs');
 const {
   deleteBlock,
   newBlock,
   rewriteBlock,
-} = require('./document_helpers/blocks');
-const { succinctFilter } = require('./document_helpers/succinct_filter');
-const { serializeSuccinct } = require('./document_helpers/serialize_succinct');
+} = require('./document_helpers/blocks.cjs');
+const { succinctFilter } = require('./document_helpers/succinct_filter.cjs');
+const { serializeSuccinct } = require('./document_helpers/serialize_succinct.cjs');
 const {
   recordPreEnums,
   rerecordPreEnums,
-} = require('./document_helpers/pre_enums');
+} = require('./document_helpers/pre_enums.cjs');
 
 const {
   addTag,

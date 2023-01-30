@@ -1,6 +1,6 @@
 const fse = require('fs-extra');
 
-const { Proskomma } = require('../dist/index.js');
+const { Proskomma } = require('../src/index.cjs');
 
 if (process.argv.length !== 6) {
   console.log('USAGE: node usfm2succinct <Lang>  <Abbr> <USFM/USX Path> <Destination Path>');

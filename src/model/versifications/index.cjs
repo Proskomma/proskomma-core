@@ -1,11 +1,11 @@
-const engText = require('./eng_vrs');
-const lxxText = require('./lxx_vrs');
-const orgText = require('./org_vrs');
-const rscText = require('./rsc_vrs');
-const rsoText = require('./rso_vrs');
-const vulText = require('./vul_vrs');
+const engText = require('./eng_vrs.cjs');
+const lxxText = require('./lxx_vrs.cjs');
+const orgText = require('./org_vrs.cjs');
+const rscText = require('./rsc_vrs.cjs');
+const rsoText = require('./rso_vrs.cjs');
+const vulText = require('./vul_vrs.cjs');
 
-const exports = {
+const exporting = {
   eng: { raw: engText },
   lxx: { raw: lxxText },
   org: { raw: orgText },
@@ -16,7 +16,7 @@ const exports = {
 
 const cvRegex = /^([A-Z0-9]{3}) (([0-9]+:[0-9]+) ?)*$/;
 
-for (const [vrsName, vrsRecord] of Object.entries(exports)) {
+for (const [vrsName, vrsRecord] of Object.entries(exporting)) {
   vrsRecord.cv = {};
   const lineMatches = vrsRecord.raw.split('\n').filter(l => l.match(cvRegex));
 
@@ -35,4 +35,4 @@ for (const [vrsName, vrsRecord] of Object.entries(exports)) {
   }
 }
 
-module.exports = exports;
+module.exports = exporting;

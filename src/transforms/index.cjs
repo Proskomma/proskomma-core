@@ -1,6 +1,6 @@
-const calculateUsfmChapterPositions = require('./calculateUsfmChapterPositions');
-const perf2usfm = require('./perf2usfm');
-const perf2PkJson = require('./perf2PkJson');
+const calculateUsfmChapterPositions = require('./calculateUsfmChapterPositions.cjs');
+const perf2usfm = require('./perf2usfm.cjs');
+const perf2PkJson = require('./perf2PkJson.cjs');
 
 module.exports = {
   calculateUsfmChapterPositions,

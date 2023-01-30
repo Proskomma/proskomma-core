@@ -1,5 +1,5 @@
 const xre = require('xregexp');
-const utils = require('../../util');
+const utils = require('../../util/index.cjs');
 
 const blocksWithScriptureCV = (docSet, blocks, cv) => {
   const hasMiddleChapter = (b, fromC, toC) => {

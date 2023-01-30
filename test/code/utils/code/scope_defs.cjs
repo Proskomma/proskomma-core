@@ -1,6 +1,6 @@
 /* eslint-disable require-await */
 const test = require('tape');
-const { utils } = require('../../../../dist/index');
+const { utils } = require('../../../../src/index.cjs');
 const {
   scopeEnum, scopeEnumLabels, labelForScope, nComponentsForScope,
 } = utils.scopeDefs;

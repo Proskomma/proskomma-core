@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 const test = require('tape');
 
-const { pkWithDoc } = require('../lib/load');
+const { pkWithDoc } = require('../lib/load.js');
 
 const testGroup = 'cv Navigation';
 
