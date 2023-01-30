@@ -7,14 +7,18 @@
     "dist/*"
   ],
   "scripts": {
-    "test": "npm run build && bash -c \"tape -r @babel/register test/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
-    "testUtils": "bash -c \"tape -r @babel/register test/code/utils/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
-    "rawTest": "tape -r @babel/register test/code/*.cjs",
-    "oneTest": "tape -r @babel/register test/code/$TESTSCRIPT.cjs",
-    "coverage": "node_modules/nyc/bin/nyc.js tape -r @babel/register test/code/*.cjs",
+    "test": "export PKSRC=dist && npm run build && bash -c \"tape -r @babel/register test/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
+    "srcTest": "export PKSRC=src && bash -c \"tape -r @babel/register test/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
+    "rawTest": "export PKSRC=dist && bash -c \"tape -r @babel/register test/code/*.cjs\"",
+    "rawSrcTest": "export PKSRC=src && bash -c \"tape -r @babel/register test/code/*.cjs\"",
+    "oneTest": "bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
+    "oneSrcTest": "export PKSRC=src && bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
+    "coverage": "node_modules/nyc/bin/nyc.js bash -c \"tape -r @babel/register test/code/*.cjs\"",
     "build": "rm -fr dist && webpack --mode production --config webpack.prod.js",
     "prepublishOnly": "rm -fr dist && npm run build",
-    "serialize": "tape -r @babel/register test/code/serialize.cjs"
+    "serialize": "tape -r @babel/register test/code/serialize.cjs",
+
+    "testUtils": "bash -c \"tape -r @babel/register test/code/utils/code/*.cjs | node_modules/tap-summary/bin/cmd.js\""
   },
   "repository": {
     "type": "git",

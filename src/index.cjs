@@ -1,16 +1,16 @@
-import xre from 'xregexp';
-import { makeExecutableSchema } from '@graphql-tools/schema';
+const xre = require('xregexp');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
 
-import { Mutex } from 'async-mutex';
-import checksum from 'checksum';
-import {
+const { Mutex } =require('async-mutex');
+const checksum = require('checksum');
+const {
   graphql,
   graphqlSync,
-} from 'graphql';
-import BitSet from 'bitset';
+} = require('graphql');
+const BitSet = require('bitset');
 
-import packageJson from '../package.json';
-import utils from './util';
+const packageJson = require('../package.json');
+const utils = require('./util');
 import { DocSet } from './model/doc_set';
 import { Document } from './model/document';
 import {
@@ -572,7 +572,7 @@ class Proskomma {
   }
 }
 
-export {
+module.exports = {
   Proskomma,
   typeDefs,
   resolvers,
