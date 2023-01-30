@@ -1,8 +1,8 @@
-import ByteArray from '../lib/byteArray';
-import succinct from '../lib/succinct';
-import itemDefs from '../lib/itemDefs';
-import tokenDefs from '../lib/tokenDefs';
-import scopeDefs from '../lib/scopeDefs';
+const ByteArray = require('./byteArray');
+const succinct = require('./succinct');
+const itemDefs = require('./itemDefs');
+const tokenDefs = require('./tokenDefs');
+const scopeDefs = require('./scopeDefs');
 
 const inspectEnum = enumString => {
   const ba = new ByteArray();
@@ -56,4 +56,4 @@ const inspectSuccinct = (succinctdoc, enumStrings) => {
   return ret.join('\n');
 };
 
-export { inspectEnum, inspectSuccinct };
+module.exports = { inspectEnum, inspectSuccinct };

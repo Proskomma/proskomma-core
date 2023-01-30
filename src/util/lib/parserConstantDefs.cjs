@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   usfm: {
     baseSequenceTypes: {
       main: '1',

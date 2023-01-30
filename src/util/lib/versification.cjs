@@ -1,6 +1,6 @@
-import xre from 'xregexp';
+const xre = require('xregexp');
 
-import ByteArray from '../byteArray';
+const ByteArray = require('./byteArray');
 
 const cvMappingType = 2;
 const bcvMappingType = 3;
@@ -351,7 +351,7 @@ const mapVerse = (succinct, b, c, v) => {
   return ret || [b, [[c, v]]];
 };
 
-export {
+module.exports = {
   vrs2json,
   reverseVersification,
   preSuccinctVerseMapping,

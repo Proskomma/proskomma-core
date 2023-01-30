@@ -1,6 +1,6 @@
-import tokenDefs from '../tokenDefs';
-import scopeDefs from '../scopeDefs';
-import itemDefs from '../itemDefs';
+const tokenDefs = require('./tokenDefs');
+const scopeDefs = require('./scopeDefs');
+const itemDefs = require('./itemDefs');
 
 const headerBytes = (succinct, pos) =>{
   const headerByte = succinct.byte(pos);
@@ -144,7 +144,7 @@ const pushSuccinctScopeBytes = (bA, itemTypeByte, scopeTypeByte, scopeBitBytes) 
   bA.setByte(lengthPos, (bA.length - lengthPos) | itemTypeByte << 6);
 };
 
-export {
+module.exports = {
   enumIndex,
   enumIndexes,
   headerBytes,

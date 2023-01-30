@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
-import checksum from 'checksum';
-import utils from '../util';
+const checksum = require('checksum');
+const utils = require('../util');
 const ByteArray = utils.ByteArray;
+console.log(ByteArray);
 const {
   addTag, removeTag, validateTags,
 } = utils.tags;

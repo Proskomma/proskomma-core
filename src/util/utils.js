@@ -1,19 +1,18 @@
-import ByteArray from './lib/byteArray';
-import canons from './lib/canons';
-import enums from './lib/enums';
-import { generateId } from './lib/generateId/generate_id';
-import graftDefs from './lib/graftDefs';
-import inspect from './lib/inspectSuccinct';
-import itemDefs from './lib/itemDefs';
-import parserConstants from './lib/parserConstants/parser_constant_defs';
-import proskommaSerialized from './lib/proskommaSerialized';
-import scopeDefs from './lib/scopeDefs';
-import succinct from './lib/succinct';
-import tags from './lib/tags';
-import tokenDefs from './lib/tokenDefs';
-import versification from './lib/versification';
+const ByteArray = require('./lib/byteArray');
+const canons = require('./lib/canons');
+const enums = require('./lib/enums');
+const { generateId } = require('./lib/generateId');
+const graftDefs = require('./lib/graftDefs');
+const inspect = require('./lib/inspectSuccinct');
+const itemDefs = require('./lib/itemDefs');
+const parserConstants = require('./lib/parserConstantDefs');
+const scopeDefs = require('./lib/scopeDefs');
+const succinct = require('./lib/succinct');
+const tags = require('./lib/tags');
+const tokenDefs = require('./lib/tokenDefs');
+const versification = require('./lib/versification');
 
-export {
+module.exports = {
   ByteArray,
   canons,
   enums,
@@ -22,7 +21,6 @@ export {
   inspect,
   itemDefs,
   parserConstants,
-  proskommaSerialized,
   scopeDefs,
   succinct,
   tags,

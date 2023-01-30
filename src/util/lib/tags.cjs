@@ -1,4 +1,4 @@
-import xre from 'xregexp';
+const xre = require('xregexp');
 
 const validateTags = tags => {
   for (const tag of tags) {
@@ -22,7 +22,7 @@ const removeTag = (tags, tag) => {
   tags.delete(tag);
 };
 
-export {
+module.exports = {
   validateTags, validateTag, addTag, removeTag,
 };
 
