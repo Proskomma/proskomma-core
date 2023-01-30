@@ -19,7 +19,7 @@ import {
 } from './graph';
 
 import { lexingRegexes } from './parser/lexers/lexingRegexes';
-import * as blocksSpecUtils from './util/blocksSpec';
+import * as blocksSpecUtils from './util/scriptlike/blocksSpec';
 import {
   flattenNodes,
   numberNodes,

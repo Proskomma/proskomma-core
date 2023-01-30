@@ -2,7 +2,6 @@
 const checksum = require('checksum');
 const utils = require('../util');
 const ByteArray = utils.ByteArray;
-console.log(ByteArray);
 const {
   addTag, removeTag, validateTags,
 } = utils.tags;
@@ -17,8 +16,8 @@ const {
 } = utils.succinct;
 const { itemEnum } = utils.itemDefs;
 const { tokenEnumLabels } = utils.tokenDefs;
-import { validateSelectors } from './doc_set_helpers/selectors';
-import {
+const { validateSelectors } = require('./doc_set_helpers/selectors');
+const {
   blocksWithScriptureCV,
   allBlockScopes,
   anyScopeInBlock,
@@ -26,31 +25,31 @@ import {
   blockHasBlockScope,
   blockHasChars,
   blockHasMatchingItem,
-} from './doc_set_helpers/block';
-import {
+} = require('./doc_set_helpers/block');
+const {
   unsuccinctifyBlock,
   unsuccinctifyItems,
   unsuccinctifyItem,
   unsuccinctifyPrunedItems,
   unsuccinctifyItemsWithScriptureCV,
-} from './doc_set_helpers/unsuccinctify';
-import {
+} = require('./doc_set_helpers/unsuccinctify');
+const {
   buildPreEnum,
   recordPreEnum,
   buildEnum,
   enumForCategoryValue,
-} from './doc_set_helpers/enum';
-import {
+} = require('./doc_set_helpers/enum');
+const {
   countItems,
   itemsByIndex,
   sequenceItemsByScopes,
   sequenceItemsByMilestones,
-} from './doc_set_helpers/item';
-import {
+} = require('./doc_set_helpers/item');
+const {
   rehash,
   makeRehashEnumMap,
-} from './doc_set_helpers/rehash';
-import {
+} = require('./doc_set_helpers/rehash');
+const {
   updateItems,
   updateBlockGrafts,
   updateBlockScope,
@@ -58,8 +57,8 @@ import {
   updateIncludedScopes,
   updateBlockIndexesAfterEdit,
   updateBlockIndexesAfterFilter,
-} from './doc_set_helpers/update';
-import { serializeSuccinct } from './doc_set_helpers/serialize';
+} = require('./doc_set_helpers/update');
+const { serializeSuccinct } = require('./doc_set_helpers/serialize');
 class DocSet {
   constructor(processor, selectors, tags, succinctJson) {
     this.processor = processor;

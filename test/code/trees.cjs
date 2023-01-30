@@ -8,7 +8,7 @@ const { Proskomma } = require('../../src');
 const {
   blocksSpec2Query,
   treeToInputBlock,
-} = require('../../src/util/blocksSpec');
+} = require('../../src/util/scriptlike/blocksSpec');
 const { utils } = require('../../dist/index');
 const serializedSchema = utils.proskommaSerialized;
 

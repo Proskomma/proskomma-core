@@ -6,7 +6,7 @@ const deepCopy = require('deep-copy-all');
 const { pkWithDoc } = require('../lib/load');
 const {
   blocksSpec2Query, object2Query, oneObject2Query,
-} = require('../../src/util/blocksSpec');
+} = require('../../src/util/scriptlike/blocksSpec');
 
 const testGroup = 'Mutate Update Operations';
 

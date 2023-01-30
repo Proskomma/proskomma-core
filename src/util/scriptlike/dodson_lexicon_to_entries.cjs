@@ -1,5 +1,5 @@
-import fse from 'fs-extra';
-import { tokenizeString } from '../../src/util/blocksSpec';
+const fse = require('fs-extra');
+const { tokenizeString } = require('./blocksSpec');
 
 const itemTokens = str => tokenizeString(str).map(tr => ({
   type: 'token',
@@ -43,7 +43,7 @@ const rowRecord = rowArray => ({
       'subType': 'start',
       'payload': 'kvField/briefDef',
     },
-    ...itemTokens(rowArray[4].length > 0 ? rowArray[4].replace(/; $/, '') : rowArray[5]),
+    ...itemTokens(rowArray[2]),
     {
       'type': 'scope',
       'subType': 'end',

@@ -9,7 +9,7 @@ const { pkWithDoc } = require('../lib/load');
 const {
   tsvToInputBlock,
   blocksSpec2Query,
-} = require('../../src/util/blocksSpec');
+} = require('../../src/util/scriptlike/blocksSpec');
 const { utils } = require('../../dist/index');
 const serializedSchema = utils.proskommaSerialized;
 

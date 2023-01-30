@@ -6,7 +6,7 @@ const test = require('tape');
 const { Validator } = require('jsonschema');
 const { pkWithDoc } = require('../lib/load');
 
-const { blocksSpec2Query } = require('../../src/util/blocksSpec');
+const { blocksSpec2Query } = require('../../src/util/scriptlike/blocksSpec');
 const { utils } = require('../../dist/index');
 const serializedSchema = utils.proskommaSerialized;
 

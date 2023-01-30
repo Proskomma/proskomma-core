@@ -7,7 +7,7 @@ const {
   blocksSpec2Query,
   tsvToInputBlock,
   treeToInputBlock,
-} = require('../../src/util/blocksSpec');
+} = require('../../src/util/scriptlike/blocksSpec');
 
 const [pk, pkDoc] = pkWithDoc('../test_data/usfm/66-JUD-ust.usfm', {
   lang: 'eng',

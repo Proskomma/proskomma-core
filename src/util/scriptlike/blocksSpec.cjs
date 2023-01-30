@@ -1,10 +1,10 @@
-import utils from '../util';
+const utils = require('../index');
 const { labelForScope } = utils.scopeDefs;
-import { tokenizeString } from '../parser/lib/tokenize';
-import {
+const { tokenizeString } = require('../../parser/lib/tokenize');
+const {
   flattenNodes,
   numberNodes,
-} from '../parser/lexers/nodes';
+} = require('../../parser/lexers/nodes');
 
 const tsvToInputBlock = (tsv, hasHeadings) => {
   const ret = [];
@@ -181,7 +181,7 @@ const blocksSpec2Query =
           `  {\n    bs: ${oneObject2Query(b.bs)}, \n    bg: ${object2Query(b.bg)}, \n    os: ${object2Query(b.os)}, \n    is: ${object2Query(b.is)}, \n    items: ${object2Query(b.items)}}\n`) +
       ']';
 
-export {
+module.exports = {
   tokenizeString,
   tsvToInputBlock,
   tsvHeadingTags,
