@@ -2,14 +2,14 @@
   "name": "proskomma-core",
   "version": "0.9.10",
   "description": "A Scripture Runtime Engine",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "files": [
     "dist/*"
   ],
   "scripts": {
     "test": "export PKSRC=dist && npm run build && bash -c \"tape -r @babel/register test/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
     "srcTest": "export PKSRC=src && bash -c \"tape -r @babel/register test/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
-    "rawTest": "export PKSRC=dist && bash -c \"tape -r @babel/register test/code/*.cjs\"",
+    "rawTest": "export PKSRC=dist && npm run build && bash -c \"tape -r @babel/register test/code/*.cjs\"",
     "rawSrcTest": "export PKSRC=src && bash -c \"tape -r @babel/register test/code/*.cjs\"",
     "oneTest": "bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
     "oneSrcTest": "export PKSRC=src && bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",

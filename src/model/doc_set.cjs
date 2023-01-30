@@ -386,4 +386,4 @@ class DocSet {
   }
 }
 
-export { DocSet };
+module.exports = { DocSet };

@@ -19,7 +19,7 @@ const {
 } = require('./graph');
 
 const { lexingRegexes } = require('./parser/lexers/lexingRegexes');
-import * as blocksSpecUtils from './util/scriptlike/blocksSpec';
+const blocksSpecUtils = require('./util/scriptlike/blocksSpec');
 const {
   flattenNodes,
   numberNodes,

@@ -99,4 +99,4 @@ const succinctFilter = (document, filterOptions) => {
   document.gcSequences();
 };
 
-export { succinctFilter };
+module.exports = { succinctFilter };
