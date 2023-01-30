@@ -11,19 +11,19 @@ const BitSet = require('bitset');
 
 const packageJson = require('../package.json');
 const utils = require('./util');
-import { DocSet } from './model/doc_set';
-import { Document } from './model/document';
-import {
+const { DocSet } = require('./model/doc_set');
+const { Document } = require('./model/document');
+const {
   typeDefs,
   resolvers,
-} from './graph';
+} = require('./graph');
 
-import { lexingRegexes } from './parser/lexers/lexingRegexes';
+const { lexingRegexes } = require('./parser/lexers/lexingRegexes');
 import * as blocksSpecUtils from './util/scriptlike/blocksSpec';
-import {
+const {
   flattenNodes,
   numberNodes,
-} from './parser/lexers/nodes';
+} = require('./parser/lexers/nodes');
 
 const tree2nodes = tree => flattenNodes(numberNodes(tree));
 
