@@ -2,13 +2,13 @@
   "name": "proskomma-core",
   "version": "0.9.11",
   "description": "A Scripture Runtime Engine",
-  "main": "esm/wrapper.js",
+  "main": "esm/wrapper.mjs",
   "files": [
     "dist/*"
   ],
   "exports": {
-    "require": "./index.js",
-    "import": "./esm/wrapper.js"
+    "require": "./index.cjs",
+    "import": "./esm/wrapper.mjs"
   },
   "scripts": {
     "test": "export PKSRC=dist && npm run build && bash -c \"tape -r @babel/register test/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
