@@ -1,10 +1,10 @@
 const path = require('path');
 const fse = require('fs-extra');
 
-const pkSrc = (process.env.PKSRC) || 'dist';
+// const pkSrc = (process.env.PKSRC) || 'dist';
 
 // const { Proskomma } = require(`../../${pkSrc}/index.cjs`);
-const { Proskomma } = require(`../../src/index.cjs`);
+const { Proskomma } = require("../../src/index.cjs");
 
 const pkWithDoc = (fp, selectors, options, customTags, emptyBlocks, tags) => {
   if (!options) {

@@ -1,4 +1,4 @@
-import cjsModule from '../index.cjs';
+import cjsModule from '../index.js';
 // Proskomma, lexingRegexes, blocksSpecUtils
 export const Proskomma = cjsModule.Proskomma;
 export const lexingRegexes = cjsModule.lexingRegexes;
