@@ -2,26 +2,27 @@
   "name": "proskomma-core",
   "version": "0.9.11",
   "description": "A Scripture Runtime Engine",
-  "main": "esm/wrapper.js",
+  "main": "esm/wrapper.mjs",
   "files": [
     "src/*"
   ],
   "exports": {
-    "require": "./index.js",
-    "import": "./esm/wrapper.js"
+    "require": "./index.cjs",
+    "import": "./esm/wrapper.mjs"
   },
   "scripts": {
     "test": "export PKSRC=dist && npm run build && bash -c \"tape -r @babel/register test/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
     "srcTest": "export PKSRC=src && bash -c \"tape test/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
     "rawTest": "export PKSRC=dist && npm run build && bash -c \"tape -r @babel/register test/code/*.cjs\"",
-    "rawSrcTest": "export PKSRC=src && bash -c \"tape test/code/*.cjs\"",
     "oneTest": "bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
     "oneSrcTest": "export PKSRC=src && bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
     "coverage": "node_modules/nyc/bin/nyc.js bash -c \"tape -r @babel/register test/code/*.cjs\"",
     "build": "rm -fr dist && webpack --mode production --config webpack.prod.js",
     "prepublishOnly": "rm -fr dist && npm run build",
     "serialize": "tape -r @babel/register test/code/serialize.cjs",
-    "testUtils": "bash -c \"tape -r @babel/register test/code/utils/code/*.cjs | node_modules/tap-summary/bin/cmd.js\""
+
+    "rawSrcTest": "export PKSRC=src && bash -c \"tape test/code/main/*.cjs\"",
+    "testUtils": "bash -c \"tape test/code/utils/*.cjs\""
   },
   "repository": {
     "type": "git",
