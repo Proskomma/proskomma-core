@@ -4,7 +4,7 @@
   "description": "A Scripture Runtime Engine",
   "main": "esm/wrapper.mjs",
   "exports": {
-    "require": "./index.js",
+    "require": "./index.cjs",
     "import": "./esm/wrapper.mjs"
   },
   "scripts": {

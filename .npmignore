@@ -2,3 +2,6 @@ scripts/
 discussion/
 .nyc_output/
 .idea/
+test/
+webpack.prod.js
+babel.config.js
