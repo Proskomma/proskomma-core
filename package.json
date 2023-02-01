@@ -2,7 +2,6 @@
   "name": "proskomma-core",
   "version": "0.9.13",
   "description": "A Scripture Runtime Engine",
-  "main": "esm/wrapper.mjs",
   "exports": {
     "require": "./index.cjs",
     "import": "./esm/wrapper.mjs"

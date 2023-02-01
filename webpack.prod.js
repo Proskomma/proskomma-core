@@ -1,6 +1,6 @@
 var path = require('path');
 const webpack = require('webpack');
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+// const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = {
   entry: './src/index.cjs',
@@ -44,7 +44,7 @@ module.exports = {
   plugins: [
     new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
     new webpack.ProvidePlugin({ process: 'process/browser' }),
-    new NodePolyfillPlugin(),
+    // new NodePolyfillPlugin(),
   ],
   target: 'node',
 };

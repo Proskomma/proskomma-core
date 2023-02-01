@@ -1,5 +1,6 @@
 scripts/
 discussion/
+docs/
 .nyc_output/
 .idea/
 test/
