@@ -1,10 +1,10 @@
 {
   "name": "proskomma-core",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "description": "A Scripture Runtime Engine",
   "exports": {
-    "require": "./index.cjs",
-    "import": "./esm/wrapper.mjs"
+    ".": "./index.cjs",
+    "./esm": "./esm/wrapper.mjs"
   },
   "scripts": {
     "test": "export PKSRC=dist && npm run build && bash -c \"tape -r @babel/register test/code/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
