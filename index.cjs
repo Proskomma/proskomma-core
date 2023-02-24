@@ -1,6 +1,6 @@
-const { Proskomma, lexingRegexes } = require('./src/index.cjs');
+const { Proskomma, lexingRegexes, resolvers, typeDefs } = require('./src/index.cjs');
 const blocksSpecUtils = require('./src/util/scriptlike/blocksSpec.cjs');
 
 module.exports = {
-  Proskomma, lexingRegexes, blocksSpecUtils,
+  Proskomma, lexingRegexes, blocksSpecUtils, resolvers, typeDefs,
 };
