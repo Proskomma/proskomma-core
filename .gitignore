@@ -1,5 +1,6 @@
 # Specific to project
 .idea
+informations/
 
 # Logs
 logs
