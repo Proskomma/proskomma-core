@@ -391,7 +391,7 @@ test(
       const validationReport = new Validator().validate('proskomma',
         'succinct',
         '0.2.0',
-        serialized
+        serialized,
       );
       t.ok(validationReport.isValid);
       t.equal(validationReport.errors, null);
