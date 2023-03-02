@@ -1,5 +1,5 @@
 const fse = require('fs-extra');
-const { tokenizeString } = require('./blocksSpec.cjs');
+const { tokenizeString } = require('../parser/lib/tokenize.cjs');
 
 const itemTokens = str => tokenizeString(str).map(tr => ({
   type: 'token',
@@ -68,7 +68,7 @@ const rowRecord = rowArray => ({
   ],
 });
 
-const lexicon_tsv = fse.readFileSync(process.argv[2])
+const lexicon_tsv = fse.readFileSync(process ?? process.argv[2])
   .toString()
   .split('\n')
   .map(row => row.split('\t'))
