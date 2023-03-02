@@ -281,9 +281,7 @@ const Parser = class {
 
     for (const si of childSequences) {
       if (seqById[si].type === 'main') {
-        console.log('MAIN is child!');
-        console.log(JSON.stringify(seqById[seqId], null, 2));
-        process.exit(1);
+        throw new Error('MAIN is child!', JSON.stringify(seqById[seqId], null, 2));
       }
       this.filterGrafts(si, seqById, used, options);
     }
