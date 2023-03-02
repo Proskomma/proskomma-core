@@ -1,6 +1,6 @@
 {
   "name": "proskomma-core",
-  "version": "0.9.16",
+  "version": "0.9.17",
   "description": "A Scripture Runtime Engine",
   "exports": {
     ".": "./index.cjs",
