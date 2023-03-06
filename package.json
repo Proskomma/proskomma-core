@@ -5,13 +5,13 @@
   "main": "dist/index.cjs",
   "browser": "dist/bundle.js",
   "module": "dist/module.mjs",
-  "source": "index.cjs",
+  "source": "esm/wrapper.mjs",
   "scripts": {
     "build": "rm -fr dist && parcel build --no-source-maps",
     "test": "export PKSRC=dist && bash -c \"tape -r @babel/register test/code/**/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
     "rawTest": "export PKSRC=dist && bash -c \"tape -r @babel/register test/code/*.cjs\"",
     "oneTest": "bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
-    "prepublishOnly": "rm -fr dist && npm run build"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -67,6 +67,9 @@
       "optimize": true
     },
     "browser": {
+      "optimize": true
+    },
+    "module": {
       "optimize": true
     }
   }
