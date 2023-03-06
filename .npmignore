@@ -1,8 +1,9 @@
+src/
+test/
+node_modules/
 scripts/
 discussion/
 docs/
 .nyc_output/
 .idea/
-test/
-webpack.prod.js
-babel.config.js
+.parcel-cache

@@ -2,7 +2,7 @@ const xre = require('xregexp');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 
 const { Mutex } =require('async-mutex');
-const checksum = require('checksum');
+const crc32 = require('easy-crc32');
 const {
   graphql,
   graphqlSync,
@@ -568,7 +568,7 @@ class Proskomma {
 
   checksum() {
     const dsChecksums = Object.values(this.docSets).map(ds => ds.checksum()).sort().join(' ');
-    return checksum(dsChecksums);
+    return crc32.calculate(dsChecksums);
   }
 }
 

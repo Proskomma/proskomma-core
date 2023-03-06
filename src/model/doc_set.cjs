@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
-const checksum = require('checksum');
+// const checksum = require('checksum');
+const crc32 = require('easy-crc32');
 const utils = require('../util/index.cjs');
 const ByteArray = utils.ByteArray;
 const {
@@ -382,7 +383,7 @@ class DocSet {
 
   checksum() {
     const docIdsString = [...this.docIds].sort().join(' ');
-    return checksum(docIdsString);
+    return crc32.calculate(docIdsString);
   }
 }
 
