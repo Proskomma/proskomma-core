@@ -1,7 +1,7 @@
 /* eslint-disable require-await */
 const test = require('tape');
-const { preTokenClassForFragment } = require('../../../src/parser/lexers/object_for_fragment.cjs');
-const { lexingRegexes } = require('../../../src/parser/lexers/lexingRegexes.cjs');
+const { preTokenClassForFragment } = require('../../../src/parser/lexers/object_for_fragment');
+const { lexingRegexes } = require('../../../src/parser/lexers/lexingRegexes');
 
 const testGroup = 'Class for Fragment';
 

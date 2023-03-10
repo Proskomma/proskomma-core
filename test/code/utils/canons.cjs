@@ -1,5 +1,5 @@
 const test = require('tape');
-const { utils } = require('../../../src/index.cjs');
+const { utils } = require('../../../src');
 
 const testGroup = 'Generate ID';
 

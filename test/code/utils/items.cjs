@@ -1,7 +1,7 @@
 const test = require('tape');
 const deepEqual = require('deep-equal');
 
-const { utils } = require('../../../src/index.cjs');
+const { utils } = require('../../../src');
 const { itemObjects2Arrays, itemArrays2Objects } = utils.itemDefs;
 
 const itemObjects = [

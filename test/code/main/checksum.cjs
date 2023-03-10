@@ -1,6 +1,6 @@
 const test = require('tape');
 
-const { pkWithDocs } = require('../../lib/load.js');
+const { pkWithDocs } = require('../../lib/load.cjs');
 
 const testGroup = 'Checksum';
 

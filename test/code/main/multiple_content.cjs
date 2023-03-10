@@ -3,7 +3,7 @@ const test = require('tape');
 const {
   pkWithDocs,
   pkWithDocSetDocs,
-} = require('../../lib/load.js');
+} = require('../../lib/load.cjs');
 
 const testGroup = 'Multiple Content';
 

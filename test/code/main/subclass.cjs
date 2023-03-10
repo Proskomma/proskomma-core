@@ -1,5 +1,5 @@
 const test = require('tape');
-const { Proskomma } = require('../../../src/index.cjs');
+const { Proskomma } = require('../../../src');
 
 const testGroup = 'Subclass test';
 

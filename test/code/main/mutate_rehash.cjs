@@ -1,7 +1,7 @@
 const path = require('path');
 const test = require('tape');
 const fse = require('fs-extra');
-const { pkWithDoc } = require('../../lib/load.js');
+const { pkWithDoc } = require('../../lib/load.cjs');
 
 const pk = pkWithDoc('../test_data/usx/web_psa150.usx', {
   lang: 'eng',

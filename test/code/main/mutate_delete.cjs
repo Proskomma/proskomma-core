@@ -4,7 +4,7 @@ const fse = require('fs-extra');
 const {
   pkWithDoc,
   pkWithDocs,
-} = require('../../lib/load.js');
+} = require('../../lib/load.cjs');
 
 const testGroup = 'Mutate Delete Operations';
 

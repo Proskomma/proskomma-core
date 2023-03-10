@@ -2,12 +2,12 @@ const path = require('path');
 const fse = require('fs-extra');
 const test = require('tape');
 
-const { pkWithDoc } = require('../../lib/load.js');
+const { pkWithDoc } = require('../../lib/load.cjs');
 const {
   blocksSpec2Query,
   tsvToInputBlock,
   treeToInputBlock,
-} = require('../../../src/util/scriptlike/blocksSpec.cjs');
+} = require('../../../src/util/scriptlike/blocksSpec');
 
 const [pk, pkDoc] = pkWithDoc('../test_data/usfm/66-JUD-ust.usfm', {
   lang: 'eng',

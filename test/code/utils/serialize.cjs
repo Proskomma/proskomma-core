@@ -3,7 +3,7 @@ const test = require('tape');
 const fs = require('fs-extra');
 const { Validator } = require('proskomma-json-tools');
 
-const { utils } = require('../../../src/index.cjs');
+const { utils } = require('../../../src');
 
 const testGroup = 'Validate Schema';
 

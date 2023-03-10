@@ -2,7 +2,6 @@
   "name": "proskomma-core",
   "version": "0.9.21",
   "description": "A Scripture Runtime Engine",
-  "type": "commonjs",
   "files": ["dist"],
   "main": "./dist/index.js",
   "module": "./dist/module.mjs",

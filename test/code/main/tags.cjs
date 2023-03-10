@@ -1,7 +1,7 @@
 const test = require('tape');
-const { utils } = require('../../../src/index.cjs');
+const { utils } = require('../../../src');
 const { validateTags } = utils.tags;
-const { pkWithDoc } = require('../../lib/load.js');
+const { pkWithDoc } = require('../../lib/load.cjs');
 
 const pk = pkWithDoc('../test_data/usx/web_rut.usx', {
   lang: 'eng',

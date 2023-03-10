@@ -2,11 +2,11 @@ const path = require('path');
 const test = require('tape');
 const fse = require('fs-extra');
 
-const { Proskomma } = require('../../../src/index.cjs');
+const { Proskomma } = require('../../../src');
 const {
   customPkWithDoc,
   customPkWithDocs,
-} = require('../../lib/load.js');
+} = require('../../lib/load.cjs');
 
 const testGroup = 'Graph Selectors';
 
