@@ -3,7 +3,7 @@ const test = require('tape');
 const fse = require('fs-extra');
 const { Proskomma } = require('../../../src');
 const { pkWithDocs } = require('../../lib/load.cjs');
-const { blocksSpec2Query } = require('../../../src/util/scriptlike/blocksSpec');
+const { blocksSpec2Query } = require('../../../src/util/scriptlike/blocksSpec').default;
 
 const testGroup = 'Mutate Add Operations';
 

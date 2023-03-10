@@ -6,7 +6,7 @@ const test = require('tape');
 const { Validator } = require('proskomma-json-tools');
 const { pkWithDoc } = require('../../lib/load.cjs');
 
-const { blocksSpec2Query } = require('../../../src/util/scriptlike/blocksSpec');
+const { blocksSpec2Query } = require('../../../src/util/scriptlike/blocksSpec').default;
 
 const [pk, pkDoc] = pkWithDoc('../test_data/usfm/66-JUD-ust.usfm', {
   lang: 'eng',
