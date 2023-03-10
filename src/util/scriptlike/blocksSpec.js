@@ -195,7 +195,7 @@ const blocksSpec2Query = (bSpec) =>
   ) +
   ']';
 
-export {
+export default {
   tokenizeString,
   tsvToInputBlock,
   tsvHeadingTags,

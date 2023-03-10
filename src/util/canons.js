@@ -114,4 +114,4 @@ for (const br of ptBookArray.entries()) {
   ptBooks[br[1].code] = { ...br[1], position: br[0] };
 }
 
-export { ptBookArray, ptBooks };
+export default { ptBookArray, ptBooks };

@@ -1,14 +1,21 @@
 {
   "name": "proskomma-core",
-  "version": "0.9.20",
+  "version": "0.9.21",
   "description": "A Scripture Runtime Engine",
-  "main": "dist/index.cjs",
-  "browser": "dist/bundle.js",
-  "module": "dist/module.mjs",
-  "source": "esm/wrapper.mjs",
+  "type": "commonjs",
+  "files": ["dist"],
+  "main": "./dist/index.js",
+  "module": "./dist/module.mjs",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
   "scripts": {
-    "build": "rm -fr dist && parcel build --no-source-maps",
+    "build": "rm -fr dist && vite build",
     "test": "export PKSRC=dist && bash -c \"tape -r @babel/register test/code/**/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
+    "win:test": "set PKSRC=dist&& bash -c \"tape -r @babel/register test/code/**/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
     "rawTest": "export PKSRC=dist && bash -c \"tape -r @babel/register test/code/*.cjs\"",
     "oneTest": "bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
     "prepublishOnly": "npm run build"
@@ -60,7 +67,9 @@
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "tap-summary": "^4.0.0",
-    "tape": "^5.6.0"
+    "tape": "^5.6.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.1.4"
   },
   "targets": {
     "main": {

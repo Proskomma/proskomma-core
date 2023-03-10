@@ -35,4 +35,4 @@ const enumRegexIndexTuples = (enumSuccinct, regex) => {
   return ret;
 };
 
-export { enumStringIndex, enumRegexIndexTuples };
+export default { enumStringIndex, enumRegexIndexTuples };

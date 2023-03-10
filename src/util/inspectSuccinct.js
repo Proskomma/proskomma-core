@@ -70,4 +70,4 @@ const inspectSuccinct = (succinctdoc, enumStrings) => {
   return ret.join('\n');
 };
 
-export { inspectEnum, inspectSuccinct };
+export default { inspectEnum, inspectSuccinct };

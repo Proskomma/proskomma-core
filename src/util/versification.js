@@ -368,7 +368,7 @@ const mapVerse = (succinct, b, c, v) => {
   return ret || [b, [[c, v]]];
 };
 
-export {
+export default {
   vrs2json,
   reverseVersification,
   preSuccinctVerseMapping,
