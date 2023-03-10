@@ -1,6 +1,6 @@
-const { PerfRenderFromJson } = require('proskomma-json-tools');
+import { PerfRenderFromJson } from 'proskomma-json-tools';
 
-const initialBlockRecord = ct => ({
+const initialBlockRecord = (ct) => ({
   type: ct.sequences[0].block.type,
   subType: ct.sequences[0].block.subType,
   pos: ct.sequences[0].block.blockN,
@@ -41,7 +41,8 @@ const calculateUsfmChapterPositionsActions = {
       description: 'Add chapter number to block record',
       test: ({ context }) => context.sequences[0].element.subType === 'chapter',
       action: ({ context, workspace }) => {
-        workspace.blockRecords[workspace.blockRecords.length - 1].perfChapter = context.sequences[0].element.atts['number'];
+        workspace.blockRecords[workspace.blockRecords.length - 1].perfChapter =
+          context.sequences[0].element.atts['number'];
       },
     },
   ],
@@ -50,7 +51,9 @@ const calculateUsfmChapterPositionsActions = {
       description: 'Populate report',
       test: () => true,
       action: ({ workspace, output }) => {
-        for (const [recordN, record] of Object.entries(workspace.blockRecords)) {
+        for (const [recordN, record] of Object.entries(
+          workspace.blockRecords
+        )) {
           if (!record.perfChapter) {
             continue;
           }
@@ -59,8 +62,10 @@ const calculateUsfmChapterPositionsActions = {
           let found = false;
 
           while (usfmChapterPos > 0 && !found) {
-            if (workspace.blockRecords[usfmChapterPos - 1].type === 'paragraph'
-                            || workspace.blockRecords[usfmChapterPos - 1].subType === 'title') {
+            if (
+              workspace.blockRecords[usfmChapterPos - 1].type === 'paragraph' ||
+              workspace.blockRecords[usfmChapterPos - 1].subType === 'title'
+            ) {
               found = true;
             } else {
               usfmChapterPos--;
@@ -74,11 +79,16 @@ const calculateUsfmChapterPositionsActions = {
 };
 
 const calculateUsfmChapterPositionsCode = function ({ perf }) {
-  const cl = new PerfRenderFromJson({ srcJson: perf, actions: calculateUsfmChapterPositionsActions });
+  const cl = new PerfRenderFromJson({
+    srcJson: perf,
+    actions: calculateUsfmChapterPositionsActions,
+  });
   const output = {};
 
   cl.renderDocument({
-    docId: '', config: { maxLength: 60 }, output,
+    docId: '',
+    config: { maxLength: 60 },
+    output,
   });
   return { report: output.report };
 };
@@ -86,7 +96,8 @@ const calculateUsfmChapterPositionsCode = function ({ perf }) {
 const calculateUsfmChapterPositions = {
   name: 'calculateUsfmChapterPositions',
   type: 'Transform',
-  description: 'PERF=>JSON: Generates positions for inserting chapter numbers into USFM',
+  description:
+    'PERF=>JSON: Generates positions for inserting chapter numbers into USFM',
   inputs: [
     {
       name: 'perf',
@@ -103,4 +114,4 @@ const calculateUsfmChapterPositions = {
   code: calculateUsfmChapterPositionsCode,
 };
 
-module.exports = calculateUsfmChapterPositions;
+export default calculateUsfmChapterPositions;

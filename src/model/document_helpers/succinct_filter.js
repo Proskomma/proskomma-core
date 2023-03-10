@@ -1,7 +1,6 @@
-const utils = require('../../util/index.cjs');
+import utils from '../../util';
 const ByteArray = utils.ByteArray;
 const { itemEnum } = utils.itemDefs;
-
 
 const succinctFilter = (document, filterOptions) => {
   if (!filterOptions || Object.keys(filterOptions).length === 0) {
@@ -10,42 +9,55 @@ const succinctFilter = (document, filterOptions) => {
 
   const docSet = document.processor.docSets[document.docSetId];
 
-  const filterItem = (oldSequence, oldBlockN, block, itemN, itemType, itemSubType, pos) => {
+  const filterItem = (
+    oldSequence,
+    oldBlockN,
+    block,
+    itemN,
+    itemType,
+    itemSubType,
+    pos
+  ) => {
     if (itemType === itemEnum.token) {
       return true;
-    } else if (itemType === itemEnum.startScope || itemType === itemEnum.endScope) {
+    } else if (
+      itemType === itemEnum.startScope ||
+      itemType === itemEnum.endScope
+    ) {
       if (!filterOptions.includeScopes && !filterOptions.excludeScopes) {
         return true;
       } else {
-        const scopeOb = docSet.unsuccinctifyScope(block.c, itemType, itemSubType, pos);
+        const scopeOb = docSet.unsuccinctifyScope(
+          block.c,
+          itemType,
+          itemSubType,
+          pos
+        );
         return (
-          (
-            !filterOptions.includeScopes ||
-          filterOptions.includeScopes.filter(op => scopeOb[2].startsWith(op)).length > 0
-          )
-        &&
-        (
-          !filterOptions.excludeScopes ||
-          filterOptions.excludeScopes.filter(op => scopeOb[2].startsWith(op)).length === 0
-        )
+          (!filterOptions.includeScopes ||
+            filterOptions.includeScopes.filter((op) =>
+              scopeOb[2].startsWith(op)
+            ).length > 0) &&
+          (!filterOptions.excludeScopes ||
+            filterOptions.excludeScopes.filter((op) =>
+              scopeOb[2].startsWith(op)
+            ).length === 0)
         );
       }
-    } else { // graft
+    } else {
+      // graft
       if (!filterOptions.includeGrafts && !filterOptions.excludeGrafts) {
         return true;
       }
 
       const graftOb = docSet.unsuccinctifyGraft(block.c, itemSubType, pos);
       return (
-        (
-          !filterOptions.includeGrafts ||
-        filterOptions.includeGrafts.filter(op => graftOb[1].startsWith(op)).length > 0
-        )
-      &&
-      (
-        !filterOptions.excludeGrafts ||
-        filterOptions.excludeGrafts.filter(op => graftOb[1].startsWith(op)).length === 0
-      )
+        (!filterOptions.includeGrafts ||
+          filterOptions.includeGrafts.filter((op) => graftOb[1].startsWith(op))
+            .length > 0) &&
+        (!filterOptions.excludeGrafts ||
+          filterOptions.excludeGrafts.filter((op) => graftOb[1].startsWith(op))
+            .length === 0)
       );
     }
   };
@@ -56,19 +68,19 @@ const succinctFilter = (document, filterOptions) => {
 
     while (pos < block.bg.length) {
       // eslint-disable-next-line no-unused-vars
-      const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(block.bg, pos);
+      const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+        block.bg,
+        pos
+      );
       const graftOb = docSet.unsuccinctifyGraft(block.bg, itemSubtype, pos);
 
       if (
-        (
-          !filterOptions.includeGrafts ||
-        filterOptions.includeGrafts.filter(op => graftOb[1].startsWith(op)).length > 0
-        )
-      &&
-      (
-        !filterOptions.excludeGrafts ||
-        filterOptions.excludeGrafts.filter(op => graftOb[1].startsWith(op)).length === 0
-      )
+        (!filterOptions.includeGrafts ||
+          filterOptions.includeGrafts.filter((op) => graftOb[1].startsWith(op))
+            .length > 0) &&
+        (!filterOptions.excludeGrafts ||
+          filterOptions.excludeGrafts.filter((op) => graftOb[1].startsWith(op))
+            .length === 0)
       ) {
         for (let n = 0; n < itemLength; n++) {
           newBA.pushByte(block.bg.byte(pos + n));
@@ -81,22 +93,13 @@ const succinctFilter = (document, filterOptions) => {
     return block;
   };
 
-  Object.keys(document.sequences).forEach(
-    seqId => {
-      document.modifySequence(
-        seqId,
-        null,
-        null,
-        filterItem,
-        rewriteBlock,
-        null,
-      );
-    },
-  );
-  Object.values(document.sequences).forEach(
-    seq => docSet.updateBlockIndexesAfterFilter(seq),
+  Object.keys(document.sequences).forEach((seqId) => {
+    document.modifySequence(seqId, null, null, filterItem, rewriteBlock, null);
+  });
+  Object.values(document.sequences).forEach((seq) =>
+    docSet.updateBlockIndexesAfterFilter(seq)
   );
   document.gcSequences();
 };
 
-module.exports = { succinctFilter };
+export { succinctFilter };

@@ -9,11 +9,8 @@ type cv {
 `;
 
 const cvResolvers = {
-  chapter: root => root[0],
-  verse: root => root[1],
+  chapter: (root) => root[0],
+  verse: (root) => root[1],
 };
 
-module.exports = {
-  cvSchemaString,
-  cvResolvers,
-};
+export { cvSchemaString, cvResolvers };

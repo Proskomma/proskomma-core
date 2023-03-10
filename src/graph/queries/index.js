@@ -1,5 +1,5 @@
-const { bookCodeCompareFunctions } = require('../lib/sort.cjs');
-const versifications = require('../../model/versifications/index.cjs');
+import { bookCodeCompareFunctions } from '../lib/sort';
+import versifications from '../../model/versifications';
 
 const querySchemaString = `
 """The top level of Proskomma queries"""
@@ -46,7 +46,9 @@ type Query {
     withTags: [String!]
     """Only return documents with none of the specified tags"""
     withoutTags: [String!]
-    """Sort returned documents by the designated method (currently ${Object.keys(bookCodeCompareFunctions).join(', ')})"""
+    """Sort returned documents by the designated method (currently ${Object.keys(
+      bookCodeCompareFunctions
+    ).join(', ')})"""
     sortedBy: String
   ): [Document!]!
   """The document with the specified id, or the specified docSet and withBook"""
@@ -68,8 +70,8 @@ type Query {
 }
 `;
 const queryResolvers = {
-  id: root => root.processorId,
-  selectors: root => root.selectors,
+  id: (root) => root.processorId,
+  selectors: (root) => root.selectors,
   docSets: (root, args) => {
     const docSetMatchesSelectors = (ds, selectors) => {
       for (const selector of selectors) {
@@ -80,19 +82,28 @@ const queryResolvers = {
       return true;
     };
 
-    let ret = ('withBook' in args ? root.docSetsWithBook(args.withBook) : Object.values(root.docSets))
-      .filter(ds => !args.ids || args.ids.includes(ds.id));
+    let ret = (
+      'withBook' in args
+        ? root.docSetsWithBook(args.withBook)
+        : Object.values(root.docSets)
+    ).filter((ds) => !args.ids || args.ids.includes(ds.id));
 
     if (args.withSelectors) {
-      ret = ret.filter(ds => docSetMatchesSelectors(ds, args.withSelectors));
+      ret = ret.filter((ds) => docSetMatchesSelectors(ds, args.withSelectors));
     }
 
     if (args.withTags) {
-      ret = ret.filter(ds => args.withTags.filter(t => ds.tags.has(t)).length === args.withTags.length);
+      ret = ret.filter(
+        (ds) =>
+          args.withTags.filter((t) => ds.tags.has(t)).length ===
+          args.withTags.length
+      );
     }
 
     if (args.withoutTags) {
-      ret = ret.filter(ds => args.withoutTags.filter(t => ds.tags.has(t)).length === 0);
+      ret = ret.filter(
+        (ds) => args.withoutTags.filter((t) => ds.tags.has(t)).length === 0
+      );
     }
 
     return ret;
@@ -101,31 +112,48 @@ const queryResolvers = {
   documents: (root, args) => {
     const headerValuesMatch = (docHeaders, requiredHeaders) => {
       for (const requiredHeader of requiredHeaders || []) {
-        if (!(requiredHeader.key in docHeaders) || docHeaders[requiredHeader.key] !== requiredHeader.value) {
+        if (
+          !(requiredHeader.key in docHeaders) ||
+          docHeaders[requiredHeader.key] !== requiredHeader.value
+        ) {
           return false;
         }
       }
       return true;
     };
 
-    let ret = args.withBook ? root.documentsWithBook(args.withBook) : root.documentList();
-    ret = ret.filter(d => !args.ids || args.ids.includes(d.id));
+    let ret = args.withBook
+      ? root.documentsWithBook(args.withBook)
+      : root.documentList();
+    ret = ret.filter((d) => !args.ids || args.ids.includes(d.id));
 
     if (args.withHeaderValues) {
-      ret = ret.filter(d => headerValuesMatch(d.headers, args.withHeaderValues));
+      ret = ret.filter((d) =>
+        headerValuesMatch(d.headers, args.withHeaderValues)
+      );
     }
 
     if (args.withTags) {
-      ret = ret.filter(d => args.withTags.filter(t => d.tags.has(t)).length === args.withTags.length);
+      ret = ret.filter(
+        (d) =>
+          args.withTags.filter((t) => d.tags.has(t)).length ===
+          args.withTags.length
+      );
     }
 
     if (args.withoutTags) {
-      ret = ret.filter(d => args.withoutTags.filter(t => d.tags.has(t)).length === 0);
+      ret = ret.filter(
+        (d) => args.withoutTags.filter((t) => d.tags.has(t)).length === 0
+      );
     }
 
     if (args.sortedBy) {
       if (!(args.sortedBy in bookCodeCompareFunctions)) {
-        throw new Error(`sortedBy value must be one of [${Object.keys(bookCodeCompareFunctions).join(', ')}], not ${args.sortedBy}`);
+        throw new Error(
+          `sortedBy value must be one of [${Object.keys(
+            bookCodeCompareFunctions
+          ).join(', ')}], not ${args.sortedBy}`
+        );
       }
       ret.sort(bookCodeCompareFunctions[args.sortedBy]);
     }
@@ -136,16 +164,18 @@ const queryResolvers = {
     if (args.id && !args.docSetId && !args.withBook) {
       return root.documentById(args.id);
     } else if (!args.id && args.docSetId && args.withBook) {
-      return root.documentsWithBook(args.withBook).filter(d => d.docSetId === args.docSetId)[0];
+      return root
+        .documentsWithBook(args.withBook)
+        .filter((d) => d.docSetId === args.docSetId)[0];
     } else {
-      throw new Error('document requires either id or both docSetId and withBook (but not all three)');
+      throw new Error(
+        'document requires either id or both docSetId and withBook (but not all three)'
+      );
     }
   },
   versifications: () => Object.entries(versifications),
-  versification: (root, args) => Object.entries(versifications).filter(v => v[0] === args.id)[0],
+  versification: (root, args) =>
+    Object.entries(versifications).filter((v) => v[0] === args.id)[0],
 };
 
-module.exports = {
-  querySchemaString,
-  queryResolvers,
-};
+export { querySchemaString, queryResolvers };

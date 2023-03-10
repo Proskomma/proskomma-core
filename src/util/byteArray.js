@@ -1,9 +1,14 @@
-const { utf8ByteArrayToString, stringToUtf8ByteArray } = require('utf8-string-bytes');
-const base64 = require('base64-js');
+import {
+  utf8ByteArrayToString,
+  stringToUtf8ByteArray,
+} from 'utf8-string-bytes';
+import base64 from 'base64-js';
 
 const checkNum = (n, func, field) => {
   if (typeof n !== 'number') {
-    throw new Error(`Argument ${field} of ${func} should be a number, not '${n}' (${typeof n})`);
+    throw new Error(
+      `Argument ${field} of ${func} should be a number, not '${n}' (${typeof n})`
+    );
   }
 };
 
@@ -20,7 +25,9 @@ class ByteArray {
     checkNum(n, 'byte', 'n');
 
     if (n > this.length - 1) {
-      throw Error(`Attempt to read byte ${n} of ByteArray of length ${this.length}`);
+      throw Error(
+        `Attempt to read byte ${n} of ByteArray of length ${this.length}`
+      );
     }
     return this.byteArray[n];
   }
@@ -29,8 +36,10 @@ class ByteArray {
     checkNum(n, 'bytes', 'n');
     checkNum(l, 'bytes', 'l');
 
-    if ((n + l) > this.length) {
-      throw Error(`Attempt to read ${l} bytes from start ${n} of ByteArray of length ${this.length}`);
+    if (n + l > this.length) {
+      throw Error(
+        `Attempt to read ${l} bytes from start ${n} of ByteArray of length ${this.length}`
+      );
     }
     return this.byteArray.subarray(n, n + l);
   }
@@ -40,10 +49,12 @@ class ByteArray {
     checkNum(v, 'setByte', 'v');
 
     if (n > this.length - 1) {
-      throw Error(`Attempt to set byte ${n} of ByteArray of length ${this.length}`);
+      throw Error(
+        `Attempt to set byte ${n} of ByteArray of length ${this.length}`
+      );
     }
 
-    if (typeof (v) !== 'number' || v < 0 || v > 255) {
+    if (typeof v !== 'number' || v < 0 || v > 255) {
       throw Error(`Expected value 0-255 when setting ByteArray, found ${v}`);
     }
     this.byteArray[n] = v;
@@ -52,14 +63,16 @@ class ByteArray {
   setBytes(n, v) {
     checkNum(n, 'setBytes', 'n');
 
-    if ((n + v.length) > this.length) {
-      throw Error(`Attempt to set ${v.length} bytes from start ${n} of ByteArray of length ${this.length}`);
+    if (n + v.length > this.length) {
+      throw Error(
+        `Attempt to set ${v.length} bytes from start ${n} of ByteArray of length ${this.length}`
+      );
     }
     this.byteArray.set(v, n);
   }
 
   pushByte(v) {
-    if (typeof (v) !== 'number' || v < 0 || v > 255) {
+    if (typeof v !== 'number' || v < 0 || v > 255) {
       throw Error(`Expected value 0-255 when pushing to ByteArray, found ${v}`);
     }
 
@@ -74,16 +87,9 @@ class ByteArray {
     const newBytes = new Uint8Array(
       Math.max(
         minNewSize || 0,
-        this.byteArray.length + (
-          Math.min(
-            this.growMax,
-            Math.max(
-              16,
-              this.byteArray.length,
-            ),
-          )
-        ),
-      ),
+        this.byteArray.length +
+          Math.min(this.growMax, Math.max(16, this.byteArray.length))
+      )
     );
     newBytes.set(this.byteArray);
     this.byteArray = newBytes;
@@ -105,7 +111,7 @@ class ByteArray {
     checkNum(v, 'pushNByte', 'v');
 
     // Low byte(s) first
-    if (typeof (v) !== 'number' || v < 0) {
+    if (typeof v !== 'number' || v < 0) {
       throw Error(`Expected positive number in pushNByte, found ${v}`);
     }
 
@@ -123,7 +129,11 @@ class ByteArray {
       try {
         this.pushNByte(v);
       } catch (err) {
-        throw Error(`Error from pushNByte, called as pushNBytes(${JSON.stringify(vArray)})`);
+        throw Error(
+          `Error from pushNByte, called as pushNBytes(${JSON.stringify(
+            vArray
+          )})`
+        );
       }
     }
   }
@@ -132,7 +142,9 @@ class ByteArray {
     checkNum(n, 'nByte', 'n');
 
     if (n > this.length - 1) {
-      throw Error(`Attempt to read nByte ${n} of ByteArray of length ${this.length}`);
+      throw Error(
+        `Attempt to read nByte ${n} of ByteArray of length ${this.length}`
+      );
     }
 
     const v = this.byteArray[n];
@@ -140,7 +152,7 @@ class ByteArray {
     if (v > 127) {
       return v - 128;
     } else {
-      return v + (128 * this.nByte(n + 1));
+      return v + 128 * this.nByte(n + 1);
     }
   }
 
@@ -156,18 +168,20 @@ class ByteArray {
 
       do {
         if (n > this.length - 1) {
-          throw Error(`Attempt to read nByte ${n} of ByteArray of length ${this.length} in nBytes(${n}, ${nValues})`);
+          throw Error(
+            `Attempt to read nByte ${n} of ByteArray of length ${this.length} in nBytes(${n}, ${nValues})`
+          );
         }
 
         const v = this.byteArray[n];
 
         if (v > 127) {
-          currentValue += ((v - 128) * multiplier);
+          currentValue += (v - 128) * multiplier;
           ret.push(currentValue);
           currentValue = 0;
           done = true;
         } else {
-          currentValue += (v * multiplier);
+          currentValue += v * multiplier;
           multiplier *= 128;
         }
         n++;
@@ -221,7 +235,7 @@ class ByteArray {
 
   deleteItem(n) {
     checkNum(n, 'deleteItem', 'n');
-    const itemLength = this.byte(n) & 0x0000003F;
+    const itemLength = this.byte(n) & 0x0000003f;
     this.length -= itemLength;
 
     if (this.length > n) {
@@ -235,7 +249,7 @@ class ByteArray {
     const insertLength = iba.length;
     const newLength = this.length + insertLength;
 
-    if (newLength >= (this.byteArray.length + insertLength)) {
+    if (newLength >= this.byteArray.length + insertLength) {
       this.grow(newLength);
     }
 
@@ -248,4 +262,4 @@ class ByteArray {
   }
 }
 
-module.exports = ByteArray;
+export default ByteArray;

@@ -1,10 +1,10 @@
-const ByteArray = require('./byteArray.cjs');
-const succinct = require('./succinct.cjs');
-const itemDefs = require('./itemDefs.cjs');
-const tokenDefs = require('./tokenDefs.cjs');
-const scopeDefs = require('./scopeDefs.cjs');
+import ByteArray from './byteArray';
+import succinct from './succinct';
+import itemDefs from './itemDefs';
+import tokenDefs from './tokenDefs';
+import scopeDefs from './scopeDefs';
 
-const inspectEnum = enumString => {
+const inspectEnum = (enumString) => {
   const ba = new ByteArray();
   ba.fromBase64(enumString);
   const ret = [];
@@ -37,23 +37,37 @@ const inspectSuccinct = (succinctdoc, enumStrings) => {
     let extra = '';
 
     switch (itemDefs.itemEnumLabels[itemType]) {
-    case 'token':
-      subtypeLabel = tokenDefs.tokenEnumLabels[itemSubtype];
-      extra = `"${succinct.succinctTokenChars(enums, indexes, ba, itemSubtype, pos)}"`;
-      break;
-    case 'startScope':
-    case 'endScope':
-      subtypeLabel = scopeDefs.scopeEnumLabels[itemSubtype];
-      extra = succinct.succinctScopeLabel(enums, indexes, ba, itemSubtype, pos);
-      break;
-    case 'graft':
-      subtypeLabel = succinct.succinctGraftName(enums, indexes, itemSubtype);
-      extra = succinct.succinctGraftSeqId(enums, indexes, ba, pos);
+      case 'token':
+        subtypeLabel = tokenDefs.tokenEnumLabels[itemSubtype];
+        extra = `"${succinct.succinctTokenChars(
+          enums,
+          indexes,
+          ba,
+          itemSubtype,
+          pos
+        )}"`;
+        break;
+      case 'startScope':
+      case 'endScope':
+        subtypeLabel = scopeDefs.scopeEnumLabels[itemSubtype];
+        extra = succinct.succinctScopeLabel(
+          enums,
+          indexes,
+          ba,
+          itemSubtype,
+          pos
+        );
+        break;
+      case 'graft':
+        subtypeLabel = succinct.succinctGraftName(enums, indexes, itemSubtype);
+        extra = succinct.succinctGraftSeqId(enums, indexes, ba, pos);
     }
-    ret.push(`${itemDefs.itemEnumLabels[itemType]}\t${subtypeLabel}\t(${itemLength})\t${extra}`);
+    ret.push(
+      `${itemDefs.itemEnumLabels[itemType]}\t${subtypeLabel}\t(${itemLength})\t${extra}`
+    );
     pos += itemLength;
   }
   return ret.join('\n');
 };
 
-module.exports = { inspectEnum, inspectSuccinct };
+export { inspectEnum, inspectSuccinct };

@@ -1,4 +1,4 @@
-module.exports = `# Versification  "Septuagint"
+export default `# Versification  "Septuagint"
 # Version=1.7
 # 
 # modifications by Studge 26/ June/ 2009

@@ -1,18 +1,18 @@
-const ByteArray = require('./byteArray.cjs');
-const canons = require('./canons.cjs');
-const enums = require('./enums.cjs');
-const { generateId } = require('./generateId.cjs');
-const graftDefs = require('./graftDefs.cjs');
-const inspect = require('./inspectSuccinct.cjs');
-const itemDefs = require('./itemDefs.cjs');
-const parserConstants = require('./parserConstantDefs.cjs');
-const scopeDefs = require('./scopeDefs.cjs');
-const succinct = require('./succinct.cjs');
-const tags = require('./tags.cjs');
-const tokenDefs = require('./tokenDefs.cjs');
-const versification = require('./versification.cjs');
+import ByteArray from './byteArray';
+import canons from './canons';
+import enums from './enums';
+import { generateId } from './generateId';
+import graftDefs from './graftDefs';
+import inspect from './inspectSuccinct';
+import itemDefs from './itemDefs';
+import parserConstants from './parserConstantDefs';
+import scopeDefs from './scopeDefs';
+import succinct from './succinct';
+import tags from './tags';
+import tokenDefs from './tokenDefs';
+import versification from './versification';
 
-module.exports = {
+export default {
   ByteArray,
   canons,
   enums,

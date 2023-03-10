@@ -18,14 +18,14 @@ type cell {
 `;
 
 const cellResolvers = {
-  rows: root => root[0],
-  columns: root => root[1],
-  items: root => root[2],
-  tokens: root => root[2].filter(i => i[0] === 'token'),
+  rows: (root) => root[0],
+  columns: (root) => root[1],
+  items: (root) => root[2],
+  tokens: (root) => root[2].filter((i) => i[0] === 'token'),
   text: (root, args) => {
     let ret = root[2]
-      .filter(i => i[0] === 'token')
-      .map(t => t[2])
+      .filter((i) => i[0] === 'token')
+      .map((t) => t[2])
       .join('')
       .trim();
 
@@ -36,7 +36,4 @@ const cellResolvers = {
   },
 };
 
-module.exports = {
-  cellSchemaString,
-  cellResolvers,
-};
+export { cellSchemaString, cellResolvers };

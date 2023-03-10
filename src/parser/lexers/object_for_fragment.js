@@ -1,4 +1,4 @@
-const xre = require('xregexp');
+import xre from 'xregexp';
 
 const makePrintable = (subclass, matchedBits) => ({
   subclass,
@@ -20,8 +20,10 @@ const makeVerses = (subclass, matchedBits) => {
   };
 
   if (ret.numberString.includes('-')) {
-    const [fromV, toV] = ret.numberString.split('-').map(v => parseInt(v));
-    ret.numbers = Array.from(Array((toV - fromV) + 1).keys()).map(v => v + fromV);
+    const [fromV, toV] = ret.numberString.split('-').map((v) => parseInt(v));
+    ret.numbers = Array.from(Array(toV - fromV + 1).keys()).map(
+      (v) => v + fromV
+    );
   } else {
     ret.numbers = [parseInt(ret.numberString)];
   }
@@ -44,7 +46,7 @@ const makeAttribute = (subclass, matchedBits) => {
       valueString: matchedBits[3].trim().replace(/\//g, '÷'),
     };
   }
-  ret.values = ret.valueString.split(',').map(vb => vb.trim());
+  ret.values = ret.valueString.split(',').map((vb) => vb.trim());
   ret.printValue = `| ${ret.key}="${ret.valueString}"`;
   return ret;
 };
@@ -88,8 +90,11 @@ const makeTag = (subclass, matchedBits) => {
     ret.tagName = ret.tagName.substring(1);
   }
   ret.tagLevel = matchedBits[3] !== '' ? parseInt(matchedBits[3]) : 1;
-  ret.fullTagName = `${ret.tagName}${matchedBits[3] === '1' ? '' : matchedBits[3]}`;
-  ret.printValue = subclass === 'startTag' ? `\\${ret.fullTagName} ` : `\\${ret.fullTagName}*`;
+  ret.fullTagName = `${ret.tagName}${
+    matchedBits[3] === '1' ? '' : matchedBits[3]
+  }`;
+  ret.printValue =
+    subclass === 'startTag' ? `\\${ret.fullTagName} ` : `\\${ret.fullTagName}*`;
   return ret;
 };
 
@@ -117,7 +122,4 @@ const preTokenObjectForFragment = (fragment, lexingRegexes) => {
   throw new Error(`Could not match preToken fragment '${fragment}'`);
 };
 
-module.exports = {
-  constructorForFragment,
-  preTokenObjectForFragment,
-};
+export { constructorForFragment, preTokenObjectForFragment };

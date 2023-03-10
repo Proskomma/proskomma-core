@@ -1,4 +1,4 @@
-module.exports = `# Versification  "Vulgate"
+export default `# Versification  "Vulgate"
 # Version=1.5
 # 
 # modifications by Studge 26/June/2009

@@ -1,4 +1,4 @@
-module.exports = `# Versification  "Russian Orthodox"
+export default `# Versification  "Russian Orthodox"
 # Version=1.3
 #
 # This is the versification used by the Orthodox (or "non-canonical") edition of the Russian Synodal Bible

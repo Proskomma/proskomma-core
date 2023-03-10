@@ -1,4 +1,4 @@
-module.exports = `# Versification  "Russian Protestant"
+export default `# Versification  "Russian Protestant"
 # Version=1.4
 #
 # This is the versification used by the "Canonical" (Protestant) edition of the Russian Synodal Bible

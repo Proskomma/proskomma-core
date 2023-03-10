@@ -1,11 +1,12 @@
-const xre = require('xregexp');
+import xre from 'xregexp';
 
-const ByteArray = require('./byteArray.cjs');
+import ByteArray from './byteArray';
 
 const cvMappingType = 2;
 const bcvMappingType = 3;
 
-const bookCodes = [ // From Paratext via Scripture Burrito
+const bookCodes = [
+  // From Paratext via Scripture Burrito
   'GEN',
   'EXO',
   'LEV',
@@ -124,16 +125,20 @@ const bookCodeIndex = () => {
   return ret;
 };
 
-const vrs2json = vrsString => {
+const vrs2json = (vrsString) => {
   const ret = {};
 
-  for (
-    const vrsLineBits of
-    vrsString
-      .split(/[\n\r]+/)
-      .map(l => l.trim())
-      .map(l => xre.exec(l, xre('^([A-Z1-6]{3} [0-9]+:[0-9]+(-[0-9]+)?) = ([A-Z1-6]{3} [0-9]+:[0-9]+[a-z]?(-[0-9]+)?)$')))
-  ) {
+  for (const vrsLineBits of vrsString
+    .split(/[\n\r]+/)
+    .map((l) => l.trim())
+    .map((l) =>
+      xre.exec(
+        l,
+        xre(
+          '^([A-Z1-6]{3} [0-9]+:[0-9]+(-[0-9]+)?) = ([A-Z1-6]{3} [0-9]+:[0-9]+[a-z]?(-[0-9]+)?)$'
+        )
+      )
+    )) {
     if (!vrsLineBits) {
       continue;
     }
@@ -146,7 +151,7 @@ const vrs2json = vrsString => {
   return { mappedVerses: ret };
 };
 
-const reverseVersification = vrsJson => {
+const reverseVersification = (vrsJson) => {
   // Assumes each verse is only mapped from once
   const ret = {};
 
@@ -162,7 +167,7 @@ const reverseVersification = vrsJson => {
   return { reverseMappedVerses: ret };
 };
 
-const preSuccinctVerseMapping = mappingJson => {
+const preSuccinctVerseMapping = (mappingJson) => {
   const ret = {};
 
   for (let [fromSpec, toSpecs] of Object.entries(mappingJson)) {
@@ -184,7 +189,7 @@ const preSuccinctVerseMapping = mappingJson => {
     record.push([parseInt(fromV), parseInt(toV)]);
     record.push([]);
 
-    for (const toCVV of toSpecs.map(ts => ts.split(' ')[1])) {
+    for (const toCVV of toSpecs.map((ts) => ts.split(' ')[1])) {
       let [toCh, fromV] = toCVV.split(':');
       let toV = fromV;
 
@@ -197,7 +202,12 @@ const preSuccinctVerseMapping = mappingJson => {
       if (record[0] === 'cv') {
         record[2].push([parseInt(toCh), parseInt(fromV), parseInt(toV)]);
       } else {
-        record[2].push([parseInt(toCh), parseInt(fromV), parseInt(toV), toBook]);
+        record[2].push([
+          parseInt(toCh),
+          parseInt(fromV),
+          parseInt(toV),
+          toBook,
+        ]);
       }
     }
 
@@ -213,11 +223,13 @@ const preSuccinctVerseMapping = mappingJson => {
   return ret;
 };
 
-const succinctifyVerseMappings = preSuccinct => {
+const succinctifyVerseMappings = (preSuccinct) => {
   const ret = {};
   const bci = bookCodeIndex();
 
-  for (const [book, chapters] of Object.entries(preSuccinctVerseMapping(preSuccinct))) {
+  for (const [book, chapters] of Object.entries(
+    preSuccinctVerseMapping(preSuccinct)
+  )) {
     ret[book] = {};
 
     for (const [chapter, mappings] of Object.entries(chapters)) {
@@ -229,11 +241,15 @@ const succinctifyVerseMappings = preSuccinct => {
 
 const succinctifyVerseMapping = (preSuccinctBC, bci) => {
   const makeMappingLengthByte = (recordType, length) =>
-    length + (recordType * 64);
+    length + recordType * 64;
 
   const ret = new ByteArray(64);
 
-  for (const [recordTypeStr, [fromVerseStart, fromVerseEnd], mappings] of preSuccinctBC) {
+  for (const [
+    recordTypeStr,
+    [fromVerseStart, fromVerseEnd],
+    mappings,
+  ] of preSuccinctBC) {
     const pos = ret.length;
     const recordType = recordTypeStr === 'bcv' ? bcvMappingType : cvMappingType;
     ret.pushNBytes([0, fromVerseStart, fromVerseEnd]);
@@ -251,7 +267,11 @@ const succinctifyVerseMapping = (preSuccinctBC, bci) => {
     const recordLength = ret.length - pos;
 
     if (recordLength > 63) {
-      throw new Error(`Mapping in succinctifyVerseMapping ${JSON.stringify(mappings)} is too long (${recordLength} bytes)`);
+      throw new Error(
+        `Mapping in succinctifyVerseMapping ${JSON.stringify(
+          mappings
+        )} is too long (${recordLength} bytes)`
+      );
     }
     ret.setByte(pos, makeMappingLengthByte(recordType, recordLength));
   }
@@ -261,10 +281,7 @@ const succinctifyVerseMapping = (preSuccinctBC, bci) => {
 
 const mappingLengthByte = (succinct, pos) => {
   const sByte = succinct.byte(pos);
-  return [
-    sByte >> 6,
-    sByte % 64,
-  ];
+  return [sByte >> 6, sByte % 64];
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -344,14 +361,14 @@ const mapVerse = (succinct, b, c, v) => {
       recordPos += succinct.nByteLength(ch);
       const verseStart = succinct.nByte(recordPos);
       recordPos += succinct.nByteLength(verseStart);
-      ret[1].push([ch, (v - fromVerseStart) + verseStart]);
+      ret[1].push([ch, v - fromVerseStart + verseStart]);
     }
     break;
   }
   return ret || [b, [[c, v]]];
 };
 
-module.exports = {
+export {
   vrs2json,
   reverseVersification,
   preSuccinctVerseMapping,

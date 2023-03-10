@@ -1,7 +1,7 @@
-const { UsxLexer } = require('./usx_lexer.cjs');
+import { UsxLexer } from './usx_lexer';
 
 const parseUsx = (str, parser) => {
   new UsxLexer().lexAndParse(str, parser);
 };
 
-module.exports = { parseUsx };
+export { parseUsx };

@@ -1,17 +1,18 @@
-const tokenDefs = require('./tokenDefs.cjs');
-const scopeDefs = require('./scopeDefs.cjs');
-const itemDefs = require('./itemDefs.cjs');
+import tokenDefs from './tokenDefs';
+import scopeDefs from './scopeDefs';
+import itemDefs from './itemDefs';
 
-const headerBytes = (succinct, pos) =>{
+const headerBytes = (succinct, pos) => {
   const headerByte = succinct.byte(pos);
   const itemType = headerByte >> 6;
-  const itemLength = headerByte & 0x0000003F;
+  const itemLength = headerByte & 0x0000003f;
   const itemSubtype = succinct.byte(pos + 1);
   return [itemLength, itemType, itemSubtype];
 };
 
 const succinctTokenChars = (enums, enumIndexes, succinct, itemSubtype, pos) => {
-  const itemCategory = tokenDefs.tokenCategory[tokenDefs.tokenEnumLabels[itemSubtype]];
+  const itemCategory =
+    tokenDefs.tokenCategory[tokenDefs.tokenEnumLabels[itemSubtype]];
   const itemIndex = enumIndexes[itemCategory][succinct.nByte(pos + 2)];
   return enums[itemCategory].countedString(itemIndex);
 };
@@ -60,7 +61,7 @@ const enumIndex = (category, enumSuccinct) => {
   while (pos < enumSuccinct.length) {
     indexSuccinct[count] = pos;
     const stringLength = enumSuccinct.byte(pos);
-    pos += (stringLength + 1);
+    pos += stringLength + 1;
     count += 1;
   }
   return indexSuccinct;
@@ -102,7 +103,10 @@ const pushSuccinctTokenBytes = (bA, tokenEnumIndex, charsEnumIndex) => {
   bA.pushByte(0);
   bA.pushByte(tokenEnumIndex);
   bA.pushNByte(charsEnumIndex);
-  bA.setByte(lengthPos, (bA.length - lengthPos) | itemDefs.itemEnum.token << 6);
+  bA.setByte(
+    lengthPos,
+    (bA.length - lengthPos) | (itemDefs.itemEnum.token << 6)
+  );
 };
 
 const pushSuccinctGraftBytes = (bA, graftTypeEnumIndex, seqEnumIndex) => {
@@ -118,10 +122,18 @@ const pushSuccinctGraftBytes = (bA, graftTypeEnumIndex, seqEnumIndex) => {
   bA.pushByte(0);
   bA.pushByte(graftTypeEnumIndex);
   bA.pushNByte(seqEnumIndex);
-  bA.setByte(lengthPos, (bA.length - lengthPos) | itemDefs.itemEnum.graft << 6);
+  bA.setByte(
+    lengthPos,
+    (bA.length - lengthPos) | (itemDefs.itemEnum.graft << 6)
+  );
 };
 
-const pushSuccinctScopeBytes = (bA, itemTypeByte, scopeTypeByte, scopeBitBytes) => {
+const pushSuccinctScopeBytes = (
+  bA,
+  itemTypeByte,
+  scopeTypeByte,
+  scopeBitBytes
+) => {
   if (itemTypeByte === undefined || itemTypeByte === null) {
     undefinedArgError('pushSuccinctScopeBytes', 'itemTypeByte');
   }
@@ -141,10 +153,10 @@ const pushSuccinctScopeBytes = (bA, itemTypeByte, scopeTypeByte, scopeBitBytes) 
   for (const sbb of scopeBitBytes) {
     bA.pushNByte(sbb);
   }
-  bA.setByte(lengthPos, (bA.length - lengthPos) | itemTypeByte << 6);
+  bA.setByte(lengthPos, (bA.length - lengthPos) | (itemTypeByte << 6));
 };
 
-module.exports = {
+export default {
   enumIndex,
   enumIndexes,
   headerBytes,

@@ -10,12 +10,9 @@ type kvEntry {
 }`;
 
 const kvEntryResolvers = {
-  key: root => root[0],
-  secondaryKeys: root => root[1],
-  itemGroups: root => root[2],
+  key: (root) => root[0],
+  secondaryKeys: (root) => root[1],
+  itemGroups: (root) => root[2],
 };
 
-module.exports = {
-  kvEntrySchemaString,
-  kvEntryResolvers,
-};
+export { kvEntrySchemaString, kvEntryResolvers };

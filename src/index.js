@@ -1,37 +1,29 @@
-const xre = require('xregexp');
-const { makeExecutableSchema } = require('@graphql-tools/schema');
+import xre from 'xregexp';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 
-const { Mutex } =require('async-mutex');
-const crc32 = require('easy-crc32');
-const {
-  graphql,
-  graphqlSync,
-} = require('graphql');
-const BitSet = require('bitset');
+import { Mutex } from 'async-mutex';
+import crc32 from 'easy-crc32';
+import { graphql, graphqlSync } from 'graphql';
+import BitSet from 'bitset';
 
-const packageJson = require('../package.json');
-const utils = require('./util/index.cjs');
-const { DocSet } = require('./model/doc_set.cjs');
-const { Document } = require('./model/document.cjs');
-const {
+import packageJson from '../package.json';
+import utils from './util';
+import { DocSet } from './model/doc_set';
+import { Document } from './model/document';
+import { typeDefs, resolvers } from './graph';
+
+import { lexingRegexes } from './parser/lexers/lexingRegexes';
+import blocksSpecUtils from './util/scriptlike/blocksSpec';
+import { flattenNodes, numberNodes } from './parser/lexers/nodes';
+
+if (typeof globalThis !== 'undefined') globalThis.Buffer = Buffer;
+
+const tree2nodes = (tree) => flattenNodes(numberNodes(tree));
+
+const executableSchema = makeExecutableSchema({
   typeDefs,
   resolvers,
-} = require('./graph/index.cjs');
-
-const { lexingRegexes } = require('./parser/lexers/lexingRegexes.cjs');
-const blocksSpecUtils = require('./util/scriptlike/blocksSpec.cjs');
-const {
-  flattenNodes,
-  numberNodes,
-} = require('./parser/lexers/nodes.cjs');
-
-const tree2nodes = tree => flattenNodes(numberNodes(tree));
-
-const executableSchema =
-  makeExecutableSchema({
-    typeDefs,
-    resolvers,
-  });
+});
 
 class Proskomma {
   constructor(selectors) {
@@ -82,16 +74,18 @@ class Proskomma {
       }
 
       if (!['string', 'integer'].includes(selector.type)) {
-        throw new Error(`Type for selector ${n} must be string or number, not ${selector.type}`);
+        throw new Error(
+          `Type for selector ${n} must be string or number, not ${selector.type}`
+        );
       }
 
       if (selector.type === 'string') {
         if ('min' in selector) {
-          throw new Error('String selector should not include \'min\'');
+          throw new Error("String selector should not include 'min'");
         }
 
         if ('max' in selector) {
-          throw new Error('String selector should not include \'max\'');
+          throw new Error("String selector should not include 'max'");
         }
 
         if ('regex' in selector) {
@@ -105,13 +99,15 @@ class Proskomma {
         if ('enum' in selector) {
           for (const enumElement of selector.enum) {
             if (typeof enumElement !== 'string') {
-              throw new Error(`Enum values for selector ${selector.name} should be strings, not '${enumElement}'`);
+              throw new Error(
+                `Enum values for selector ${selector.name} should be strings, not '${enumElement}'`
+              );
             }
           }
         }
       } else {
         if ('regex' in selector) {
-          throw new Error('Integer selector should not include \'regex\'');
+          throw new Error("Integer selector should not include 'regex'");
         }
 
         if ('min' in selector && typeof selector.min !== 'number') {
@@ -122,21 +118,31 @@ class Proskomma {
           throw new Error(`'max' must be a number, not '${selector.max}'`);
         }
 
-        if ('min' in selector && 'max' in selector && selector.min > selector.max) {
-          throw new Error(`'min' cannot be greater than 'max' (${selector.min} > ${selector.max})`);
+        if (
+          'min' in selector &&
+          'max' in selector &&
+          selector.min > selector.max
+        ) {
+          throw new Error(
+            `'min' cannot be greater than 'max' (${selector.min} > ${selector.max})`
+          );
         }
 
         if ('enum' in selector) {
           for (const enumElement of selector.enum) {
             if (typeof enumElement !== 'number') {
-              throw new Error(`Enum values for selector ${selector.name} should be numbers, not '${enumElement}'`);
+              throw new Error(
+                `Enum values for selector ${selector.name} should be numbers, not '${enumElement}'`
+              );
             }
           }
         }
       }
 
       for (const selectorKey of Object.keys(selector)) {
-        if (!['name', 'type', 'regex', 'min', 'max', 'enum'].includes(selectorKey)) {
+        if (
+          !['name', 'type', 'regex', 'min', 'max', 'enum'].includes(selectorKey)
+        ) {
           throw new Error(`Unexpected key '${selectorKey}' in selector ${n}`);
         }
       }
@@ -146,19 +152,31 @@ class Proskomma {
   validateSelectorSpec(spec) {
     for (const specElement of spec) {
       if (!specElement['name']) {
-        throw new Error(`name not found in selector spec element '${JSON.stringify(specElement)}'`);
+        throw new Error(
+          `name not found in selector spec element '${JSON.stringify(
+            specElement
+          )}'`
+        );
       }
 
       if (!specElement['type']) {
-        throw new Error(`type not found in selector spec element '${JSON.stringify(specElement)}'`);
+        throw new Error(
+          `type not found in selector spec element '${JSON.stringify(
+            specElement
+          )}'`
+        );
       }
 
       if (!['string', 'integer'].includes(specElement.type)) {
-        throw new Error(`Type for spec element must be string or number, not ${specElement.type}`);
+        throw new Error(
+          `Type for spec element must be string or number, not ${specElement.type}`
+        );
       }
 
       for (const selectorKey of Object.keys(specElement)) {
-        if (!['name', 'type', 'regex', 'min', 'max', 'enum'].includes(selectorKey)) {
+        if (
+          !['name', 'type', 'regex', 'min', 'max', 'enum'].includes(selectorKey)
+        ) {
           throw new Error(`Unexpected key '${selectorKey}' in selectorSpec`);
         }
       }
@@ -167,7 +185,10 @@ class Proskomma {
 
   selectorString(docSetSelectors) {
     // In root so it can be easily subclassed
-    return this.selectors.map(s => s.name).map(n => `${docSetSelectors[n]}`).join('_');
+    return this.selectors
+      .map((s) => s.name)
+      .map((n) => `${docSetSelectors[n]}`)
+      .join('_');
   }
 
   processor() {
@@ -183,7 +204,7 @@ class Proskomma {
   }
 
   docSetsById(ids) {
-    return Object.values(this.docSets).filter(ds => ids.includes(ds.id));
+    return Object.values(this.docSets).filter((ds) => ids.includes(ds.id));
   }
 
   docSetById(id) {
@@ -192,8 +213,11 @@ class Proskomma {
 
   docSetsWithBook(bookCode) {
     const docIdsWithBook = Object.values(this.documents)
-      .filter(doc => 'bookCode' in doc.headers && doc.headers['bookCode'] === bookCode)
-      .map(doc => doc.id);
+      .filter(
+        (doc) =>
+          'bookCode' in doc.headers && doc.headers['bookCode'] === bookCode
+      )
+      .map((doc) => doc.id);
 
     const docIdWithBookInDocSet = (ds) => {
       for (const docId of docIdsWithBook) {
@@ -203,7 +227,9 @@ class Proskomma {
       }
       return false;
     };
-    return Object.values(this.docSets).filter(ds => docIdWithBookInDocSet(ds));
+    return Object.values(this.docSets).filter((ds) =>
+      docIdWithBookInDocSet(ds)
+    );
   }
 
   nDocSets() {
@@ -223,18 +249,44 @@ class Proskomma {
   }
 
   documentsById(ids) {
-    return Object.values(this.documents).filter(doc => ids.includes(doc.id));
+    return Object.values(this.documents).filter((doc) => ids.includes(doc.id));
   }
 
   documentsWithBook(bookCode) {
-    return Object.values(this.documents).filter(doc => 'bookCode' in doc.headers && doc.headers['bookCode'] === bookCode);
+    return Object.values(this.documents).filter(
+      (doc) => 'bookCode' in doc.headers && doc.headers['bookCode'] === bookCode
+    );
   }
 
-  importDocument(selectors, contentType, contentString, filterOptions, customTags, emptyBlocks, tags) {
-    return this.importDocuments(selectors, contentType, [contentString], filterOptions, customTags, emptyBlocks, tags)[0];
+  importDocument(
+    selectors,
+    contentType,
+    contentString,
+    filterOptions,
+    customTags,
+    emptyBlocks,
+    tags
+  ) {
+    return this.importDocuments(
+      selectors,
+      contentType,
+      [contentString],
+      filterOptions,
+      customTags,
+      emptyBlocks,
+      tags
+    )[0];
   }
 
-  importDocuments(selectors, contentType, contentStrings, filterOptions, customTags, emptyBlocks, tags) {
+  importDocuments(
+    selectors,
+    contentType,
+    contentStrings,
+    filterOptions,
+    customTags,
+    emptyBlocks,
+    tags
+  ) {
     if (!filterOptions) {
       filterOptions = this.filters;
     }
@@ -257,14 +309,25 @@ class Proskomma {
     const docs = [];
 
     for (const contentString of contentStrings) {
-      let doc = new Document(this, docSetId, contentType, contentString, filterOptions, customTags, emptyBlocks, tags);
+      let doc = new Document(
+        this,
+        docSetId,
+        contentType,
+        contentString,
+        filterOptions,
+        customTags,
+        emptyBlocks,
+        tags
+      );
       const bookCode = doc.headers.bookCode;
       const existingBookCodes = Object.values(this.documents)
-        .filter(d => docSet.docIds.includes(d.id))
-        .map(d => d.headers.bookCode);
+        .filter((d) => docSet.docIds.includes(d.id))
+        .map((d) => d.headers.bookCode);
 
       if (existingBookCodes.includes(bookCode)) {
-        throw new Error(`Attempt to import document with bookCode '${bookCode}' which already exists in docSet ${docSetId}`);
+        throw new Error(
+          `Attempt to import document with bookCode '${bookCode}' which already exists in docSet ${docSetId}`
+        );
       }
       this.addDocument(doc, docSetId);
       docs.push(doc);
@@ -273,19 +336,31 @@ class Proskomma {
     return docs;
   }
 
-  importUsfmPeriph(selectors, contentString, filterOptions, customTags, emptyBlocks, tags) {
+  importUsfmPeriph(
+    selectors,
+    contentString,
+    filterOptions,
+    customTags,
+    emptyBlocks,
+    tags
+  ) {
     const lines = contentString.toString().split(/[\n\r]+/);
     const bookCode = lines[0].substring(4, 7);
 
     if (!['FRT', 'BAK', 'INT'].includes(bookCode)) {
-      throw new Error(`importUsfmInt() expected bookCode of FRT, BAK or INT, not '${bookCode}'`);
+      throw new Error(
+        `importUsfmInt() expected bookCode of FRT, BAK or INT, not '${bookCode}'`
+      );
     }
 
     let periphs = [];
 
     for (const line of lines) {
       if (line.substring(0, 7) === '\\periph') {
-        let matchedBits = xre.exec(line, xre('^\\\\periph (.*)\\|\\s*id\\s*=\\s*"([^"]+)"\\s*$'));
+        let matchedBits = xre.exec(
+          line,
+          xre('^\\\\periph (.*)\\|\\s*id\\s*=\\s*"([^"]+)"\\s*$')
+        );
 
         if (!matchedBits) {
           throw new Error(`Unable to parse periph line '${line}'`);
@@ -293,7 +368,9 @@ class Proskomma {
 
         const periphDesc = matchedBits[1];
         const periphId = matchedBits[2];
-        const periphBookCode = `\\id P${this.nextPeriph > 9 ? this.nextPeriph : '0' + this.nextPeriph}`;
+        const periphBookCode = `\\id P${
+          this.nextPeriph > 9 ? this.nextPeriph : '0' + this.nextPeriph
+        }`;
         periphs.push([`${periphBookCode} INT ${periphId} - ${periphDesc}`]);
         this.nextPeriph++;
       } else if (periphs.length > 0 && line.substring(0, 3) !== '\\id') {
@@ -303,11 +380,11 @@ class Proskomma {
     this.importDocuments(
       selectors,
       'usfm',
-      periphs.map(p => p.join('\n')),
+      periphs.map((p) => p.join('\n')),
       filterOptions,
       customTags,
       emptyBlocks,
-      tags,
+      tags
     );
   }
 
@@ -316,11 +393,18 @@ class Proskomma {
     const lines = usfm.toString().split(/[\n\r]+/);
     const ret = [];
     let inHeaders = true;
-    const headers = ['\\id', '\\ide', '\\usfm', '\\sts', '\\rem', '\\h', '\\toc'];
+    const headers = [
+      '\\id',
+      '\\ide',
+      '\\usfm',
+      '\\sts',
+      '\\rem',
+      '\\h',
+      '\\toc',
+    ];
 
     for (const line of lines) {
-      const firstWord = line.split(' ')[0]
-        .replace(/[0-9]+/g, '');
+      const firstWord = line.split(' ')[0].replace(/[0-9]+/g, '');
 
       if ('remove' in options && options.remove.includes(firstWord)) {
         continue;
@@ -345,7 +429,9 @@ class Proskomma {
       return false;
     }
 
-    for (const docId of Object.entries(this.documents).filter(tup => tup[1].docSetId === docSetId).map(tup => tup[0])) {
+    for (const docId of Object.entries(this.documents)
+      .filter((tup) => tup[1].docSetId === docSetId)
+      .map((tup) => tup[0])) {
       this.deleteDocument(docSetId, docId, false, false);
     }
 
@@ -357,10 +443,13 @@ class Proskomma {
     }
 
     const lastSelectorName = this.selectors[this.selectors.length - 1].name;
-    const lastSelectorValue = this.docSets[docSetId].selectors[lastSelectorName];
+    const lastSelectorValue =
+      this.docSets[docSetId].selectors[lastSelectorName];
 
     if (!selected[lastSelectorValue]) {
-      throw new Error(`Could not find docSetId '${docSetId}' in docSetsBySelector in deleteDocSet`);
+      throw new Error(
+        `Could not find docSetId '${docSetId}' in docSetsBySelector in deleteDocSet`
+      );
     }
     delete selected[lastSelectorValue];
     delete this.docSets[docSetId];
@@ -368,8 +457,10 @@ class Proskomma {
   }
 
   deleteDocument(docSetId, documentId, maybeDeleteDocSet, maybeRehashDocSet) {
-    maybeDeleteDocSet = maybeDeleteDocSet === undefined ? true : maybeDeleteDocSet;
-    maybeRehashDocSet = maybeRehashDocSet === undefined ? true : maybeRehashDocSet;
+    maybeDeleteDocSet =
+      maybeDeleteDocSet === undefined ? true : maybeDeleteDocSet;
+    maybeRehashDocSet =
+      maybeRehashDocSet === undefined ? true : maybeRehashDocSet;
 
     if (!(docSetId in this.docSets)) {
       return false;
@@ -382,7 +473,9 @@ class Proskomma {
     delete this.documents[documentId];
 
     if (this.docSets[docSetId].docIds.length > 1) {
-      this.docSets[docSetId].docIds = this.docSets[docSetId].docIds.filter(i => i !== documentId);
+      this.docSets[docSetId].docIds = this.docSets[docSetId].docIds.filter(
+        (i) => i !== documentId
+      );
 
       if (maybeRehashDocSet) {
         this.rehashDocSet(docSetId);
@@ -412,7 +505,9 @@ class Proskomma {
     const succinctId = succinctOb.id;
 
     if (succinctId in this.docSets) {
-      throw new Error(`Attempting to succinct load docSet ${succinctId} which is already loaded`);
+      throw new Error(
+        `Attempting to succinct load docSet ${succinctId} which is already loaded`
+      );
     }
 
     const docSet = new DocSet(this, null, null, succinctOb);
@@ -499,7 +594,9 @@ class Proskomma {
       for (const succinctBlock of seq.blocks) {
         const block = {};
 
-        for (const [blockField, blockSuccinct] of Object.entries(succinctBlock)) {
+        for (const [blockField, blockSuccinct] of Object.entries(
+          succinctBlock
+        )) {
           const ba = new utils.ByteArray(256);
           ba.fromBase64(blockSuccinct);
           block[blockField] = ba;
@@ -539,7 +636,10 @@ class Proskomma {
 
     try {
       const result = await graphql({
-        schema: executableSchema, source: query, rootValue:this, contextValue:{},
+        schema: executableSchema,
+        source: query,
+        rootValue: this,
+        contextValue: {},
       });
 
       if (callback) {
@@ -553,7 +653,10 @@ class Proskomma {
 
   gqlQuerySync(query, callback) {
     const result = graphqlSync({
-      schema: executableSchema, source: query, rootValue:this, contextValue:{},
+      schema: executableSchema,
+      source: query,
+      rootValue: this,
+      contextValue: {},
     });
 
     if (callback) {
@@ -567,12 +670,15 @@ class Proskomma {
   }
 
   checksum() {
-    const dsChecksums = Object.values(this.docSets).map(ds => ds.checksum()).sort().join(' ');
+    const dsChecksums = Object.values(this.docSets)
+      .map((ds) => ds.checksum())
+      .sort()
+      .join(' ');
     return crc32.calculate(dsChecksums);
   }
 }
 
-module.exports = {
+export {
   Proskomma,
   typeDefs,
   resolvers,

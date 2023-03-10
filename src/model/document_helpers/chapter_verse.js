@@ -1,6 +1,6 @@
-const BitSet = require('bitset');
+import BitSet from 'bitset';
 
-const utils = require('../../util/index.cjs');
+import utils from '../../util';
 const ByteArray = utils.ByteArray;
 const { itemEnum } = utils.itemDefs;
 const { tokenEnum } = utils.tokenDefs;
@@ -9,7 +9,7 @@ const emptyCVIndexType = 0;
 const shortCVIndexType = 2;
 const longCVIndexType = 3;
 
-const buildChapterVerseIndex = document => {
+const buildChapterVerseIndex = (document) => {
   const mainSequence = document.sequences[document.mainId];
   const docSet = document.processor.docSets[document.docSetId];
   docSet.buildPreEnums();
@@ -24,13 +24,15 @@ const buildChapterVerseIndex = document => {
   mainSequence.chapterVerses = {};
 
   if (docSet.enums.wordLike.length === 0) {
-    throw new Error('No wordLike content in docSet - probably a USFM issue, maybe missing \\mt?');
+    throw new Error(
+      'No wordLike content in docSet - probably a USFM issue, maybe missing \\mt?'
+    );
   }
   mainSequence.tokensPresent = new BitSet(
     new Array(docSet.enums.wordLike.length)
       .fill(0)
-      .map(b => b.toString())
-      .join(''),
+      .map((b) => b.toString())
+      .join('')
   );
 
   for (const [blockN, block] of mainSequence.blocks.entries()) {
@@ -40,7 +42,10 @@ const buildChapterVerseIndex = document => {
 
     while (pos < succinct.length) {
       itemN++;
-      const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(succinct, pos);
+      const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+        succinct,
+        pos
+      );
 
       if (itemType === itemEnum['startScope']) {
         let scopeLabel = docSet.succinctScopeLabel(succinct, itemSubtype, pos);
@@ -58,14 +63,16 @@ const buildChapterVerseIndex = document => {
 
           if (verseN === '1' && !('0' in chapterVerseIndexes[chapterN])) {
             if (chapterIndexes[chapterN].nextToken < nextTokenN) {
-              chapterVerseIndexes[chapterN]['0'] = [{
-                startBlock: chapterIndexes[chapterN].startBlock,
-                startItem: chapterIndexes[chapterN].startItem,
-                endBlock: blockN,
-                endItem: Math.max(itemN - 1, 0),
-                nextToken: chapterIndexes[chapterN].nextToken,
-                verses: '0',
-              }];
+              chapterVerseIndexes[chapterN]['0'] = [
+                {
+                  startBlock: chapterIndexes[chapterN].startBlock,
+                  startItem: chapterIndexes[chapterN].startItem,
+                  endBlock: blockN,
+                  endItem: Math.max(itemN - 1, 0),
+                  nextToken: chapterIndexes[chapterN].nextToken,
+                  verses: '0',
+                },
+              ];
             }
           }
 
@@ -87,7 +94,8 @@ const buildChapterVerseIndex = document => {
           chapterN = scopeLabel.split('/')[1];
           let chapterRecord = chapterIndexes[chapterN];
 
-          if (chapterRecord) { // Check start chapter has not been deleted
+          if (chapterRecord) {
+            // Check start chapter has not been deleted
             chapterRecord.endBlock = blockN;
             chapterRecord.endItem = itemN;
           }
@@ -95,19 +103,22 @@ const buildChapterVerseIndex = document => {
           verseN = scopeLabel.split('/')[1];
           let versesRecord = chapterVerseIndexes[chapterN][verseN];
 
-          if (versesRecord) { // Check start verse has not been deleted
-            const verseRecord = chapterVerseIndexes[chapterN][verseN][chapterVerseIndexes[chapterN][verseN].length - 1];
+          if (versesRecord) {
+            // Check start verse has not been deleted
+            const verseRecord =
+              chapterVerseIndexes[chapterN][verseN][
+                chapterVerseIndexes[chapterN][verseN].length - 1
+              ];
             verseRecord.endBlock = blockN;
             verseRecord.endItem = itemN;
             verseRecord.verses = verses;
           }
         }
-      } else if (itemType === itemEnum['token'] && itemSubtype === tokenEnum['wordLike']) {
-        mainSequence.tokensPresent
-          .set(
-            succinct.nByte(pos + 2),
-            1,
-          );
+      } else if (
+        itemType === itemEnum['token'] &&
+        itemSubtype === tokenEnum['wordLike']
+      ) {
+        mainSequence.tokensPresent.set(succinct.nByte(pos + 2), 1);
         nextTokenN++;
       }
       pos += itemLength;
@@ -118,7 +129,7 @@ const buildChapterVerseIndex = document => {
     const ba = new ByteArray();
     mainSequence.chapterVerses[chapterN] = ba;
     const sortedVerses = Object.keys(chapterVerses)
-      .map(n => parseInt(n))
+      .map((n) => parseInt(n))
       .sort((a, b) => a - b);
 
     if (sortedVerses.length === 0) {
@@ -138,12 +149,20 @@ const buildChapterVerseIndex = document => {
 
         for (const [verseElementN, verseElement] of verseElements.entries()) {
           if (!verseElement.verses) {
-            console.log(`** VerseElement without verses for ${verseSlot} in buildChapterVerseIndex`);
+            console.log(
+              `** VerseElement without verses for ${verseSlot} in buildChapterVerseIndex`
+            );
             continue;
           }
 
-          const versesEnumIndex = docSet.enumForCategoryValue('scopeBits', verseElement.verses);
-          const recordType = verseElement.startBlock === verseElement.endBlock ? shortCVIndexType : longCVIndexType;
+          const versesEnumIndex = docSet.enumForCategoryValue(
+            'scopeBits',
+            verseElement.verses
+          );
+          const recordType =
+            verseElement.startBlock === verseElement.endBlock
+              ? shortCVIndexType
+              : longCVIndexType;
           ba.pushByte(0);
 
           if (recordType === shortCVIndexType) {
@@ -164,7 +183,14 @@ const buildChapterVerseIndex = document => {
               versesEnumIndex,
             ]);
           }
-          ba.setByte(pos, makeVerseLengthByte(recordType, verseElementN === (nVerseElements - 1), ba.length - pos));
+          ba.setByte(
+            pos,
+            makeVerseLengthByte(
+              recordType,
+              verseElementN === nVerseElements - 1,
+              ba.length - pos
+            )
+          );
           pos = ba.length;
         }
       } else {
@@ -183,13 +209,27 @@ const buildChapterVerseIndex = document => {
 
     const ba = new ByteArray();
     mainSequence.chapters[chapterN] = ba;
-    const recordType = chapterElement.startBlock === chapterElement.endBlock ? shortCVIndexType : longCVIndexType;
+    const recordType =
+      chapterElement.startBlock === chapterElement.endBlock
+        ? shortCVIndexType
+        : longCVIndexType;
     ba.pushByte(0);
 
     if (recordType === shortCVIndexType) {
-      ba.pushNBytes([chapterElement.startBlock, chapterElement.startItem, chapterElement.endItem, chapterElement.nextToken]);
+      ba.pushNBytes([
+        chapterElement.startBlock,
+        chapterElement.startItem,
+        chapterElement.endItem,
+        chapterElement.nextToken,
+      ]);
     } else {
-      ba.pushNBytes([chapterElement.startBlock, chapterElement.endBlock, chapterElement.startItem, chapterElement.endItem, chapterElement.nextToken]);
+      ba.pushNBytes([
+        chapterElement.startBlock,
+        chapterElement.endBlock,
+        chapterElement.startItem,
+        chapterElement.endItem,
+        chapterElement.nextToken,
+      ]);
     }
     ba.setByte(0, makeVerseLengthByte(recordType, true, ba.length));
     ba.trim();
@@ -218,7 +258,9 @@ const chapterVerseIndex = (document, chapN) => {
           startItem: nBytes[1],
           endItem: nBytes[2],
           nextToken: nBytes[3],
-          verses: docSet.enums.scopeBits.countedString(docSet.enumIndexes.scopeBits[nBytes[4]]),
+          verses: docSet.enums.scopeBits.countedString(
+            docSet.enumIndexes.scopeBits[nBytes[4]]
+          ),
         });
       } else if (recordType === longCVIndexType) {
         const nBytes = succinct.nBytes(pos + 1, 6);
@@ -229,7 +271,9 @@ const chapterVerseIndex = (document, chapN) => {
           startItem: nBytes[2],
           endItem: nBytes[3],
           nextToken: nBytes[4],
-          verses: docSet.enums.scopeBits.countedString(docSet.enumIndexes.scopeBits[nBytes[5]]),
+          verses: docSet.enums.scopeBits.countedString(
+            docSet.enumIndexes.scopeBits[nBytes[5]]
+          ),
         });
       }
 
@@ -273,19 +317,12 @@ const chapterIndex = (document, chapN) => {
   }
 };
 
-const makeVerseLengthByte = (recordType, isLast, length) => length + (isLast ? 32 : 0) + (recordType * 64);
+const makeVerseLengthByte = (recordType, isLast, length) =>
+  length + (isLast ? 32 : 0) + recordType * 64;
 
-const verseLengthByte= (succinct, pos) => {
+const verseLengthByte = (succinct, pos) => {
   const sByte = succinct.byte(pos);
-  return [
-    sByte >> 6,
-    (sByte >> 5) % 2 === 1,
-    sByte % 32,
-  ];
+  return [sByte >> 6, (sByte >> 5) % 2 === 1, sByte % 32];
 };
 
-module.exports = {
-  buildChapterVerseIndex,
-  chapterVerseIndex,
-  chapterIndex,
-};
+export { buildChapterVerseIndex, chapterVerseIndex, chapterIndex };

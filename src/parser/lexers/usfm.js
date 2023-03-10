@@ -1,10 +1,7 @@
-const xre = require('xregexp');
+import xre from 'xregexp';
 
-const {
-  lexingRegexes,
-  mainRegex,
-} = require('./lexingRegexes.cjs');
-const { preTokenObjectForFragment } = require('./object_for_fragment.cjs');
+import { lexingRegexes, mainRegex } from './lexingRegexes';
+import { preTokenObjectForFragment } from './object_for_fragment';
 
 const parseUsfm = (str, parser) => {
   const matches = xre.match(str, mainRegex, 'all');
@@ -14,4 +11,4 @@ const parseUsfm = (str, parser) => {
   }
 };
 
-module.exports = { parseUsfm };
+export { parseUsfm };

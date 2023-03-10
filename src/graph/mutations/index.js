@@ -1,32 +1,26 @@
-const {
-  addMutationsSchemaString,
-  addMutationsResolvers,
-} = require('./add.cjs');
+import { addMutationsSchemaString, addMutationsResolvers } from './add';
 
-const {
+import {
   deleteMutationsSchemaString,
   deleteMutationsResolvers,
-} = require('./delete.cjs');
+} from './delete';
 
-const {
+import {
   rehashMutationsSchemaString,
   rehashMutationsResolvers,
-} = require('./rehash.cjs');
+} from './rehash';
 
-const {
-  tagMutationsSchemaString,
-  tagMutationsResolvers,
-} = require('./tags.cjs');
+import { tagMutationsSchemaString, tagMutationsResolvers } from './tags';
 
-const {
+import {
   updateMutationsSchemaString,
   updateMutationsResolvers,
-} = require('./update.cjs');
+} from './update';
 
-const {
+import {
   versificationMutationsSchemaString,
   versificationMutationsResolvers,
-} = require('./versification.cjs');
+} from './versification';
 
 const mutationsSchemaString = `
 type Mutation {
@@ -47,8 +41,4 @@ const mutationsResolvers = {
   ...versificationMutationsResolvers,
 };
 
-
-module.exports = {
-  mutationsSchemaString,
-  mutationsResolvers,
-};
+export { mutationsSchemaString, mutationsResolvers };

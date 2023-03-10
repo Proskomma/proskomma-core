@@ -1,7 +1,7 @@
-const utils = require('../../util/index.cjs');
+import utils from '../../util';
 const { labelForScope } = utils.scopeDefs;
-const { Sequence } = require('../model/index.cjs');
-const { tokenizeString } = require('../lib/tokenize.cjs');
+import { Sequence } from '../model';
+import { tokenizeString } from '../lib/tokenize';
 
 let nextNodeId = 0;
 
@@ -18,12 +18,12 @@ const numberNodes = (node, parentId) => {
   nextNodeId++;
 
   if (node.children) {
-    ret.children = node.children.map(cn => numberNodes(cn, ret.id));
+    ret.children = node.children.map((cn) => numberNodes(cn, ret.id));
   }
   return ret;
 };
 
-const flattenNodes = node => {
+const flattenNodes = (node) => {
   const ret = [{}];
   ret[0].id = node.id;
   ret[0].parentId = node.parentId;
@@ -37,7 +37,7 @@ const flattenNodes = node => {
 
     for (const cn of node.children) {
       ret[0].children.push(cn.id);
-      flattenNodes(cn).forEach(n => ret.push(n));
+      flattenNodes(cn).forEach((n) => ret.push(n));
     }
   }
   return ret;
@@ -62,7 +62,12 @@ const parseNodes = (str, parser, bookCode) => {
       for (const [name, content] of Object.entries(node.content)) {
         const treeContentStart = treeSequence.lastBlock().items.length;
         const tokenized = tokenizeString(content);
-        const scopePayload = labelForScope('tTreeContent', [name, node.id, `${treeContentStart}`, `${tokenized.length}`]);
+        const scopePayload = labelForScope('tTreeContent', [
+          name,
+          node.id,
+          `${treeContentStart}`,
+          `${tokenized.length}`,
+        ]);
 
         treeSequence.lastBlock().items.push({
           type: 'scope',
@@ -116,8 +121,4 @@ const parseNodes = (str, parser, bookCode) => {
   });
 };
 
-module.exports = {
-  flattenNodes,
-  numberNodes,
-  parseNodes,
-};
+export { flattenNodes, numberNodes, parseNodes };

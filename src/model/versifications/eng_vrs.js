@@ -452,4 +452,4 @@ S3Y 1:36 = DAG 3:59
 S3Y 1:38-68 = DAG 3:60-90
 `;
 
-module.exports = vrs;
+export default vrs;

@@ -9,8 +9,8 @@ type cvBook {
 `;
 
 const cvBookResolvers = {
-  bookCode: root => root[0],
-  chapters: root => Object.entries(root[1]),
-}
+  bookCode: (root) => root[0],
+  chapters: (root) => Object.entries(root[1]),
+};
 
-module.exports = { cvBookSchemaString, cvBookResolvers };
+export { cvBookSchemaString, cvBookResolvers };

@@ -1,4 +1,4 @@
-const utils = require('../../util/index.cjs');
+import utils from '../../util';
 
 const versificationMutationsSchemaString = `
   """Adds verse mapping tables to the documents in a docSet, where the verse mapping may be provided in legacy .vrs or JSON format"""
@@ -39,15 +39,18 @@ const versificationMutationsResolvers = {
     }
 
     const forwardSuccinctTree = utils.versification.succinctifyVerseMappings(
-      jsonSource.mappedVerses,
+      jsonSource.mappedVerses
     );
 
-    const reversedJsonSource = utils.versification.reverseVersification(jsonSource);
+    const reversedJsonSource =
+      utils.versification.reverseVersification(jsonSource);
     const reversedSuccinctTree = utils.versification.succinctifyVerseMappings(
-      reversedJsonSource.reverseMappedVerses,
+      reversedJsonSource.reverseMappedVerses
     );
 
-    for (const document of docSet.documents().filter(doc => 'bookCode' in doc.headers)) {
+    for (const document of docSet
+      .documents()
+      .filter((doc) => 'bookCode' in doc.headers)) {
       const bookCode = document.headers['bookCode'];
       const bookDocument = docSet.documentWithBook(bookCode);
 
@@ -76,7 +79,9 @@ const versificationMutationsResolvers = {
       return false;
     }
 
-    for (const document of docSet.documents().filter(doc => 'bookCode' in doc.headers)) {
+    for (const document of docSet
+      .documents()
+      .filter((doc) => 'bookCode' in doc.headers)) {
       const bookCode = document.headers['bookCode'];
       const bookDocument = docSet.documentWithBook(bookCode);
 
@@ -90,7 +95,4 @@ const versificationMutationsResolvers = {
   },
 };
 
-module.exports = {
-  versificationMutationsSchemaString,
-  versificationMutationsResolvers,
-};
+export { versificationMutationsSchemaString, versificationMutationsResolvers };

@@ -1,10 +1,7 @@
-const { scopeDefs } = require('../index.cjs');
-const { labelForScope } = scopeDefs;
-const { tokenizeString } = require('../../parser/lib/tokenize.cjs');
-const {
-  flattenNodes,
-  numberNodes,
-} = require('../../parser/lexers/nodes.cjs');
+import utils from '../../util';
+const { labelForScope } = utils.scopeDefs;
+import { tokenizeString } from '../../parser/lib/tokenize';
+import { flattenNodes, numberNodes } from '../../parser/lexers/nodes';
 
 const tsvToInputBlock = (tsv, hasHeadings) => {
   const ret = [];
@@ -60,12 +57,12 @@ const tsvToInputBlock = (tsv, hasHeadings) => {
   return ret;
 };
 
-const tsvHeadingTags = tsv => {
+const tsvHeadingTags = (tsv) => {
   const firstRow = tsv.split(/[\n\r]+/)[0];
   return firstRow.split('\t').map((c, n) => `col${n}:${c.trim()}`);
 };
 
-const treeToInputBlock = treeJson => {
+const treeToInputBlock = (treeJson) => {
   const ret = [];
 
   for (const node of flattenNodes(numberNodes(treeJson))) {
@@ -98,7 +95,12 @@ const treeToInputBlock = treeJson => {
       for (const [name, content] of Object.entries(node.content)) {
         const treeContentStart = nodeRecord.items.length;
         const tokenized = tokenizeString(content);
-        const scopePayload = labelForScope('tTreeContent', [name, node.id, `${treeContentStart}`, `${tokenized.length}`]);
+        const scopePayload = labelForScope('tTreeContent', [
+          name,
+          node.id,
+          `${treeContentStart}`,
+          `${tokenized.length}`,
+        ]);
 
         nodeRecord.items.push({
           type: 'scope',
@@ -158,30 +160,42 @@ const treeToInputBlock = treeJson => {
   return ret;
 };
 
-const escapePayload =
-    str =>
-      str.replace(/\\/g, '\\\\')
-        .replace(/"/g, '\\"')
-        .replace(/\n/g, '\\n')
-        .replace(/\t/g, '\\t')
-        .replace(/\r/g, '\\r');
+const escapePayload = (str) =>
+  str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\t/g, '\\t')
+    .replace(/\r/g, '\\r');
 
-const object2Query = obs =>
+const object2Query = (obs) =>
   '[' +
-  obs.map(
-    ob => `\n    {\n      type: "${ob.type}" \n      subType: "${ob.subType}" \n      payload: "${escapePayload(ob.payload)}"\n    }`,
-  ).join(',') +
+  obs
+    .map(
+      (ob) =>
+        `\n    {\n      type: "${ob.type}" \n      subType: "${
+          ob.subType
+        }" \n      payload: "${escapePayload(ob.payload)}"\n    }`
+    )
+    .join(',') +
   ']';
-const oneObject2Query = ob => `{\n      type: "${ob.type}" \n      subType: "${ob.subType}" \n      payload: "${escapePayload(ob.payload)}"}`;
-const blocksSpec2Query =
-    bSpec =>
-      '[\n' +
-      bSpec.map(
-        b =>
-          `  {\n    bs: ${oneObject2Query(b.bs)}, \n    bg: ${object2Query(b.bg)}, \n    os: ${object2Query(b.os)}, \n    is: ${object2Query(b.is)}, \n    items: ${object2Query(b.items)}}\n`) +
-      ']';
+const oneObject2Query = (ob) =>
+  `{\n      type: "${ob.type}" \n      subType: "${
+    ob.subType
+  }" \n      payload: "${escapePayload(ob.payload)}"}`;
+const blocksSpec2Query = (bSpec) =>
+  '[\n' +
+  bSpec.map(
+    (b) =>
+      `  {\n    bs: ${oneObject2Query(b.bs)}, \n    bg: ${object2Query(
+        b.bg
+      )}, \n    os: ${object2Query(b.os)}, \n    is: ${object2Query(
+        b.is
+      )}, \n    items: ${object2Query(b.items)}}\n`
+  ) +
+  ']';
 
-module.exports = {
+export {
   tokenizeString,
   tsvToInputBlock,
   tsvHeadingTags,

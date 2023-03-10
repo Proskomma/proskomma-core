@@ -6,9 +6,6 @@ type cvVerses {
 }
 `;
 
-const cvVersesResolvers = { verse: root => root };
+const cvVersesResolvers = { verse: (root) => root };
 
-module.exports = {
-  cvVersesSchemaString,
-  cvVersesResolvers,
-};
+export { cvVersesSchemaString, cvVersesResolvers };

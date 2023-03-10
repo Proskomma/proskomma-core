@@ -1,4 +1,4 @@
-module.exports = `# Versification  "Original" 
+export default `# Versification  "Original" 
 # Version=1.200
 # (not a very good name but I have not heard a better suggestion)
 #

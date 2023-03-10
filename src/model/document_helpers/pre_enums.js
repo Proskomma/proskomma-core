@@ -1,21 +1,38 @@
-const utils = require('../../util/index.cjs');
+import utils from '../../util';
 
 const recordPreEnums = (docSet, seq) => {
   docSet.recordPreEnum('scopeBits', '0');
 
   for (const [blockN, block] of seq.blocks.entries()) {
-    for (const [itemN, item] of [...block.items, block.bs, ...block.bg].entries()) {
+    for (const [itemN, item] of [
+      ...block.items,
+      block.bs,
+      ...block.bg,
+    ].entries()) {
       if (item.subType === 'wordLike') {
         docSet.recordPreEnum('wordLike', item.payload);
-      } else if (['lineSpace', 'eol', 'punctuation', 'softLineBreak', 'bareSlash', 'unknown'].includes(item.subType)) {
+      } else if (
+        [
+          'lineSpace',
+          'eol',
+          'punctuation',
+          'softLineBreak',
+          'bareSlash',
+          'unknown',
+        ].includes(item.subType)
+      ) {
         docSet.recordPreEnum('notWordLike', item.payload);
       } else if (item.type === 'graft') {
         docSet.recordPreEnum('graftTypes', item.subType);
       } else if (item.subType === 'start') {
         const labelBits = item.payload.split('/');
 
-        if (labelBits.length !== utils.scopeDefs.nComponentsForScope(labelBits[0])) {
-          throw new Error(`Scope ${item.payload} has unexpected number of components`);
+        if (
+          labelBits.length !== utils.scopeDefs.nComponentsForScope(labelBits[0])
+        ) {
+          throw new Error(
+            `Scope ${item.payload} has unexpected number of components`
+          );
         }
 
         for (const labelBit of labelBits.slice(1)) {
@@ -37,7 +54,7 @@ const rerecordPreEnums = (docSet, seq) => {
   }
 };
 
-const rerecordBlockPreEnums= (docSet, ba) => {
+const rerecordBlockPreEnums = (docSet, ba) => {
   for (const item of docSet.unsuccinctifyItems(ba, {}, 0)) {
     if (item[0] === 'token') {
       if (item[1] === 'wordLike') {
@@ -50,7 +67,9 @@ const rerecordBlockPreEnums= (docSet, ba) => {
     } else if (item[0] === 'scope' && item[1] === 'start') {
       const labelBits = item[2].split('/');
 
-      if (labelBits.length !== utils.scopeDefs.nComponentsForScope(labelBits[0])) {
+      if (
+        labelBits.length !== utils.scopeDefs.nComponentsForScope(labelBits[0])
+      ) {
         throw new Error(`Scope ${item[2]} has unexpected number of components`);
       }
 
@@ -61,7 +80,4 @@ const rerecordBlockPreEnums= (docSet, ba) => {
   }
 };
 
-module.exports = {
-  recordPreEnums,
-  rerecordPreEnums,
-};
+export { recordPreEnums, rerecordPreEnums };

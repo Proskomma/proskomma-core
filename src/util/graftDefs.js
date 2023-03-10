@@ -12,4 +12,4 @@ const graftLocation = {
   kv: 'block',
 };
 
-module.exports = { graftLocation };
+export { graftLocation };

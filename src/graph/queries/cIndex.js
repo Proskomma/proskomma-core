@@ -1,4 +1,4 @@
-const { dumpItems } = require('../lib/dump.cjs');
+import { dumpItems } from '../lib/dump';
 
 const cIndexSchemaString = `
 """A chapter index entry"""
@@ -40,37 +40,57 @@ type cIndex {
 `;
 
 const cIndexResolvers = {
-  chapter: root => root[0],
-  startBlock: root => root[1].startBlock,
-  endBlock: root => root[1].endBlock,
-  startItem: root => root[1].startItem,
-  endItem: root => root[1].endItem,
-  nextToken: root => root[1].nextToken,
+  chapter: (root) => root[0],
+  startBlock: (root) => root[1].startBlock,
+  endBlock: (root) => root[1].endBlock,
+  startItem: (root) => root[1].startItem,
+  endItem: (root) => root[1].endItem,
+  nextToken: (root) => root[1].nextToken,
   items: (root, args, context) =>
-    context.docSet.itemsByIndex(context.doc.sequences[context.doc.mainId], root[1], args.includeContext)
+    context.docSet
+      .itemsByIndex(
+        context.doc.sequences[context.doc.mainId],
+        root[1],
+        args.includeContext
+      )
       .reduce((a, b) => a.concat([['token', 'lineSpace', ' ']].concat(b)), []),
   dumpItems: (root, args, context) => {
-    const items = context.docSet.itemsByIndex(context.doc.sequences[context.doc.mainId], root[1], false);
+    const items = context.docSet.itemsByIndex(
+      context.doc.sequences[context.doc.mainId],
+      root[1],
+      false
+    );
 
     if (items.length > 0) {
-      return dumpItems(items.reduce((a, b) => a.concat([['token', 'lineSpace', ' ', null]].concat(b))));
+      return dumpItems(
+        items.reduce((a, b) =>
+          a.concat([['token', 'lineSpace', ' ', null]].concat(b))
+        )
+      );
     } else {
       return '';
     }
   },
   tokens: (root, args, context) =>
-    context.docSet.itemsByIndex(context.doc.sequences[context.doc.mainId], root[1], args.includeContext)
+    context.docSet
+      .itemsByIndex(
+        context.doc.sequences[context.doc.mainId],
+        root[1],
+        args.includeContext
+      )
       .reduce((a, b) => a.concat([['token', 'lineSpace', ' ']].concat(b)), [])
       .filter(
-        i => i[0] === 'token' &&
+        (i) =>
+          i[0] === 'token' &&
           (!args.withChars || args.withChars.includes(i[2])) &&
-          (!args.withSubTypes || args.withSubTypes.includes(i[1])),
+          (!args.withSubTypes || args.withSubTypes.includes(i[1]))
       ),
   text: (root, args, context) => {
-    let ret = context.docSet.itemsByIndex(context.doc.sequences[context.doc.mainId], root[1])
+    let ret = context.docSet
+      .itemsByIndex(context.doc.sequences[context.doc.mainId], root[1])
       .reduce((a, b) => a.concat([['token', 'lineSpace', ' ']].concat(b)), [])
-      .filter(i => i[0] === 'token')
-      .map(t => t[1] === 'lineSpace' ? ' ' : t[2])
+      .filter((i) => i[0] === 'token')
+      .map((t) => (t[1] === 'lineSpace' ? ' ' : t[2]))
       .join('')
       .trim();
 
@@ -81,7 +101,4 @@ const cIndexResolvers = {
   },
 };
 
-module.exports = {
-  cIndexSchemaString,
-  cIndexResolvers,
-};
+export { cIndexSchemaString, cIndexResolvers };

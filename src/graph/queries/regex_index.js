@@ -8,11 +8,8 @@ type regexIndex {
 }`;
 
 const regexIndexResolvers = {
-  index: root => root[0],
-  matched: root => root[1],
+  index: (root) => root[0],
+  matched: (root) => root[1],
 };
 
-module.exports = {
-  regexIndexSchemaString,
-  regexIndexResolvers,
-};
+export { regexIndexSchemaString, regexIndexResolvers };

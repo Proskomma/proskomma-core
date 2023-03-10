@@ -1,9 +1,8 @@
-const xre = require('xregexp');
+import xre from 'xregexp';
 
-const { do_cv } = require('../lib/do_cv.cjs');
+import { do_cv } from '../lib/do_cv';
 
-const headerById = (root, id) =>
-  (id in root.headers) ? root.headers[id] : null;
+const headerById = (root, id) => (id in root.headers ? root.headers[id] : null);
 
 const documentSchemaString = `
 """A document, typically corresponding to USFM for one book"""
@@ -199,14 +198,17 @@ type Document {
 `;
 
 const documentResolvers = {
-  idParts: root => {
+  idParts: (root) => {
     const idHeader = headerById(root, 'id');
 
     if (!idHeader) {
       return [null, null];
     }
 
-    const periphMatch = xre.exec(idHeader, /^(P\d\d)\s+([A-Z0-6]{3})\s+(\S+)\s+-\s+(.*)/);
+    const periphMatch = xre.exec(
+      idHeader,
+      /^(P\d\d)\s+([A-Z0-6]{3})\s+(\S+)\s+-\s+(.*)/
+    );
 
     if (periphMatch) {
       return ['periph', periphMatch.slice(1)];
@@ -219,7 +221,7 @@ const documentResolvers = {
     }
     return [null, [idHeader]];
   },
-  headers: root => Object.entries(root.headers),
+  headers: (root) => Object.entries(root.headers),
   header: (root, args) => headerById(root, args.id),
   mainSequence: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
@@ -234,19 +236,25 @@ const documentResolvers = {
     let ret = Object.values(root.sequences);
 
     if (args.ids) {
-      ret = ret.filter(s => args.ids.includes(s.id));
+      ret = ret.filter((s) => args.ids.includes(s.id));
     }
 
     if (args.types) {
-      ret = ret.filter(s => args.types.includes(s.type));
+      ret = ret.filter((s) => args.types.includes(s.type));
     }
 
     if (args.withTags) {
-      ret = ret.filter(s => args.withTags.filter(t => s.tags.has(t)).length === args.withTags.length);
+      ret = ret.filter(
+        (s) =>
+          args.withTags.filter((t) => s.tags.has(t)).length ===
+          args.withTags.length
+      );
     }
 
     if (args.withoutTags) {
-      ret = ret.filter(s => args.withoutTags.filter(t => s.tags.has(t)).length === 0);
+      ret = ret.filter(
+        (s) => args.withoutTags.filter((t) => s.tags.has(t)).length === 0
+      );
     }
 
     return ret;
@@ -255,18 +263,24 @@ const documentResolvers = {
     context.docSet = root.processor.docSets[root.docSetId];
     let ret = Object.values(root.sequences);
 
-    ret = ret.filter(s => s.type === 'table');
+    ret = ret.filter((s) => s.type === 'table');
 
     if (args.ids) {
-      ret = ret.filter(s => args.ids.includes(s.id));
+      ret = ret.filter((s) => args.ids.includes(s.id));
     }
 
     if (args.withTags) {
-      ret = ret.filter(s => args.withTags.filter(t => s.tags.has(t)).length === args.withTags.length);
+      ret = ret.filter(
+        (s) =>
+          args.withTags.filter((t) => s.tags.has(t)).length ===
+          args.withTags.length
+      );
     }
 
     if (args.withoutTags) {
-      ret = ret.filter(s => args.withoutTags.filter(t => s.tags.has(t)).length === 0);
+      ret = ret.filter(
+        (s) => args.withoutTags.filter((t) => s.tags.has(t)).length === 0
+      );
     }
 
     return ret;
@@ -275,18 +289,24 @@ const documentResolvers = {
     context.docSet = root.processor.docSets[root.docSetId];
     let ret = Object.values(root.sequences);
 
-    ret = ret.filter(s => s.type === 'tree');
+    ret = ret.filter((s) => s.type === 'tree');
 
     if (args.ids) {
-      ret = ret.filter(s => args.ids.includes(s.id));
+      ret = ret.filter((s) => args.ids.includes(s.id));
     }
 
     if (args.withTags) {
-      ret = ret.filter(s => args.withTags.filter(t => s.tags.has(t)).length === args.withTags.length);
+      ret = ret.filter(
+        (s) =>
+          args.withTags.filter((t) => s.tags.has(t)).length ===
+          args.withTags.length
+      );
     }
 
     if (args.withoutTags) {
-      ret = ret.filter(s => args.withoutTags.filter(t => s.tags.has(t)).length === 0);
+      ret = ret.filter(
+        (s) => args.withoutTags.filter((t) => s.tags.has(t)).length === 0
+      );
     }
 
     return ret;
@@ -295,18 +315,24 @@ const documentResolvers = {
     context.docSet = root.processor.docSets[root.docSetId];
     let ret = Object.values(root.sequences);
 
-    ret = ret.filter(s => s.type === 'kv');
+    ret = ret.filter((s) => s.type === 'kv');
 
     if (args.ids) {
-      ret = ret.filter(s => args.ids.includes(s.id));
+      ret = ret.filter((s) => args.ids.includes(s.id));
     }
 
     if (args.withTags) {
-      ret = ret.filter(s => args.withTags.filter(t => s.tags.has(t)).length === args.withTags.length);
+      ret = ret.filter(
+        (s) =>
+          args.withTags.filter((t) => s.tags.has(t)).length ===
+          args.withTags.length
+      );
     }
 
     if (args.withoutTags) {
-      ret = ret.filter(s => args.withoutTags.filter(t => s.tags.has(t)).length === 0);
+      ret = ret.filter(
+        (s) => args.withoutTags.filter((t) => s.tags.has(t)).length === 0
+      );
     }
 
     return ret;
@@ -315,18 +341,26 @@ const documentResolvers = {
     context.docSet = root.processor.docSets[root.docSetId];
     let ret = Object.values(root.sequences);
 
-    ret = ret.filter(s => s.type !== 'tree' && s.type !== 'table' && s.type !== 'kv');
+    ret = ret.filter(
+      (s) => s.type !== 'tree' && s.type !== 'table' && s.type !== 'kv'
+    );
 
     if (args.ids) {
-      ret = ret.filter(s => args.ids.includes(s.id));
+      ret = ret.filter((s) => args.ids.includes(s.id));
     }
 
     if (args.withTags) {
-      ret = ret.filter(s => args.withTags.filter(t => s.tags.has(t)).length === args.withTags.length);
+      ret = ret.filter(
+        (s) =>
+          args.withTags.filter((t) => s.tags.has(t)).length ===
+          args.withTags.length
+      );
     }
 
     if (args.withoutTags) {
-      ret = ret.filter(s => args.withoutTags.filter(t => s.tags.has(t)).length === 0);
+      ret = ret.filter(
+        (s) => args.withoutTags.filter((t) => s.tags.has(t)).length === 0
+      );
     }
 
     return ret;
@@ -334,36 +368,42 @@ const documentResolvers = {
   sequence: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
     let ret = Object.values(root.sequences);
-    ret = ret.filter(s => args.id.includes(s.id));
+    ret = ret.filter((s) => args.id.includes(s.id));
     return ret[0] || null;
   },
   tableSequence: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
     let ret = Object.values(root.sequences);
-    ret = ret.filter(s => args.id.includes(s.id));
+    ret = ret.filter((s) => args.id.includes(s.id));
 
     if (ret[0] && ret[0].type !== 'table') {
-      throw new Error(`Expected sequence id ${ret[0].id} to be of type 'table', not '${ret[0].type}'`);
+      throw new Error(
+        `Expected sequence id ${ret[0].id} to be of type 'table', not '${ret[0].type}'`
+      );
     }
     return ret[0] || null;
   },
   treeSequence: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
     let ret = Object.values(root.sequences);
-    ret = ret.filter(s => args.id.includes(s.id));
+    ret = ret.filter((s) => args.id.includes(s.id));
 
     if (ret[0] && ret[0].type !== 'tree') {
-      throw new Error(`Expected sequence id ${ret[0].id} to be of type 'tree', not '${ret[0].type}'`);
+      throw new Error(
+        `Expected sequence id ${ret[0].id} to be of type 'tree', not '${ret[0].type}'`
+      );
     }
     return ret[0] || null;
   },
   kvSequence: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
     let ret = Object.values(root.sequences);
-    ret = ret.filter(s => args.id.includes(s.id));
+    ret = ret.filter((s) => args.id.includes(s.id));
 
     if (ret[0] && ret[0].type !== 'vk') {
-      throw new Error(`Expected sequence id ${ret[0].id} to be of type 'kv', not '${ret[0].type}'`);
+      throw new Error(
+        `Expected sequence id ${ret[0].id} to be of type 'kv', not '${ret[0].type}'`
+      );
     }
     return ret[0] || null;
   },
@@ -373,84 +413,111 @@ const documentResolvers = {
   },
   mainBlocksItems: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
-    return root.sequences[root.mainId].blocks.map(
-      b => context.docSet.unsuccinctifyItems(b.c, {}, null),
+    return root.sequences[root.mainId].blocks.map((b) =>
+      context.docSet.unsuccinctifyItems(b.c, {}, null)
     );
   },
   mainBlocksTokens: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
-    return root.sequences[root.mainId].blocks.map(
-      b => context.docSet.unsuccinctifyItems(b.c, { tokens: true }, null),
+    return root.sequences[root.mainId].blocks.map((b) =>
+      context.docSet.unsuccinctifyItems(b.c, { tokens: true }, null)
     );
   },
   mainBlocksText: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
-    return root.sequences[root.mainId].blocks.map(
-      b => {
-        const tokens = context.docSet.unsuccinctifyItems(b.c, { tokens: true }, null);
-        let ret = tokens.map(t => t[2]).join('').trim();
+    return root.sequences[root.mainId].blocks.map((b) => {
+      const tokens = context.docSet.unsuccinctifyItems(
+        b.c,
+        { tokens: true },
+        null
+      );
+      let ret = tokens
+        .map((t) => t[2])
+        .join('')
+        .trim();
 
-        if (args.normalizeSpace) {
-          ret = ret.replace(/[ \t\n\r]+/g, ' ');
-        }
-        return ret;
-      },
-    );
+      if (args.normalizeSpace) {
+        ret = ret.replace(/[ \t\n\r]+/g, ' ');
+      }
+      return ret;
+    });
   },
   mainText: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
-    return root.sequences[root.mainId].blocks.map(
-      b => {
-        const tokens = context.docSet.unsuccinctifyItems(b.c, { tokens: true }, null);
-        let ret = tokens.map(t => t[2]).join('').trim();
+    return root.sequences[root.mainId].blocks
+      .map((b) => {
+        const tokens = context.docSet.unsuccinctifyItems(
+          b.c,
+          { tokens: true },
+          null
+        );
+        let ret = tokens
+          .map((t) => t[2])
+          .join('')
+          .trim();
 
         if (args.normalizeSpace) {
           ret = ret.replace(/[ \t\n\r]+/g, ' ');
         }
         return ret;
-      },
-    ).join('\n');
+      })
+      .join('\n');
   },
-  tags: root => Array.from(root.tags),
-  tagsKv: root => Array.from(root.tags).map(t => {
-    if (t.includes(':')) {
-      return [t.substring(0, t.indexOf(':')), t.substring(t.indexOf(':') + 1)];
-    } else {
-      return [t, ''];
-    }
-  }),
+  tags: (root) => Array.from(root.tags),
+  tagsKv: (root) =>
+    Array.from(root.tags).map((t) => {
+      if (t.includes(':')) {
+        return [
+          t.substring(0, t.indexOf(':')),
+          t.substring(t.indexOf(':') + 1),
+        ];
+      } else {
+        return [t, ''];
+      }
+    }),
   hasTag: (root, args) => root.tags.has(args.tagName),
   cv: (root, args, context) => do_cv(root, args, context, false),
   mappedCv: (root, args, context) => {
     if (args.verses.length !== 1) {
-      throw new Error(`mappedCv expects exactly one verse, not ${args.verses.length}`);
+      throw new Error(
+        `mappedCv expects exactly one verse, not ${args.verses.length}`
+      );
     }
     return do_cv(root, args, context, true, args.mappedDocSetId);
   },
   mappedCvs: (root, args, context) => {
     const cvIndex = root.chapterVerseIndex(args.chapter);
-    const verses = cvIndex.filter(ve => ve.length > 0).map(ve => ve[0].verses);
+    const verses = cvIndex
+      .filter((ve) => ve.length > 0)
+      .map((ve) => ve[0].verses);
     let ret = [];
 
     for (const verse of verses) {
       ret.push(
-        do_cv(root, {
-          ...args,
-          verses: [verse],
-        }, context, true, args.mappedDocSetId)
-          .map(ig => [[`fromChapter/${args.chapter}`, `fromVerse/${verse}`, ...ig[0]], ig[1]]),
+        do_cv(
+          root,
+          {
+            ...args,
+            verses: [verse],
+          },
+          context,
+          true,
+          args.mappedDocSetId
+        ).map((ig) => [
+          [`fromChapter/${args.chapter}`, `fromVerse/${verse}`, ...ig[0]],
+          ig[1],
+        ])
       );
     }
     return ret;
   },
-  cvNavigation:
-    (root, args) => [
-      args.chapter,
-      args.verse,
-      root.chapterVerseIndex((parseInt(args.chapter) - 1).toString()),
-      root.chapterVerseIndex(args.chapter),
-      root.chapterVerseIndex((parseInt(args.chapter) + 1).toString()),
-    ],
+  cvNavigation: (root, args) => [
+    args.chapter,
+    args.verse,
+    root.chapterVerseIndex((parseInt(args.chapter) - 1).toString()),
+    root.chapterVerseIndex(args.chapter),
+    root.chapterVerseIndex((parseInt(args.chapter) + 1).toString()),
+  ],
   cvIndexes: (root, args, context) => {
     context.docSet = root.processor.docSets[root.docSetId];
     context.doc = root;
@@ -474,7 +541,9 @@ const documentResolvers = {
   },
   cvMatching: (root, args, context) => {
     if (!args.withChars && !args.withMatchingChars && !args.withScopes) {
-      throw new Error('Must specify at least one of withChars or withMatchingChars or withScopes');
+      throw new Error(
+        'Must specify at least one of withChars or withMatchingChars or withScopes'
+      );
     }
 
     if (args.withChars && args.withMatchingChars) {
@@ -486,16 +555,18 @@ const documentResolvers = {
     let charsRegexes;
 
     if (args.withChars && args.allChars) {
-      charsRegexes = args.withChars.map(s => xre(`^${s}$`));
+      charsRegexes = args.withChars.map((s) => xre(`^${s}$`));
     } else if (args.withChars) {
-      charsRegexes = [xre.union(args.withChars.map(s => xre(`^${s}$`, 'i')))];
+      charsRegexes = [xre.union(args.withChars.map((s) => xre(`^${s}$`, 'i')))];
     } else if (args.withMatchingChars && args.allChars) {
-      charsRegexes = args.withMatchingChars.map(s => xre(s, 'i'));
+      charsRegexes = args.withMatchingChars.map((s) => xre(s, 'i'));
     } else if (args.withMatchingChars) {
-      charsRegexes = [xre.union(args.withMatchingChars.map(s => xre(s, 'i')))];
+      charsRegexes = [
+        xre.union(args.withMatchingChars.map((s) => xre(s, 'i'))),
+      ];
     }
 
-    const allScopesInGroup = scopes => {
+    const allScopesInGroup = (scopes) => {
       for (const expectedScope of args.withScopes || []) {
         if (!scopes.includes(expectedScope)) {
           return false;
@@ -504,7 +575,7 @@ const documentResolvers = {
       return true;
     };
 
-    const anyScopesInGroup = scopes => {
+    const anyScopesInGroup = (scopes) => {
       const expectedScopes = args.withScopes || [];
 
       for (const expectedScope of expectedScopes) {
@@ -515,7 +586,7 @@ const documentResolvers = {
       return expectedScopes.length === 0;
     };
 
-    const allRegexesInGroup = items => {
+    const allRegexesInGroup = (items) => {
       for (const regex of charsRegexes || []) {
         let found = false;
 
@@ -535,13 +606,15 @@ const documentResolvers = {
 
     const itemGroups = context.docSet.sequenceItemsByScopes(
       root.sequences[root.mainId].blocks,
-      ['chapter/', 'verses/'],
+      ['chapter/', 'verses/']
     );
     return itemGroups.filter(
-      ig =>
+      (ig) =>
         (args.allScopes ? allScopesInGroup : anyScopesInGroup)(
-          ig[1].filter(i => i[0] === 'scope' && i[1] === 'start').map(s => s[2])) &&
-        allRegexesInGroup(ig[1]),
+          ig[1]
+            .filter((i) => i[0] === 'scope' && i[1] === 'start')
+            .map((s) => s[2])
+        ) && allRegexesInGroup(ig[1])
     );
   },
   perf: (root, args) => root.perf(args.indent),
@@ -549,7 +622,4 @@ const documentResolvers = {
   sofria: (root, args) => root.sofria(args.indent, args.chapter),
 };
 
-module.exports = {
-  documentSchemaString,
-  documentResolvers,
-};
+export { documentSchemaString, documentResolvers };

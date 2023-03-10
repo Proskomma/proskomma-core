@@ -1,7 +1,7 @@
-const { PipelineHandler } = require('proskomma-json-tools');
-const { remakeBlocks } = require('../lib/remake_blocks.cjs');
-const pipelines = require('../../pipelines/perf2x/index.cjs');
-const customTransforms = require('../../transforms/index.cjs');
+import { PipelineHandler } from 'proskomma-json-tools';
+import { remakeBlocks } from '../lib/remake_blocks';
+import pipelines from '../../pipelines/perf2x';
+import customTransforms from '../../transforms';
 
 const updateMutationsSchemaString = `
   """Replaces the items of a block with a new set of items"""
@@ -68,7 +68,7 @@ const updateMutationsResolvers = {
       args.documentId,
       args.sequenceId,
       args.blockPosition,
-      args.items,
+      args.items
     );
 
     if (!itemsResult) {
@@ -80,7 +80,7 @@ const updateMutationsResolvers = {
         args.documentId,
         args.sequenceId,
         args.blockPosition,
-        args.blockGrafts,
+        args.blockGrafts
       );
 
       if (!bgResult) {
@@ -93,7 +93,7 @@ const updateMutationsResolvers = {
         args.documentId,
         args.sequenceId,
         args.blockPosition,
-        args.blockScope,
+        args.blockScope
       );
 
       if (!bsResult) {
@@ -118,7 +118,9 @@ const updateMutationsResolvers = {
     const sequence = document.sequences[args.sequenceId || document.mainId];
 
     if (!sequence) {
-      throw new Error(`Sequence '${args.sequenceId || document.mainId}' not found`);
+      throw new Error(
+        `Sequence '${args.sequenceId || document.mainId}' not found`
+      );
     }
     remakeBlocks(docSet, document, sequence, args.blocksSpec);
     document.buildChapterVerseIndex();
@@ -140,27 +142,29 @@ const updateMutationsResolvers = {
     const sequence = document.sequences[args.sequenceId || document.mainId];
 
     if (!sequence) {
-      throw new Error(`Sequence '${args.sequenceId || document.mainId}' not found`);
+      throw new Error(
+        `Sequence '${args.sequenceId || document.mainId}' not found`
+      );
     }
 
     const sequencePerf = JSON.parse(args.perf);
     const perf = {
-      'schema': {
-        'structure': 'flat',
-        'structure_version': '0.3.0',
-        'constraints': [
+      schema: {
+        structure: 'flat',
+        structure_version: '0.3.0',
+        constraints: [
           {
-            'name': 'perf',
-            'version': '0.3.0',
+            name: 'perf',
+            version: '0.3.0',
           },
         ],
       },
-      'metadata': {
-        'translation': {},
-        'document': {},
+      metadata: {
+        translation: {},
+        document: {},
       },
-      'sequences': {},
-      'main_sequence_id': args.sequenceId,
+      sequences: {},
+      main_sequence_id: args.sequenceId,
     };
     perf.sequences[args.sequenceId] = sequencePerf;
 
@@ -168,11 +172,13 @@ const updateMutationsResolvers = {
 
     try {
       const pipelineHandler = new PipelineHandler({
-        pipelines:pipelines,
-        transforms:customTransforms,
-        proskomma:root,
+        pipelines: pipelines,
+        transforms: customTransforms,
+        proskomma: root,
       });
-      const output = await pipelineHandler.runPipeline('perf2PkJsonPipeline', { perf });
+      const output = await pipelineHandler.runPipeline('perf2PkJsonPipeline', {
+        perf,
+      });
       blocksSpec = Object.values(output.pkJson)[0];
     } catch (err) {
       console.error('pipelineHandler Error :\n', err);
@@ -204,7 +210,4 @@ const updateMutationsResolvers = {
   },
 };
 
-module.exports = {
-  updateMutationsSchemaString,
-  updateMutationsResolvers,
-};
+export { updateMutationsSchemaString, updateMutationsResolvers };

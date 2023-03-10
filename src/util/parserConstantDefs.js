@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   usfm: {
     baseSequenceTypes: {
       main: '1',
@@ -27,4 +27,3 @@ module.exports = {
     },
   },
 };
-

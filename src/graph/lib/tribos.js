@@ -1,7 +1,7 @@
-const xre = require('xregexp');
+import xre from 'xregexp';
 
-const { expressions, doPredicate } = require('./tribos_expression.cjs');
-const { stepActions } = require('./tribos_step.cjs');
+import { expressions, doPredicate } from './tribos_expression';
+import { stepActions } from './tribos_step';
 
 class Tribos {
   constructor() {
@@ -13,7 +13,14 @@ class Tribos {
       const matches = xre.exec(queryStep, stepAction.regex);
 
       if (matches && stepAction.inputType === this.currentStepType) {
-        let ret = stepAction.function(docSet, allNodes, nodeLookup, result, queryStep, matches);
+        let ret = stepAction.function(
+          docSet,
+          allNodes,
+          nodeLookup,
+          result,
+          queryStep,
+          matches
+        );
 
         if (matches[stepAction.predicateCapture]) {
           ret = doPredicate(docSet, ret, matches[stepAction.predicateCapture]);
@@ -27,12 +34,24 @@ class Tribos {
 
   parse1(docSet, allNodes, nodeLookup, result, queryArray) {
     if (queryArray.length > 0) {
-      const stepResult = this.doStep(docSet, allNodes, nodeLookup, result, queryArray[0]);
+      const stepResult = this.doStep(
+        docSet,
+        allNodes,
+        nodeLookup,
+        result,
+        queryArray[0]
+      );
 
       if (stepResult.errors || stepResult.data.length === 0) {
         return stepResult;
       } else {
-        return this.parse1(docSet, allNodes, nodeLookup, stepResult, queryArray.slice(1));
+        return this.parse1(
+          docSet,
+          allNodes,
+          nodeLookup,
+          stepResult,
+          queryArray.slice(1)
+        );
       }
     } else {
       return result;
@@ -59,16 +78,23 @@ class Tribos {
   }
 
   doc() {
-    return '** Steps **\n\n' +
-    stepActions
-      .map(sa => sa.doc)
-      .map(d => `* ${d.title} *\n${d.syntax}\n${d.description}`)
-      .join('\n\n') +
+    return (
+      '** Steps **\n\n' +
+      stepActions
+        .map((sa) => sa.doc)
+        .map((d) => `* ${d.title} *\n${d.syntax}\n${d.description}`)
+        .join('\n\n') +
       '** Predicate Operators **\n\n' +
       Object.values(expressions)
-        .filter(e => e.doc)
-        .map(e => `${e.doc.operator}(${e.doc.args.map(a => '<' + a + '>').join(', ')}) => ${e.doc.result}\n${e.doc.description}`)
-        .join('\n\n');
+        .filter((e) => e.doc)
+        .map(
+          (e) =>
+            `${e.doc.operator}(${e.doc.args
+              .map((a) => '<' + a + '>')
+              .join(', ')}) => ${e.doc.result}\n${e.doc.description}`
+        )
+        .join('\n\n')
+    );
   }
 
   parse(docSet, nodes, queryString) {
@@ -78,13 +104,15 @@ class Tribos {
       nodes,
       this.indexNodes(docSet, nodes),
       { data: nodes },
-      this.queryArray(queryString),
+      this.queryArray(queryString)
     );
 
     if (result.data) {
       switch (this.currentStepType) {
-      case 'nodes':
-        result.data = result.data.map(n => ({ id: docSet.unsuccinctifyScopes(n.bs)[0][2].split('/')[1] }));
+        case 'nodes':
+          result.data = result.data.map((n) => ({
+            id: docSet.unsuccinctifyScopes(n.bs)[0][2].split('/')[1],
+          }));
       }
     }
 
@@ -94,4 +122,4 @@ class Tribos {
   }
 }
 
-module.exports = Tribos;
+export default Tribos;

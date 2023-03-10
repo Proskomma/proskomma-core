@@ -1,4 +1,4 @@
-const serializeSuccinct = document => {
+const serializeSuccinct = (document) => {
   const ret = { sequences: {} };
   ret.headers = document.headers;
   ret.mainId = document.mainId;
@@ -10,10 +10,10 @@ const serializeSuccinct = document => {
   return ret;
 };
 
-const serializeSuccinctSequence = seqOb => {
+const serializeSuccinctSequence = (seqOb) => {
   const ret = {
     type: seqOb.type,
-    blocks: seqOb.blocks.map(b => serializeSuccinctBlock(b)),
+    blocks: seqOb.blocks.map((b) => serializeSuccinctBlock(b)),
     tags: Array.from(seqOb.tags),
   };
 
@@ -38,7 +38,7 @@ const serializeSuccinctSequence = seqOb => {
   return ret;
 };
 
-const serializeSuccinctBlock = blockOb => {
+const serializeSuccinctBlock = (blockOb) => {
   for (const succName of ['bs', 'bg', 'c', 'is', 'os', 'nt']) {
     blockOb[succName].trim();
   }
@@ -52,4 +52,4 @@ const serializeSuccinctBlock = blockOb => {
   };
 };
 
-module.exports = { serializeSuccinct };
+export { serializeSuccinct };

@@ -11,4 +11,4 @@ attKey: String!
 valueN: Int!
 }`;
 
-module.exports = { inputAttSpecSchemaString };
+export { inputAttSpecSchemaString };

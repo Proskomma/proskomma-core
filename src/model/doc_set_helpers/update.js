@@ -1,4 +1,4 @@
-const utils = require('../../util/index.cjs');
+import utils from '../../util';
 const ByteArray = utils.ByteArray;
 const {
   pushSuccinctGraftBytes,
@@ -15,7 +15,8 @@ const updateItems1 = (
   sequenceId,
   blockPosition,
   typedArrayName,
-  itemObjects) => {
+  itemObjects
+) => {
   const document = docSet.processor.documents[documentId];
 
   if (!document) {
@@ -35,7 +36,9 @@ const updateItems1 = (
   }
 
   if (sequence.blocks.length <= blockPosition) {
-    throw new Error(`Could not find block ${blockPosition} (length=${sequence.blocks.length})`);
+    throw new Error(
+      `Could not find block ${blockPosition} (length=${sequence.blocks.length})`
+    );
   }
 
   const block = sequence.blocks[blockPosition];
@@ -48,31 +51,55 @@ const updateItems1 = (
     nextToken = sequence.blocks[blockPosition - 1].nt.nByte(0);
   }
 
-  let charsEnumIndex, graftTypeEnumIndex, seqEnumIndex, scopeBits, scopeTypeByte, scopeBitBytes = null;
+  let charsEnumIndex,
+    graftTypeEnumIndex,
+    seqEnumIndex,
+    scopeBits,
+    scopeTypeByte,
+    scopeBitBytes = null;
 
   for (const item of itemObjects) {
     switch (item.type) {
-    case 'token':
-      charsEnumIndex = docSet.enumForCategoryValue(tokenCategory[item.subType], item.payload, true);
-      pushSuccinctTokenBytes(newItemsBA, tokenEnum[item.subType], charsEnumIndex);
-      nextToken++;
-      break;
-    case 'graft':
-      graftTypeEnumIndex = docSet.enumForCategoryValue('graftTypes', item.subType, true);
-      seqEnumIndex = docSet.enumForCategoryValue('ids', item.payload, true);
-      pushSuccinctGraftBytes(newItemsBA, graftTypeEnumIndex, seqEnumIndex);
-      break;
-    case 'scope':
-      scopeBits = item.payload.split('/');
-      scopeTypeByte = scopeEnum[scopeBits[0]];
+      case 'token':
+        charsEnumIndex = docSet.enumForCategoryValue(
+          tokenCategory[item.subType],
+          item.payload,
+          true
+        );
+        pushSuccinctTokenBytes(
+          newItemsBA,
+          tokenEnum[item.subType],
+          charsEnumIndex
+        );
+        nextToken++;
+        break;
+      case 'graft':
+        graftTypeEnumIndex = docSet.enumForCategoryValue(
+          'graftTypes',
+          item.subType,
+          true
+        );
+        seqEnumIndex = docSet.enumForCategoryValue('ids', item.payload, true);
+        pushSuccinctGraftBytes(newItemsBA, graftTypeEnumIndex, seqEnumIndex);
+        break;
+      case 'scope':
+        scopeBits = item.payload.split('/');
+        scopeTypeByte = scopeEnum[scopeBits[0]];
 
-      if (!scopeTypeByte && scopeTypeByte !== 0) {
-        throw new Error(`"${scopeBits[0]}" is not a scope type`);
-      }
+        if (!scopeTypeByte && scopeTypeByte !== 0) {
+          throw new Error(`"${scopeBits[0]}" is not a scope type`);
+        }
 
-      scopeBitBytes = scopeBits.slice(1).map(b => docSet.enumForCategoryValue('scopeBits', b, true));
-      pushSuccinctScopeBytes(newItemsBA, itemEnum[`${item.subType}Scope`], scopeTypeByte, scopeBitBytes);
-      break;
+        scopeBitBytes = scopeBits
+          .slice(1)
+          .map((b) => docSet.enumForCategoryValue('scopeBits', b, true));
+        pushSuccinctScopeBytes(
+          newItemsBA,
+          itemEnum[`${item.subType}Scope`],
+          scopeTypeByte,
+          scopeBitBytes
+        );
+        break;
     }
   }
   newItemsBA.trim();
@@ -91,29 +118,24 @@ const updateItems = (
   documentId,
   sequenceId,
   blockPosition,
-  itemObjects) =>
-  updateItems1(
-    docSet,
-    documentId,
-    sequenceId,
-    blockPosition,
-    'c',
-    itemObjects,
-  );
+  itemObjects
+) =>
+  updateItems1(docSet, documentId, sequenceId, blockPosition, 'c', itemObjects);
 
 const updateBlockGrafts = (
   docSet,
   documentId,
   sequenceId,
   blockPosition,
-  itemObjects) =>
+  itemObjects
+) =>
   updateItems1(
     docSet,
     documentId,
     sequenceId,
     blockPosition,
     'bg',
-    itemObjects,
+    itemObjects
   );
 
 const updateBlockScope = (
@@ -121,45 +143,27 @@ const updateBlockScope = (
   documentId,
   sequenceId,
   blockPosition,
-  bsObject) =>
-  updateItems1(
-    docSet,
-    documentId,
-    sequenceId,
-    blockPosition,
-    'bs',
-    [bsObject],
-  );
+  bsObject
+) =>
+  updateItems1(docSet, documentId, sequenceId, blockPosition, 'bs', [bsObject]);
 
 const updateOpenScopes = (
   docSet,
   documentId,
   sequenceId,
   blockPosition,
-  osObjects) =>
-  updateItems1(
-    docSet,
-    documentId,
-    sequenceId,
-    blockPosition,
-    'os',
-    osObjects,
-  );
+  osObjects
+) =>
+  updateItems1(docSet, documentId, sequenceId, blockPosition, 'os', osObjects);
 
 const updateIncludedScopes = (
   docSet,
   documentId,
   sequenceId,
   blockPosition,
-  isObjects) =>
-  updateItems1(
-    docSet,
-    documentId,
-    sequenceId,
-    blockPosition,
-    'is',
-    isObjects,
-  );
+  isObjects
+) =>
+  updateItems1(docSet, documentId, sequenceId, blockPosition, 'is', isObjects);
 
 const updateBlockIndexesAfterEdit = (docSet, sequence, blockPosition) => {
   const labelsMatch = (firstA, secondA) => {
@@ -185,8 +189,15 @@ const updateBlockIndexesAfterEdit = (docSet, sequence, blockPosition) => {
       throw new Error(`"${scopeBits[0]}" is not a scope type`);
     }
 
-    const scopeBitBytes = scopeBits.slice(1).map(b => docSet.enumForCategoryValue('scopeBits', b, true));
-    pushSuccinctScopeBytes(succinct, itemEnum[`startScope`], scopeTypeByte, scopeBitBytes);
+    const scopeBitBytes = scopeBits
+      .slice(1)
+      .map((b) => docSet.enumForCategoryValue('scopeBits', b, true));
+    pushSuccinctScopeBytes(
+      succinct,
+      itemEnum[`startScope`],
+      scopeTypeByte,
+      scopeBitBytes
+    );
   };
 
   const block = sequence.blocks[blockPosition];
@@ -197,7 +208,11 @@ const updateBlockIndexesAfterEdit = (docSet, sequence, blockPosition) => {
     openScopeLabels.add(openScope[2]);
   }
 
-  for (const scope of docSet.unsuccinctifyItems(block.c, { scopes: true }, null)) {
+  for (const scope of docSet.unsuccinctifyItems(
+    block.c,
+    { scopes: true },
+    null
+  )) {
     if (scope[1] === 'start') {
       includedScopeLabels.add(scope[2]);
       openScopeLabels.add(scope[2]);
@@ -215,10 +230,12 @@ const updateBlockIndexesAfterEdit = (docSet, sequence, blockPosition) => {
   isBA.trim();
   block.is = isBA;
 
-  if (blockPosition < (sequence.blocks.length - 1)) {
+  if (blockPosition < sequence.blocks.length - 1) {
     const nextOsBlock = sequence.blocks[blockPosition + 1];
     const nextOsBA = nextOsBlock.os;
-    const nextOSLabels = new Set(docSet.unsuccinctifyScopes(nextOsBA).map(s => s[2]));
+    const nextOSLabels = new Set(
+      docSet.unsuccinctifyScopes(nextOsBA).map((s) => s[2])
+    );
 
     if (!labelsMatch(openScopeLabels, nextOSLabels)) {
       const osBA = new ByteArray(nextOSLabels.length);
@@ -242,8 +259,15 @@ const updateBlockIndexesAfterFilter = (docSet, sequence) => {
       throw new Error(`"${scopeBits[0]}" is not a scope type`);
     }
 
-    const scopeBitBytes = scopeBits.slice(1).map(b => docSet.enumForCategoryValue('scopeBits', b, true));
-    pushSuccinctScopeBytes(succinct, itemEnum[`startScope`], scopeTypeByte, scopeBitBytes);
+    const scopeBitBytes = scopeBits
+      .slice(1)
+      .map((b) => docSet.enumForCategoryValue('scopeBits', b, true));
+    pushSuccinctScopeBytes(
+      succinct,
+      itemEnum[`startScope`],
+      scopeTypeByte,
+      scopeBitBytes
+    );
   };
 
   const openScopeLabels = new Set();
@@ -259,7 +283,11 @@ const updateBlockIndexesAfterFilter = (docSet, sequence) => {
     block.os = osBA;
     const includedScopeLabels = new Set();
 
-    for (const scope of docSet.unsuccinctifyItems(block.c, { scopes: true }, null)) {
+    for (const scope of docSet.unsuccinctifyItems(
+      block.c,
+      { scopes: true },
+      null
+    )) {
       if (scope[1] === 'start') {
         includedScopeLabels.add(scope[2]);
         openScopeLabels.add(scope[2]);
@@ -279,7 +307,7 @@ const updateBlockIndexesAfterFilter = (docSet, sequence) => {
   }
 };
 
-module.exports = {
+export {
   updateItems,
   updateBlockGrafts,
   updateBlockScope,

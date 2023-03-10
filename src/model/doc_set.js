@@ -1,11 +1,9 @@
 /* eslint-disable no-unused-vars */
-// const checksum = require('checksum');
-const crc32 = require('easy-crc32');
-const utils = require('../util/index.cjs');
+// import checksum from "checksum";
+import crc32 from 'easy-crc32';
+import utils from '../util';
 const ByteArray = utils.ByteArray;
-const {
-  addTag, removeTag, validateTags,
-} = utils.tags;
+const { addTag, removeTag, validateTags } = utils.tags;
 const {
   succinctGraftName,
   succinctGraftSeqId,
@@ -17,8 +15,8 @@ const {
 } = utils.succinct;
 const { itemEnum } = utils.itemDefs;
 const { tokenEnumLabels } = utils.tokenDefs;
-const { validateSelectors } = require('./doc_set_helpers/selectors.cjs');
-const {
+import { validateSelectors } from './doc_set_helpers/selectors';
+import {
   blocksWithScriptureCV,
   allBlockScopes,
   anyScopeInBlock,
@@ -26,31 +24,28 @@ const {
   blockHasBlockScope,
   blockHasChars,
   blockHasMatchingItem,
-} = require('./doc_set_helpers/block.cjs');
-const {
+} from './doc_set_helpers/block';
+import {
   unsuccinctifyBlock,
   unsuccinctifyItems,
   unsuccinctifyItem,
   unsuccinctifyPrunedItems,
   unsuccinctifyItemsWithScriptureCV,
-} = require('./doc_set_helpers/unsuccinctify.cjs');
-const {
+} from './doc_set_helpers/unsuccinctify';
+import {
   buildPreEnum,
   recordPreEnum,
   buildEnum,
   enumForCategoryValue,
-} = require('./doc_set_helpers/enum.cjs');
-const {
+} from './doc_set_helpers/enum';
+import {
   countItems,
   itemsByIndex,
   sequenceItemsByScopes,
   sequenceItemsByMilestones,
-} = require('./doc_set_helpers/item.cjs');
-const {
-  rehash,
-  makeRehashEnumMap,
-} = require('./doc_set_helpers/rehash.cjs');
-const {
+} from './doc_set_helpers/item';
+import { rehash, makeRehashEnumMap } from './doc_set_helpers/rehash';
+import {
   updateItems,
   updateBlockGrafts,
   updateBlockScope,
@@ -58,8 +53,8 @@ const {
   updateIncludedScopes,
   updateBlockIndexesAfterEdit,
   updateBlockIndexesAfterFilter,
-} = require('./doc_set_helpers/update.cjs');
-const { serializeSuccinct } = require('./doc_set_helpers/serialize.cjs');
+} from './doc_set_helpers/update';
+import { serializeSuccinct } from './doc_set_helpers/serialize';
 class DocSet {
   constructor(processor, selectors, tags, succinctJson) {
     this.processor = processor;
@@ -126,11 +121,13 @@ class DocSet {
   }
 
   documents() {
-    return this.docIds.map(did => this.processor.documents[did]);
+    return this.docIds.map((did) => this.processor.documents[did]);
   }
 
   documentWithBook(bookCode) {
-    const docsWithBook = Object.values(this.documents()).filter(doc => 'bookCode' in doc.headers && doc.headers['bookCode'] === bookCode);
+    const docsWithBook = Object.values(this.documents()).filter(
+      (doc) => 'bookCode' in doc.headers && doc.headers['bookCode'] === bookCode
+    );
     return docsWithBook.length === 1 ? docsWithBook[0] : null;
   }
 
@@ -152,7 +149,11 @@ class DocSet {
 
   sortPreEnums() {
     for (const catKey of Object.keys(this.preEnums)) {
-      this.preEnums[catKey] = new Map([...this.preEnums[catKey].entries()].sort((a, b) => b[1].frequency - a[1].frequency));
+      this.preEnums[catKey] = new Map(
+        [...this.preEnums[catKey].entries()].sort(
+          (a, b) => b[1].frequency - a[1].frequency
+        )
+      );
 
       let count = 0;
 
@@ -247,7 +248,7 @@ class DocSet {
     try {
       return [
         'scope',
-        (itemType === itemEnum.startScope) ? 'start' : 'end',
+        itemType === itemEnum.startScope ? 'start' : 'end',
         this.succinctScopeLabel(succinct, itemSubtype, pos),
       ];
     } catch (err) {
@@ -269,12 +270,18 @@ class DocSet {
 
   unsuccinctifyBlockScopeLabelsSet(block) {
     const [itemLength, itemType, itemSubtype] = headerBytes(block.bs, 0);
-    const blockScope = this.unsuccinctifyScope(block.bs, itemType, itemSubtype, 0);
+    const blockScope = this.unsuccinctifyScope(
+      block.bs,
+      itemType,
+      itemSubtype,
+      0
+    );
     return new Set(
-      this.unsuccinctifyScopes(block.os).concat(
-        this.unsuccinctifyScopes(block.is),
-      ).concat([blockScope])
-        .map(ri => ri[2]));
+      this.unsuccinctifyScopes(block.os)
+        .concat(this.unsuccinctifyScopes(block.is))
+        .concat([blockScope])
+        .map((ri) => ri[2])
+    );
   }
 
   unsuccinctifyItemsWithScriptureCV(block, cv, options) {
@@ -282,11 +289,23 @@ class DocSet {
   }
 
   succinctTokenChars(succinct, itemSubtype, pos) {
-    return succinctTokenChars(this.enums, this.enumIndexes, succinct, itemSubtype, pos);
+    return succinctTokenChars(
+      this.enums,
+      this.enumIndexes,
+      succinct,
+      itemSubtype,
+      pos
+    );
   }
 
   succinctScopeLabel(succinct, itemSubtype, pos) {
-    return succinctScopeLabel(this.enums, this.enumIndexes, succinct, itemSubtype, pos);
+    return succinctScopeLabel(
+      this.enums,
+      this.enumIndexes,
+      succinct,
+      itemSubtype,
+      pos
+    );
   }
 
   succinctGraftName(itemSubtype) {
@@ -350,23 +369,53 @@ class DocSet {
   }
 
   updateItems(documentId, sequenceId, blockPosition, itemObjects) {
-    return updateItems(this, documentId, sequenceId, blockPosition, itemObjects);
+    return updateItems(
+      this,
+      documentId,
+      sequenceId,
+      blockPosition,
+      itemObjects
+    );
   }
 
   updateBlockGrafts(documentId, sequenceId, blockPosition, itemObjects) {
-    return updateBlockGrafts(this, documentId, sequenceId, blockPosition, itemObjects);
+    return updateBlockGrafts(
+      this,
+      documentId,
+      sequenceId,
+      blockPosition,
+      itemObjects
+    );
   }
 
   updateBlockScope(documentId, sequenceId, blockPosition, bsObject) {
-    return updateBlockScope(this, documentId, sequenceId, blockPosition, bsObject);
+    return updateBlockScope(
+      this,
+      documentId,
+      sequenceId,
+      blockPosition,
+      bsObject
+    );
   }
 
   updateOpenScopes(documentId, sequenceId, blockPosition, osObjects) {
-    return updateOpenScopes(this, documentId, sequenceId, blockPosition, osObjects);
+    return updateOpenScopes(
+      this,
+      documentId,
+      sequenceId,
+      blockPosition,
+      osObjects
+    );
   }
 
   updateIncludedScopes(documentId, sequenceId, blockPosition, isObjects) {
-    return updateIncludedScopes(this, documentId, sequenceId, blockPosition, isObjects);
+    return updateIncludedScopes(
+      this,
+      documentId,
+      sequenceId,
+      blockPosition,
+      isObjects
+    );
   }
 
   updateBlockIndexesAfterEdit(sequence, blockPosition) {
@@ -387,4 +436,4 @@ class DocSet {
   }
 }
 
-module.exports = { DocSet };
+export { DocSet };

@@ -1,17 +1,19 @@
-const xre = require('xregexp');
-const { lexingRegexes } = require('../lexers/lexingRegexes.cjs');
+import xre from 'xregexp';
+import { lexingRegexes } from '../lexers/lexingRegexes';
 
 const tokenTypes = {};
 const unionComponents = [];
 
 for (const lr of lexingRegexes) {
-  if (['wordLike', 'eol', 'lineSpace', 'punctuation', 'unknown'].includes(lr[1])) {
+  if (
+    ['wordLike', 'eol', 'lineSpace', 'punctuation', 'unknown'].includes(lr[1])
+  ) {
     tokenTypes[lr[1]] = xre(`^${lr[2].xregexp.source}$`);
     unionComponents.push(lr[2]);
   }
 }
 
-const tokenizeString = str => {
+const tokenizeString = (str) => {
   const unionRegex = xre.union(unionComponents);
   const ret = [];
 
@@ -34,4 +36,4 @@ const tokenizeString = str => {
   return ret;
 };
 
-module.exports = { tokenizeString };
+export { tokenizeString };

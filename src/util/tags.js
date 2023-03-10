@@ -1,14 +1,16 @@
-const xre = require('xregexp');
+import xre from 'xregexp';
 
-const validateTags = tags => {
+const validateTags = (tags) => {
   for (const tag of tags) {
     validateTag(tag);
   }
 };
 
-const validateTag = tag => {
+const validateTag = (tag) => {
   if (!xre.exec(tag, /^[a-z][A-za-z0-9]*(:.+)?$/)) {
-    throw new Error(`Tag '${tag}' is not valid (should be [a-z][A-za-z0-9]*(:.+)?)`);
+    throw new Error(
+      `Tag '${tag}' is not valid (should be [a-z][A-za-z0-9]*(:.+)?)`
+    );
   }
 };
 
@@ -22,7 +24,4 @@ const removeTag = (tags, tag) => {
   tags.delete(tag);
 };
 
-module.exports = {
-  validateTags, validateTag, addTag, removeTag,
-};
-
+export default { validateTags, validateTag, addTag, removeTag };

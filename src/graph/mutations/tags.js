@@ -1,4 +1,4 @@
-const utils = require('../../util/index.cjs');
+import utils from '../../util';
 
 const tagMutationsSchemaString = `
   """Add one or more tags to a docSet, if they are not already present"""
@@ -114,7 +114,4 @@ const tagMutationsResolvers = {
   },
 };
 
-module.exports = {
-  tagMutationsSchemaString,
-  tagMutationsResolvers,
-};
+export { tagMutationsSchemaString, tagMutationsResolvers };
