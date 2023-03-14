@@ -1,10 +1,11 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
+import nodePolyfills from '@esbuild-plugins/node-globals-polyfill';
 // import { join } from 'path';
 
 export default defineConfig({
   // cacheDir: '../../node_modules/.vite/pk-core',
-
+  plugins: [nodePolyfills({buffer:true})],
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [
@@ -30,6 +31,7 @@ export default defineConfig({
       // External packages that should not be bundled into your library.
       external: [],
     },
+    minify: true
   },
 
   test: {

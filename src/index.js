@@ -15,9 +15,6 @@ import { typeDefs, resolvers } from './graph';
 import { lexingRegexes } from './parser/lexers/lexingRegexes';
 import blocksSpecUtils from './util/scriptlike/blocksSpec';
 import { flattenNodes, numberNodes } from './parser/lexers/nodes';
-import * as buffer from "buffer";
-
-if (typeof globalThis !== 'undefined') globalThis.Buffer = buffer;
 
 const tree2nodes = (tree) => flattenNodes(numberNodes(tree));
 
