@@ -1,6 +1,6 @@
 const test = require('tape');
 
-const { pkWithDoc } = require('../../lib/load.js');
+const { pkWithDoc } = require('../../lib/load.cjs');
 
 const testGroup = 'Graph Sequence';
 

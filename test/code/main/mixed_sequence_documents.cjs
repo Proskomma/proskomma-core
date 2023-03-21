@@ -2,7 +2,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const test = require('tape');
 
-const { pkWithDoc } = require('../../lib/load.js');
+const { pkWithDoc } = require('../../lib/load.cjs');
 
 const pk = pkWithDoc('../test_data/usfm/66-JUD-ust.usfm', {
   lang: 'eng',

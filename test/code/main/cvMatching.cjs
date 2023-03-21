@@ -1,7 +1,7 @@
 const test = require('tape');
 const xre = require('xregexp');
 
-const { pkWithDoc } = require('../../lib/load.js');
+const { pkWithDoc } = require('../../lib/load.cjs');
 
 const testGroup = 'cvMatching';
 

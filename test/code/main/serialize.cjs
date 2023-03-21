@@ -1,10 +1,10 @@
 const test = require('tape');
 const { Validator } = require('proskomma-json-tools');
 
-const { Proskomma, utils } = require('../../../src/index.cjs');
+const { Proskomma, utils } = require('../../../src');
 const { unpackEnum } = utils.succinct;
 
-const { pkWithDoc } = require('../../lib/load.js');
+const { pkWithDoc } = require('../../lib/load.cjs');
 
 const testGroup = 'Serialize';
 
