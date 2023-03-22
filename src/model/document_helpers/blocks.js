@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import utils from '../../util';
 const ByteArray = utils.ByteArray;
 const {
@@ -7,9 +6,7 @@ const {
   pushSuccinctTokenBytes,
 } = utils.succinct;
 const { itemEnum } = utils.itemDefs;
-const {
-  scopeEnum, scopeEnumLabels, nComponentsForScope,
-} = utils.scopeDefs;
+const { scopeEnum, scopeEnumLabels, nComponentsForScope } = utils.scopeDefs;
 const { tokenCategory, tokenEnum } = utils.tokenDefs;
 const { headerBytes } = utils.succinct;
 
@@ -37,7 +34,14 @@ const deleteBlock = (document, seqId, blockN, buildCV) => {
   return true;
 };
 
-const newBlock = (document, seqId, blockN, blockScope, blockGrafts, buildCV) => {
+const newBlock = (
+  document,
+  seqId,
+  blockN,
+  blockScope,
+  blockGrafts,
+  buildCV
+) => {
   if (buildCV !== false) {
     buildCV = true;
   }
@@ -68,21 +72,24 @@ const newBlock = (document, seqId, blockN, blockScope, blockGrafts, buildCV) => 
   const expectedNScopeBits = nComponentsForScope(scopeBits[0]);
 
   if (scopeBits.length !== expectedNScopeBits) {
-    throw new Error(`Scope ${blockScope} has ${scopeBits.length} component(s) (expected ${expectedNScopeBits}`);
+    throw new Error(
+      `Scope ${blockScope} has ${scopeBits.length} component(s) (expected ${expectedNScopeBits}`
+    );
   }
 
-  const scopeBitBytes = scopeBits.slice(1).map(b => docSet.enumForCategoryValue('scopeBits', b, true));
-  pushSuccinctScopeBytes(newBlock.bs, itemEnum[`startScope`], scopeTypeByte, scopeBitBytes);
+  const scopeBitBytes = scopeBits
+    .slice(1)
+    .map((b) => docSet.enumForCategoryValue('scopeBits', b, true));
+  pushSuccinctScopeBytes(
+    newBlock.bs,
+    itemEnum[`startScope`],
+    scopeTypeByte,
+    scopeBitBytes
+  );
   newBlock.bs.trim();
 
   if (blockGrafts) {
-    updateBlockGrafts(
-      docSet,
-      document.id,
-      seqId,
-      blockN,
-      blockGrafts,
-    );
+    updateBlockGrafts(docSet, document.id, seqId, blockN, blockGrafts);
   }
   sequence.blocks.splice(blockN, 0, newBlock);
 
@@ -103,12 +110,24 @@ const rewriteBlock = (block, oldToNew) => {
 
       if (itemType === itemEnum['token']) {
         if (itemSubtype === tokenEnum.wordLike) {
-          pushSuccinctTokenBytes(newBa, itemSubtype, oldToNew.wordLike[oldBa.nByte(pos + 2)]);
+          pushSuccinctTokenBytes(
+            newBa,
+            itemSubtype,
+            oldToNew.wordLike[oldBa.nByte(pos + 2)]
+          );
         } else {
-          pushSuccinctTokenBytes(newBa, itemSubtype, oldToNew.notWordLike[oldBa.nByte(pos + 2)]);
+          pushSuccinctTokenBytes(
+            newBa,
+            itemSubtype,
+            oldToNew.notWordLike[oldBa.nByte(pos + 2)]
+          );
         }
       } else if (itemType === itemEnum['graft']) {
-        pushSuccinctGraftBytes(newBa, oldToNew.graftTypes[itemSubtype], oldToNew.ids[oldBa.nByte(pos + 2)]);
+        pushSuccinctGraftBytes(
+          newBa,
+          oldToNew.graftTypes[itemSubtype],
+          oldToNew.ids[oldBa.nByte(pos + 2)]
+        );
       } else {
         let nScopeBitBytes = nComponentsForScope(scopeEnumLabels[itemSubtype]);
         const scopeBitBytes = [];
@@ -129,8 +148,4 @@ const rewriteBlock = (block, oldToNew) => {
   }
 };
 
-export {
-  newBlock,
-  deleteBlock,
-  rewriteBlock,
-};
+export { newBlock, deleteBlock, rewriteBlock };

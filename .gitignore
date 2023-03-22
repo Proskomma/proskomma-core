@@ -1,5 +1,8 @@
 # Specific to project
 .idea
+informations/
+node_modules/
+.parcel-cache/
 
 # Logs
 logs

@@ -6,11 +6,6 @@ type cvVerses {
 }
 `;
 
-const cvVersesResolvers = { verse: root => root };
+const cvVersesResolvers = { verse: (root) => root };
 
-
-
-export {
-  cvVersesSchemaString,
-  cvVersesResolvers,
-};
+export { cvVersesSchemaString, cvVersesResolvers };

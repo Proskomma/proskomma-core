@@ -1,6 +1,6 @@
 import { PerfRenderFromJson } from 'proskomma-json-tools';
 
-const oneifyTag = t => {
+const oneifyTag = (t) => {
   if (['toc', 'toca', 'mt', 'imt', 's', 'ms', 'mte', 'sd'].includes(t)) {
     return t + '1';
   }
@@ -8,7 +8,7 @@ const oneifyTag = t => {
 };
 
 const buildMilestone = (atts, type) => {
-  let str=`\\${type}-s |`;
+  let str = `\\${type}-s |`;
 
   for (let [key, value] of Object.entries(atts)) {
     if (key === 'x-morph') {
@@ -16,16 +16,16 @@ const buildMilestone = (atts, type) => {
     } else {
       str = str + oneifyTag(key) + '="' + value + '" ';
     }
-  };
+  }
   return str + '\\*';
 };
 
 const buildEndWrapper = (atts, type, isnested = false) => {
-  let str='|';
+  let str = '|';
 
   for (let [key, value] of Object.entries(atts)) {
     str = str + oneifyTag(key) + '="' + value + '" ';
-  };
+  }
   str = str + '\\';
 
   // if it's nested, we simply add a "+" sign before the type
@@ -44,23 +44,27 @@ const localToUsfmActions = {
         workspace.usfmBits = [''];
         workspace.nestedWrapper = 0;
 
-        for (
-          let [key, value] of
-          Object.entries(context.document.metadata.document)
-            .filter(kv => !['tags', 'properties', 'bookCode', 'cl'].includes(kv[0]))
-        ) {
+        for (let [key, value] of Object.entries(
+          context.document.metadata.document
+        ).filter(
+          (kv) => !['tags', 'properties', 'bookCode', 'cl'].includes(kv[0])
+        )) {
           workspace.usfmBits.push(`\\${oneifyTag(key)} ${value}\n`);
-        };
+        }
       },
     },
   ],
   blockGraft: [
     {
       description: 'Follow block grafts',
-      test: ({ context }) => ['title', 'heading', 'introduction'].includes(context.sequences[0].block.subType),
+      test: ({ context }) =>
+        ['title', 'heading', 'introduction'].includes(
+          context.sequences[0].block.subType
+        ),
       action: (environment) => {
         let contextSequence = environment.context.sequences[0];
-        let chapterValue = environment.config.report[contextSequence.block.blockN.toString()];
+        let chapterValue =
+          environment.config.report[contextSequence.block.blockN.toString()];
         const target = contextSequence.block.target;
 
         if (chapterValue && contextSequence.type === 'main') {
@@ -89,17 +93,24 @@ const localToUsfmActions = {
   startParagraph: [
     {
       description: 'Output footnote paragraph tag (footnote)',
-      test: ({ context }) => (context.sequences[0].block.subType === 'usfm:f' && context.sequences[0].type === 'footnote')
-            || (context.sequences[0].block.subType === 'usfm:x' && context.sequences[0].type === 'xref'),
+      test: ({ context }) =>
+        (context.sequences[0].block.subType === 'usfm:f' &&
+          context.sequences[0].type === 'footnote') ||
+        (context.sequences[0].block.subType === 'usfm:x' &&
+          context.sequences[0].type === 'xref'),
       action: ({ context, workspace }) => {
         workspace.nestedWrapper = 0;
         let contextSequence = context.sequences[0];
-        workspace.usfmBits.push(`\\${oneifyTag(contextSequence.block.subType.split(':')[1])} `);
+        workspace.usfmBits.push(
+          `\\${oneifyTag(contextSequence.block.subType.split(':')[1])} `
+        );
       },
     },
     {
       description: 'Output footnote note_caller tag (footnote)',
-      test: ({ context }) => context.sequences[0].block.subType === 'usfm:f' || context.sequences[0].block.subType === 'usfm:x',
+      test: ({ context }) =>
+        context.sequences[0].block.subType === 'usfm:f' ||
+        context.sequences[0].block.subType === 'usfm:x',
       action: ({ workspace }) => {
         workspace.nestedWrapper = 0;
       },
@@ -107,34 +118,43 @@ const localToUsfmActions = {
     {
       description: 'Output paragraph tag (main)',
       test: () => true,
-      action: ({
-        context, workspace, config,
-      }) => {
+      action: ({ context, workspace, config }) => {
         workspace.nestedWrapper = 0;
         let contextSequence = context.sequences[0];
-        let chapterValue = config.report[contextSequence.block.blockN.toString()];
+        let chapterValue =
+          config.report[contextSequence.block.blockN.toString()];
 
         if (chapterValue && contextSequence.type === 'main') {
           workspace.usfmBits.push(`\n\\c ${chapterValue}\n`);
         }
-        workspace.usfmBits.push(`\n\\${oneifyTag(contextSequence.block.subType.split(':')[1])}\n`);
+        workspace.usfmBits.push(
+          `\n\\${oneifyTag(contextSequence.block.subType.split(':')[1])}\n`
+        );
       },
     },
   ],
   endParagraph: [
     {
       description: 'Output footnote paragraph tag (footnote)',
-      test: ({ context }) => (context.sequences[0].block.subType === 'usfm:f' && context.sequences[0].type === 'footnote')
-            || (context.sequences[0].block.subType === 'usfm:x' && context.sequences[0].type === 'xref'),
+      test: ({ context }) =>
+        (context.sequences[0].block.subType === 'usfm:f' &&
+          context.sequences[0].type === 'footnote') ||
+        (context.sequences[0].block.subType === 'usfm:x' &&
+          context.sequences[0].type === 'xref'),
       action: ({ context, workspace }) => {
         let contextSequence = context.sequences[0];
-        workspace.usfmBits.push(`\\${oneifyTag(contextSequence.block.subType.split(':')[1])}*`);
+        workspace.usfmBits.push(
+          `\\${oneifyTag(contextSequence.block.subType.split(':')[1])}*`
+        );
       },
     },
     {
       description: 'Output footnote note_caller tag (footnote)',
-      test: ({ context }) => context.sequences[0].block.subType === 'usfm:f' || context.sequences[0].block.subType === 'usfm:x',
+      test: ({ context }) =>
+        context.sequences[0].block.subType === 'usfm:f' ||
+        context.sequences[0].block.subType === 'usfm:x',
       action: () => {
+        /** TODO */
       },
     },
     {
@@ -151,7 +171,10 @@ const localToUsfmActions = {
       test: () => true,
       action: ({ context, workspace }) => {
         let contextSequenceElement = context.sequences[0].element;
-        let newStartMileStone = buildMilestone(contextSequenceElement.atts, oneifyTag(contextSequenceElement.subType.split(':')[1]));
+        let newStartMileStone = buildMilestone(
+          contextSequenceElement.atts,
+          oneifyTag(contextSequenceElement.subType.split(':')[1])
+        );
         workspace.usfmBits.push(newStartMileStone);
       },
     },
@@ -161,7 +184,11 @@ const localToUsfmActions = {
       description: 'Output end milestone',
       test: () => true,
       action: ({ context, workspace }) => {
-        workspace.usfmBits.push(`\\${oneifyTag(context.sequences[0].element.subType.split(':')[1])}-e\\*`);
+        workspace.usfmBits.push(
+          `\\${oneifyTag(
+            context.sequences[0].element.subType.split(':')[1]
+          )}-e\\*`
+        );
       },
     },
   ],
@@ -191,9 +218,13 @@ const localToUsfmActions = {
   endSequence: [
     {
       description: 'Output \\cl',
-      test: ({ context }) => context.document.metadata.document.cl && context.sequences[0].type === 'title',
+      test: ({ context }) =>
+        context.document.metadata.document.cl &&
+        context.sequences[0].type === 'title',
       action: ({ context, workspace }) => {
-        workspace.usfmBits.push(`\n\\cl ${context.document.metadata.document.cl}\n`);
+        workspace.usfmBits.push(
+          `\n\\cl ${context.document.metadata.document.cl}\n`
+        );
       },
     },
   ],
@@ -206,9 +237,13 @@ const localToUsfmActions = {
 
         // handle nested wrappers : https://ubsicap.github.io/usfm/characters/nesting.html
         if (workspace.nestedWrapper > 0) {
-          workspace.usfmBits.push(`\\+${oneifyTag(contextSequence.element.subType.split(':')[1])} `);
+          workspace.usfmBits.push(
+            `\\+${oneifyTag(contextSequence.element.subType.split(':')[1])} `
+          );
         } else {
-          workspace.usfmBits.push(`\\${oneifyTag(contextSequence.element.subType.split(':')[1])} `);
+          workspace.usfmBits.push(
+            `\\${oneifyTag(contextSequence.element.subType.split(':')[1])} `
+          );
         }
         workspace.nestedWrapper += 1;
       },
@@ -217,8 +252,22 @@ const localToUsfmActions = {
   endWrapper: [
     {
       description: 'Output end tag',
-      test: ({ context }) => !['fr', 'fq','fqa','fk','fl','fw','fp', 'ft', 'xo', 'xk', 'xq', 'xt', 'xta']
-        .includes(context.sequences[0].element.subType.split(':')[1]),
+      test: ({ context }) =>
+        ![
+          'fr',
+          'fq',
+          'fqa',
+          'fk',
+          'fl',
+          'fw',
+          'fp',
+          'ft',
+          'xo',
+          'xk',
+          'xq',
+          'xt',
+          'xta',
+        ].includes(context.sequences[0].element.subType.split(':')[1]),
       action: ({ workspace, context }) => {
         workspace.nestedWrapper -= 1;
         let contextSequence = context.sequences[0];
@@ -226,14 +275,22 @@ const localToUsfmActions = {
         let isNested = workspace.nestedWrapper > 0;
 
         if (subType === 'w') {
-          let newEndW = buildEndWrapper(contextSequence.element.atts, oneifyTag(subType), isNested);
+          let newEndW = buildEndWrapper(
+            contextSequence.element.atts,
+            oneifyTag(subType),
+            isNested
+          );
           workspace.usfmBits.push(newEndW);
         } else {
           // handle nested wrappers : https://ubsicap.github.io/usfm/characters/nesting.html
           if (isNested) {
-            workspace.usfmBits.push(`\\+${oneifyTag(contextSequence.element.subType.split(':')[1])}*`);
+            workspace.usfmBits.push(
+              `\\+${oneifyTag(contextSequence.element.subType.split(':')[1])}*`
+            );
           } else {
-            workspace.usfmBits.push(`\\${oneifyTag(contextSequence.element.subType.split(':')[1])}*`);
+            workspace.usfmBits.push(
+              `\\${oneifyTag(contextSequence.element.subType.split(':')[1])}*`
+            );
           }
         }
       },
@@ -251,18 +308,25 @@ const localToUsfmActions = {
       description: 'Build output',
       test: () => true,
       action: ({ workspace, output }) => {
-        output.usfm = workspace.usfmBits.join('').replace(/(\s*)\n(\s*)/gm, '\n');
+        output.usfm = workspace.usfmBits
+          .join('')
+          .replace(/(\s*)\n(\s*)/gm, '\n');
       },
     },
   ],
 };
 
 const perf2usfmCode = function ({ perf, report }) {
-  const cl = new PerfRenderFromJson({ srcJson: perf, actions: localToUsfmActions });
+  const cl = new PerfRenderFromJson({
+    srcJson: perf,
+    actions: localToUsfmActions,
+  });
   const output = {};
 
   cl.renderDocument({
-    docId: '', config: { report }, output,
+    docId: '',
+    config: { report },
+    output,
   });
   return { usfm: output.usfm };
 };

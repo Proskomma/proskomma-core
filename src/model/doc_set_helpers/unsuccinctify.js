@@ -1,17 +1,28 @@
-/* eslint-disable no-unused-vars */
 import xre from 'xregexp';
 import utils from '../../util';
 
 const unsuccinctifyBlock = (docSet, block, options) => {
   docSet.maybeBuildEnumIndexes();
   const succinctBlockScope = block.bs;
-  const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(succinctBlockScope, 0);
-  const blockScope = docSet.unsuccinctifyScope(succinctBlockScope, itemType, itemSubtype, 0);
+  const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+    succinctBlockScope,
+    0
+  );
+  const blockScope = docSet.unsuccinctifyScope(
+    succinctBlockScope,
+    itemType,
+    itemSubtype,
+    0
+  );
   const blockGrafts = docSet.unsuccinctifyGrafts(block.bg);
   const openScopes = docSet.unsuccinctifyScopes(block.os);
   const includedScopes = docSet.unsuccinctifyScopes(block.is);
   const nextToken = block.nt.nByte(0);
-  const blockItems = docSet.unsuccinctifyItems(block.c, options || {}, nextToken);
+  const blockItems = docSet.unsuccinctifyItems(
+    block.c,
+    options || {},
+    nextToken
+  );
   return {
     bs: blockScope,
     bg: blockGrafts,
@@ -22,13 +33,25 @@ const unsuccinctifyBlock = (docSet, block, options) => {
   };
 };
 
-const unsuccinctifyItems = (docSet, succinct, options, nextToken, openScopes) => {
+const unsuccinctifyItems = (
+  docSet,
+  succinct,
+  options,
+  nextToken,
+  openScopes
+) => {
   if (nextToken === undefined) {
-    throw new Error('nextToken (previously includeContext) must now be provided to unsuccinctifyItems');
+    throw new Error(
+      'nextToken (previously includeContext) must now be provided to unsuccinctifyItems'
+    );
   }
 
   if (nextToken !== null && typeof nextToken !== 'number') {
-    throw new Error(`nextToken (previously includeContext) must be null or an integer, not ${typeof nextToken} '${JSON.stringify(nextToken)}' in unsuccinctifyItems`);
+    throw new Error(
+      `nextToken (previously includeContext) must be null or an integer, not ${typeof nextToken} '${JSON.stringify(
+        nextToken
+      )}' in unsuccinctifyItems`
+    );
   }
 
   const ret = [];
@@ -40,9 +63,11 @@ const unsuccinctifyItems = (docSet, succinct, options, nextToken, openScopes) =>
     const [item, itemLength] = docSet.unsuccinctifyItem(succinct, pos, {});
 
     if (item[0] === 'token') {
-      if ((Object.keys(options).length === 0) || options.tokens) {
+      if (Object.keys(options).length === 0 || options.tokens) {
         if (nextToken !== null) {
-          item.push(item[0] === 'token' && item[1] === 'wordLike' ? tokenCount++ : null);
+          item.push(
+            item[0] === 'token' && item[1] === 'wordLike' ? tokenCount++ : null
+          );
           item.push([...scopes]);
         }
         ret.push(item);
@@ -50,17 +75,17 @@ const unsuccinctifyItems = (docSet, succinct, options, nextToken, openScopes) =>
     } else if (item[0] === 'scope' && item[1] === 'start') {
       scopes.add(item[2]);
 
-      if ((Object.keys(options).length === 0) || options.scopes) {
+      if (Object.keys(options).length === 0 || options.scopes) {
         ret.push(item);
       }
     } else if (item[0] === 'scope' && item[1] === 'end') {
       scopes.delete(item[2]);
 
-      if ((Object.keys(options).length === 0) || options.scopes) {
+      if (Object.keys(options).length === 0 || options.scopes) {
         ret.push(item);
       }
     } else if (item[0] === 'graft') {
-      if ((Object.keys(options).length === 0) || options.grafts) {
+      if (Object.keys(options).length === 0 || options.grafts) {
         ret.push(item);
       }
     }
@@ -71,31 +96,36 @@ const unsuccinctifyItems = (docSet, succinct, options, nextToken, openScopes) =>
 
 const unsuccinctifyItem = (docSet, succinct, pos, options) => {
   let item = null;
-  const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(succinct, pos);
+  const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+    succinct,
+    pos
+  );
 
   switch (itemType) {
-  case utils.itemDefs.itemEnum.token:
-    if (Object.keys(options).length === 0 || options.tokens) {
-      item = docSet.unsuccinctifyToken(succinct, itemSubtype, pos);
-    }
-    break;
-  case utils.itemDefs.itemEnum.startScope:
-  case utils.itemDefs.itemEnum.endScope:
-    if (Object.keys(options).length === 0 || options.scopes) {
-      item = docSet.unsuccinctifyScope(succinct, itemType, itemSubtype, pos);
-    }
-    break;
-  case utils.itemDefs.itemEnum.graft:
-    if (Object.keys(options).length === 0 || options.grafts) {
-      item = docSet.unsuccinctifyGraft(succinct, itemSubtype, pos);
-    }
-    break;
+    case utils.itemDefs.itemEnum.token:
+      if (Object.keys(options).length === 0 || options.tokens) {
+        item = docSet.unsuccinctifyToken(succinct, itemSubtype, pos);
+      }
+      break;
+    case utils.itemDefs.itemEnum.startScope:
+    case utils.itemDefs.itemEnum.endScope:
+      if (Object.keys(options).length === 0 || options.scopes) {
+        item = docSet.unsuccinctifyScope(succinct, itemType, itemSubtype, pos);
+      }
+      break;
+    case utils.itemDefs.itemEnum.graft:
+      if (Object.keys(options).length === 0 || options.grafts) {
+        item = docSet.unsuccinctifyGraft(succinct, itemSubtype, pos);
+      }
+      break;
   }
   return [item, itemLength];
 };
 
 const unsuccinctifyPrunedItems = (docSet, block, options) => {
-  const openScopes = new Set(docSet.unsuccinctifyScopes(block.os).map(ri => ri[2]));
+  const openScopes = new Set(
+    docSet.unsuccinctifyScopes(block.os).map((ri) => ri[2])
+  );
   const requiredScopes = options.requiredScopes || [];
   const anyScope = options.anyScope || false;
 
@@ -114,7 +144,7 @@ const unsuccinctifyPrunedItems = (docSet, block, options) => {
         return true;
       }
     }
-    return (requiredScopes.length === 0);
+    return requiredScopes.length === 0;
   };
 
   const scopeTest = anyScope ? anyScopeInItem : allScopesInItem;
@@ -124,7 +154,12 @@ const unsuccinctifyPrunedItems = (docSet, block, options) => {
     (item[0] === 'token' && options.withChars.includes(item[2]));
   const ret = [];
 
-  for (const item of docSet.unsuccinctifyItems(block.c, options, block.nt.nByte(0), openScopes)) {
+  for (const item of docSet.unsuccinctifyItems(
+    block.c,
+    options,
+    block.nt.nByte(0),
+    openScopes
+  )) {
     if (item[0] === 'scope' && item[1] === 'start') {
       openScopes.add(item[2]);
     }
@@ -142,20 +177,24 @@ const unsuccinctifyPrunedItems = (docSet, block, options) => {
 
 const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
   options = options || {};
-  const openScopes = new Set(docSet.unsuccinctifyScopes(block.os).map(ri => ri[2]));
+  const openScopes = new Set(
+    docSet.unsuccinctifyScopes(block.os).map((ri) => ri[2])
+  );
 
   const cvMatchFunction = () => {
     if (xre.exec(cv, xre('^[1-9][0-9]*$'))) {
       return () => openScopes.has(`chapter/${cv}`);
     } else if (xre.exec(cv, xre('^[1-9][0-9]*-[1-9][0-9]*$'))) {
       return () => {
-        const [fromC, toC] = cv.split('-').map(v => parseInt(v));
+        const [fromC, toC] = cv.split('-').map((v) => parseInt(v));
 
         if (fromC > toC) {
           throw new Error(`Chapter range must be from min to max, not '${cv}'`);
         }
 
-        for (const scope of [...Array((toC - fromC) + 1).keys()].map(n => `chapter/${n + fromC}`)) {
+        for (const scope of [...Array(toC - fromC + 1).keys()].map(
+          (n) => `chapter/${n + fromC}`
+        )) {
           if (openScopes.has(scope)) {
             return true;
           }
@@ -164,12 +203,12 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
       };
     } else if (xre.exec(cv, xre('^[1-9][0-9]*:[0-9]+$'))) {
       return () => {
-        const [fromC, fromV] = cv.split(':').map(v => parseInt(v));
+        const [fromC, fromV] = cv.split(':').map((v) => parseInt(v));
 
         if (fromV === 0) {
           return (
             openScopes.has(`chapter/${fromC}`) &&
-            [...openScopes].filter(s => s.startsWith('verse')).length === 0
+            [...openScopes].filter((s) => s.startsWith('verse')).length === 0
           );
         } else {
           for (const scope of [`chapter/${fromC}`, `verse/${fromV}`]) {
@@ -183,14 +222,16 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
     } else if (xre.exec(cv, xre('^[1-9][0-9]*:[0-9]+-[1-9][0-9]*$'))) {
       return () => {
         const [fromC, vs] = cv.split(':');
-        const [fromV, toV] = vs.split('-').map(v => parseInt(v));
+        const [fromV, toV] = vs.split('-').map((v) => parseInt(v));
 
         if (fromV > toV) {
           throw new Error(`Verse range must be from min to max, not '${vs}'`);
         }
 
         const chapterScope = `chapter/${fromC}`;
-        const verseScopes = [...Array((toV - fromV) + 1).keys()].map(n => `verse/${n + fromV}`);
+        const verseScopes = [...Array(toV - fromV + 1).keys()].map(
+          (n) => `verse/${n + fromV}`
+        );
 
         if (!openScopes.has(chapterScope)) {
           return false;
@@ -201,43 +242,55 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
             return true;
           }
         }
-        return fromV === 0 && [...openScopes].filter(s => s.startsWith('verse')).length === 0;
+        return (
+          fromV === 0 &&
+          [...openScopes].filter((s) => s.startsWith('verse')).length === 0
+        );
       };
     } else if (xre.exec(cv, xre('^[1-9][0-9]*:[0-9]+-[1-9][0-9]*:[0-9]+$'))) {
       return () => {
         const [fromCV, toCV] = cv.split('-');
-        const [fromC, fromV] = fromCV.split(':').map(c => parseInt(c));
-        const [toC, toV] = toCV.split(':').map(v => parseInt(v));
+        const [fromC, fromV] = fromCV.split(':').map((c) => parseInt(c));
+        const [toC, toV] = toCV.split(':').map((v) => parseInt(v));
 
         if (fromC > toC) {
-          throw new Error(`Chapter range must be from min to max, not '${fromC}-${toV}'`);
+          throw new Error(
+            `Chapter range must be from min to max, not '${fromC}-${toV}'`
+          );
         }
 
         const scopeArray = [...openScopes];
-        const chapterScopes = scopeArray.filter(s => s.startsWith('chapter/'));
+        const chapterScopes = scopeArray.filter((s) =>
+          s.startsWith('chapter/')
+        );
 
         if (chapterScopes.length > 1) {
-          throw new Error(`Expected zero or one chapter for item, found ${chapterScopes.length}`);
+          throw new Error(
+            `Expected zero or one chapter for item, found ${chapterScopes.length}`
+          );
         }
 
         const chapterNo = parseInt(chapterScopes[0].split('/')[1]);
 
-        if ((chapterNo < fromC) || (chapterNo > toC)) {
+        if (chapterNo < fromC || chapterNo > toC) {
           return false;
         } else if (chapterNo === fromC) {
-          return scopeArray.filter(
-            s =>
-              s.startsWith('verse/') &&
-              parseInt(s.split('/')[1]) >= fromV,
-          ).length > 0 ||
-            (fromV === 0 && scopeArray.filter(s => s.startsWith('verse')).length === 0);
+          return (
+            scopeArray.filter(
+              (s) =>
+                s.startsWith('verse/') && parseInt(s.split('/')[1]) >= fromV
+            ).length > 0 ||
+            (fromV === 0 &&
+              scopeArray.filter((s) => s.startsWith('verse')).length === 0)
+          );
         } else if (chapterNo === toC) {
-          return scopeArray.filter(
-            s =>
-              s.startsWith('verse/') &&
-              parseInt(s.split('/')[1]) <= toV,
-          ).length > 0 ||
-            (toV === 0 && scopeArray.filter(s => s.startsWith('verse')).length === 0);
+          return (
+            scopeArray.filter(
+              (s) => s.startsWith('verse/') && parseInt(s.split('/')[1]) <= toV
+            ).length > 0 ||
+            (toV === 0 &&
+              scopeArray.filter((s) => s.startsWith('verse')).length === 0)
+          );
         } else {
           return true;
         }
@@ -264,7 +317,11 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
 
   const ret = [];
 
-  for (const item of docSet.unsuccinctifyItems(block.c, {}, block.nt.nByte(0))) {
+  for (const item of docSet.unsuccinctifyItems(
+    block.c,
+    {},
+    block.nt.nByte(0)
+  )) {
     if (item[0] === 'scope' && item[1] === 'start') {
       openScopes.add(item[2]);
     }

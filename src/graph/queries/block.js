@@ -99,11 +99,11 @@ type Block {
 `;
 
 const blockResolvers = {
-  cBL: root => root.c.length,
-  bgBL: root => root.bg.length,
-  osBL: root => root.os.length,
-  isBL: root => root.is.length,
-  ntBL: root => root.nt.length,
+  cBL: (root) => root.c.length,
+  bgBL: (root) => root.bg.length,
+  osBL: (root) => root.os.length,
+  isBL: (root) => root.is.length,
+  ntBL: (root) => root.nt.length,
   cL: (root, args, context) => context.docSet.countItems(root.c),
   bgL: (root, args, context) => context.docSet.countItems(root.bg),
   osL: (root, args, context) => context.docSet.countItems(root.os),
@@ -112,95 +112,99 @@ const blockResolvers = {
   os: (root, args, context) => context.docSet.unsuccinctifyScopes(root.os),
   bs: (root, args, context) => {
     // eslint-disable-next-line no-unused-vars
-    const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(root.bs, 0);
+    const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+      root.bs,
+      0
+    );
     return context.docSet.unsuccinctifyScope(root.bs, itemType, itemSubtype, 0);
   },
   bg: (root, args, context) => context.docSet.unsuccinctifyGrafts(root.bg),
-  nt: root => root.nt.nByte(0),
-  items:
-    (root, args, context) => {
-      if (args.withScopes && args.withScriptureCV) {
-        throw new Error('Cannot specify both withScopes and withScriptureCV');
-      }
+  nt: (root) => root.nt.nByte(0),
+  items: (root, args, context) => {
+    if (args.withScopes && args.withScriptureCV) {
+      throw new Error('Cannot specify both withScopes and withScriptureCV');
+    }
 
-      if (args.withScriptureCV) {
-        return context.docSet.unsuccinctifyItemsWithScriptureCV(root, args.withScriptureCV, {}, args.includeContext || false);
-      } else {
-        return context.docSet.unsuccinctifyPrunedItems(
-          root,
-          {
-            tokens: true,
-            scopes: true,
-            grafts: true,
-            requiredScopes: args.withScopes || [],
-            anyScope: args.anyScope || false,
-          },
-        );
-      }
-    },
-  tokens:
-    (root, args, context) => {
-      if (Object.keys(args).filter(a => a.includes('Chars')).length > 1) {
-        throw new Error('Only one of "withChars", "withAnyCaseChars" and "withCharsMatchingRegex" may be specified');
-      }
+    if (args.withScriptureCV) {
+      return context.docSet.unsuccinctifyItemsWithScriptureCV(
+        root,
+        args.withScriptureCV,
+        {},
+        args.includeContext || false
+      );
+    } else {
+      return context.docSet.unsuccinctifyPrunedItems(root, {
+        tokens: true,
+        scopes: true,
+        grafts: true,
+        requiredScopes: args.withScopes || [],
+        anyScope: args.anyScope || false,
+      });
+    }
+  },
+  tokens: (root, args, context) => {
+    if (Object.keys(args).filter((a) => a.includes('Chars')).length > 1) {
+      throw new Error(
+        'Only one of "withChars", "withAnyCaseChars" and "withCharsMatchingRegex" may be specified'
+      );
+    }
 
-      let ret;
+    let ret;
 
-      if (args.withScriptureCV) {
-        ret = context.docSet.unsuccinctifyItemsWithScriptureCV(
-          root,
-          args.withScriptureCV,
-          { tokens: true },
-          args.includeContext || false,
-        );
-      } else {
-        ret = context.docSet.unsuccinctifyPrunedItems(
-          root,
-          {
-            tokens: true,
-            scopes: true,
-            requiredScopes: args.withScopes || [],
-            anyScope: args.anyScope || false,
-          },
-        );
-      }
+    if (args.withScriptureCV) {
+      ret = context.docSet.unsuccinctifyItemsWithScriptureCV(
+        root,
+        args.withScriptureCV,
+        { tokens: true },
+        args.includeContext || false
+      );
+    } else {
+      ret = context.docSet.unsuccinctifyPrunedItems(root, {
+        tokens: true,
+        scopes: true,
+        requiredScopes: args.withScopes || [],
+        anyScope: args.anyScope || false,
+      });
+    }
 
-      if (args.withSubTypes) {
-        ret = ret.filter(i => args.withSubTypes.includes(i[1]));
-      }
+    if (args.withSubTypes) {
+      ret = ret.filter((i) => args.withSubTypes.includes(i[1]));
+    }
 
-      if (args.withChars) {
-        ret = ret.filter(i => args.withChars.includes(i[2]));
-      } else if (args.withMatchingChars) {
-        ret = ret.filter(i => {
-          for (const re of args.withMatchingChars) {
-            if (xre.test(i, xre(re))) {
-              return true;
-            }
+    if (args.withChars) {
+      ret = ret.filter((i) => args.withChars.includes(i[2]));
+    } else if (args.withMatchingChars) {
+      ret = ret.filter((i) => {
+        for (const re of args.withMatchingChars) {
+          if (xre.test(i, xre(re))) {
+            return true;
           }
-          return false;
-        });
-      }
+        }
+        return false;
+      });
+    }
 
-      return ret.filter(i => i[0] === 'token');
-    },
-  text:
-    (root, args, context) => {
-      const tokens = args.withScriptureCV ?
-        context.docSet.unsuccinctifyItemsWithScriptureCV(
+    return ret.filter((i) => i[0] === 'token');
+  },
+  text: (root, args, context) => {
+    const tokens = args.withScriptureCV
+      ? context.docSet.unsuccinctifyItemsWithScriptureCV(
           root,
           args.withScriptureCV,
           { tokens: true },
-          false,
-        ) :
-        context.docSet.unsuccinctifyItems(root.c, { tokens: true }, null);
-      let ret = tokens.map(t => t[2]).join('').trim();
+          false
+        )
+      : context.docSet.unsuccinctifyItems(root.c, { tokens: true }, null);
+    let ret = tokens
+      .map((t) => t[2])
+      .join('')
+      .trim();
 
-      if (args.normalizeSpace) {
-        ret = ret.replace(/[ \t\n\r]+/g, ' ');
-      }
-      return ret;
-    },
+    if (args.normalizeSpace) {
+      ret = ret.replace(/[ \t\n\r]+/g, ' ');
+    }
+    return ret;
+  },
   itemGroups: (root, args, context) => {
     if (args.byScopes && args.byMilestones) {
       throw new Error('Cannot specify both byScopes and byMilestones');
@@ -213,16 +217,18 @@ const blockResolvers = {
     if (args.byScopes) {
       return context.docSet.sequenceItemsByScopes([root], args.byScopes);
     } else {
-      return context.docSet.sequenceItemsByMilestones([root], args.byMilestones);
+      return context.docSet.sequenceItemsByMilestones(
+        [root],
+        args.byMilestones
+      );
     }
   },
-  dump: (root, args, context) => dumpBlock(context.docSet.unsuccinctifyBlock(root, {}, null)),
+  dump: (root, args, context) =>
+    dumpBlock(context.docSet.unsuccinctifyBlock(root, {}, null)),
   scopeLabels: (root, args, context) =>
-    [...context.docSet.unsuccinctifyBlockScopeLabelsSet(root)]
-      .filter(s => !args.startsWith || scopeMatchesStartsWith(args.startsWith, s)),
+    [...context.docSet.unsuccinctifyBlockScopeLabelsSet(root)].filter(
+      (s) => !args.startsWith || scopeMatchesStartsWith(args.startsWith, s)
+    ),
 };
 
-export {
-  blockSchemaString,
-  blockResolvers,
-};
+export { blockSchemaString, blockResolvers };

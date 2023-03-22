@@ -1,7 +1,4 @@
-import {
-  addMutationsSchemaString,
-  addMutationsResolvers,
-} from './add';
+import { addMutationsSchemaString, addMutationsResolvers } from './add';
 
 import {
   deleteMutationsSchemaString,
@@ -13,10 +10,7 @@ import {
   rehashMutationsResolvers,
 } from './rehash';
 
-import {
-  tagMutationsSchemaString,
-  tagMutationsResolvers,
-} from './tags';
+import { tagMutationsSchemaString, tagMutationsResolvers } from './tags';
 
 import {
   updateMutationsSchemaString,
@@ -47,8 +41,4 @@ const mutationsResolvers = {
   ...versificationMutationsResolvers,
 };
 
-
-export {
-  mutationsSchemaString,
-  mutationsResolvers,
-};
+export { mutationsSchemaString, mutationsResolvers };

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
   sequenceHasChars,
   sequenceHasMatchingChars,
@@ -13,7 +12,13 @@ const options = {
   requiredScopes: [],
 };
 
-const blockHasAtts = (docSet, block, attSpecsArray, attValuesArray, requireAll) => {
+const blockHasAtts = (
+  docSet,
+  block,
+  attSpecsArray,
+  attValuesArray,
+  requireAll
+) => {
   let matched = new Set([]);
 
   for (const item of docSet.unsuccinctifyPrunedItems(block, options, false)) {
@@ -129,7 +134,7 @@ type Sequence {
 `;
 
 const sequenceResolvers = {
-  nBlocks: root => root.blocks.length,
+  nBlocks: (root) => root.blocks.length,
   blocks: (root, args, context) => {
     context.docSet.maybeBuildEnumIndexes();
 
@@ -145,7 +150,11 @@ const sequenceResolvers = {
       throw new Error('Cannot specify attValues without attSpecs');
     }
 
-    if (args.attSpecs && args.attValues && (args.attSpecs.length !== args.attValues.length)) {
+    if (
+      args.attSpecs &&
+      args.attValues &&
+      args.attSpecs.length !== args.attValues.length
+    ) {
       throw new Error('attSpecs and attValues must be same length');
     }
 
@@ -156,11 +165,15 @@ const sequenceResolvers = {
     let ret = root.blocks;
 
     if (args.positions) {
-      ret = Array.from(ret.entries()).filter(b => args.positions.includes(b[0])).map(b => b[1]);
+      ret = Array.from(ret.entries())
+        .filter((b) => args.positions.includes(b[0]))
+        .map((b) => b[1]);
     }
 
     if (args.withScopes) {
-      ret = ret.filter(b => context.docSet.allScopesInBlock(b, args.withScopes));
+      ret = ret.filter((b) =>
+        context.docSet.allScopesInBlock(b, args.withScopes)
+      );
     }
 
     if (args.withScriptureCV) {
@@ -168,11 +181,21 @@ const sequenceResolvers = {
     }
 
     if (args.attSpecs) {
-      ret = ret.filter(b => blockHasAtts(context.docSet, b, args.attSpecs, args.attValues, args.allAtts || false));
+      ret = ret.filter((b) =>
+        blockHasAtts(
+          context.docSet,
+          b,
+          args.attSpecs,
+          args.attValues,
+          args.allAtts || false
+        )
+      );
     }
 
     if (args.withBlockScope) {
-      ret = ret.filter(b => context.docSet.blockHasBlockScope(b, args.withBlockScope));
+      ret = ret.filter((b) =>
+        context.docSet.blockHasBlockScope(b, args.withBlockScope)
+      );
     }
 
     if (args.withChars) {
@@ -183,53 +206,69 @@ const sequenceResolvers = {
         return [];
       }
 
-      let charsIndexesArray = exactSearchTermIndexes(context.docSet, args.withChars, args.allChars);
+      let charsIndexesArray = exactSearchTermIndexes(
+        context.docSet,
+        args.withChars,
+        args.allChars
+      );
 
       for (const charsIndexes of charsIndexesArray) {
-        ret = ret.filter(b => context.docSet.blockHasChars(b, charsIndexes));
+        ret = ret.filter((b) => context.docSet.blockHasChars(b, charsIndexes));
       }
     }
 
     if (args.withMatchingChars) {
       if (
         root.type === 'main' &&
-        !sequenceHasMatchingChars(context.docSet, root, args.withMatchingChars, args.allChars)
+        !sequenceHasMatchingChars(
+          context.docSet,
+          root,
+          args.withMatchingChars,
+          args.allChars
+        )
       ) {
         return [];
       }
 
-      let charsIndexesArray = regexSearchTermIndexes(context.docSet, args.withMatchingChars, args.allChars);
+      let charsIndexesArray = regexSearchTermIndexes(
+        context.docSet,
+        args.withMatchingChars,
+        args.allChars
+      );
 
       for (const charsIndexes of charsIndexesArray) {
-        ret = ret.filter(b => context.docSet.blockHasChars(b, charsIndexes));
+        ret = ret.filter((b) => context.docSet.blockHasChars(b, charsIndexes));
       }
     }
     return ret;
   },
   blocksItems: (root, args, context) =>
-    root.blocks.map(b => context.docSet.unsuccinctifyItems(b.c, {}, null)),
+    root.blocks.map((b) => context.docSet.unsuccinctifyItems(b.c, {}, null)),
   blocksTokens: (root, args, context) =>
-    root.blocks.map(b => context.docSet.unsuccinctifyItems(b.c, { tokens: true }, null)),
-  blocksText: (root, args, context) =>
-    root.blocks.map(
-      b => {
-        let ret = context.docSet
-          .unsuccinctifyItems(b.c, { tokens: true }, null)
-          .map(t => t[2])
-          .join('');
-
-        if (args.normalizeSpace) {
-          ret = ret.replace(/[ \t\n\r]+/g, ' ');
-        }
-        return ret;
-      },
+    root.blocks.map((b) =>
+      context.docSet.unsuccinctifyItems(b.c, { tokens: true }, null)
     ),
+  blocksText: (root, args, context) =>
+    root.blocks.map((b) => {
+      let ret = context.docSet
+        .unsuccinctifyItems(b.c, { tokens: true }, null)
+        .map((t) => t[2])
+        .join('');
+
+      if (args.normalizeSpace) {
+        ret = ret.replace(/[ \t\n\r]+/g, ' ');
+      }
+      return ret;
+    }),
   text: (root, args, context) => {
-    let ret = root.blocks.map(b => context.docSet
-      .unsuccinctifyItems(b.c, { tokens: true }, null)
-      .map(t => t[2])
-      .join(''),
-    ).join('\n');
+    let ret = root.blocks
+      .map((b) =>
+        context.docSet
+          .unsuccinctifyItems(b.c, { tokens: true }, null)
+          .map((t) => t[2])
+          .join('')
+      )
+      .join('\n');
 
     if (args.normalizeSpace) {
       ret = ret.replace(/[ \t\n\r]+/g, ' ');
@@ -246,30 +285,39 @@ const sequenceResolvers = {
     }
 
     if (args.byScopes) {
-      return context.docSet.sequenceItemsByScopes(
-        root.blocks,
-        args.byScopes,
-      );
+      return context.docSet.sequenceItemsByScopes(root.blocks, args.byScopes);
     } else {
-      return context.docSet.sequenceItemsByMilestones(root.blocks, args.byMilestones);
+      return context.docSet.sequenceItemsByMilestones(
+        root.blocks,
+        args.byMilestones
+      );
     }
   },
-  tags: root => Array.from(root.tags),
-  tagsKv: root => Array.from(root.tags).map(t => {
-    if (t.includes(':')) {
-      return [t.substring(0, t.indexOf(':')), t.substring(t.indexOf(':') + 1)];
-    } else {
-      return [t, ''];
-    }
-  }),
+  tags: (root) => Array.from(root.tags),
+  tagsKv: (root) =>
+    Array.from(root.tags).map((t) => {
+      if (t.includes(':')) {
+        return [
+          t.substring(0, t.indexOf(':')),
+          t.substring(t.indexOf(':') + 1),
+        ];
+      } else {
+        return [t, ''];
+      }
+    }),
   hasTag: (root, args) => root.tags.has(args.tagName),
   wordLikes: (root, args, context) => {
     if (root.type !== 'main') {
       throw new Error(`Only available for the main sequence, not ${root.type}`);
     }
 
-    if (args.coerceCase && !['toLower', 'toUpper', 'none'].includes(args.coerceCase)) {
-      throw new Error(`coerceCase, when present, must be 'toLower', 'toUpper' or 'none', not '${args.coerceCase}'`);
+    if (
+      args.coerceCase &&
+      !['toLower', 'toUpper', 'none'].includes(args.coerceCase)
+    ) {
+      throw new Error(
+        `coerceCase, when present, must be 'toLower', 'toUpper' or 'none', not '${args.coerceCase}'`
+      );
     }
     context.docSet.maybeBuildEnumIndexes();
     let tokens = new Set();
@@ -278,7 +326,8 @@ const sequenceResolvers = {
     for (const b of root.tokensPresent) {
       if (b) {
         const enumOffset = context.docSet.enumIndexes['wordLike'][n];
-        let tokenString = context.docSet.enums['wordLike'].countedString(enumOffset);
+        let tokenString =
+          context.docSet.enums['wordLike'].countedString(enumOffset);
 
         if (args.coerceCase === 'toLower') {
           tokenString = tokenString.toLowerCase();
@@ -298,18 +347,25 @@ const sequenceResolvers = {
       throw new Error(`Only available for the main sequence, not ${root.type}`);
     }
 
-    return sequenceHasChars(context.docSet, root, args.chars, args.allChars || false);
+    return sequenceHasChars(
+      context.docSet,
+      root,
+      args.chars,
+      args.allChars || false
+    );
   },
   hasMatchingChars: (root, args, context) => {
     if (root.type !== 'main') {
       throw new Error(`Only available for the main sequence, not ${root.type}`);
     }
 
-    return sequenceHasMatchingChars(context.docSet, root, args.chars, args.allChars);
+    return sequenceHasMatchingChars(
+      context.docSet,
+      root,
+      args.chars,
+      args.allChars
+    );
   },
 };
 
-export {
-  sequenceSchemaString,
-  sequenceResolvers,
-};
+export { sequenceSchemaString, sequenceResolvers };

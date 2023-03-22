@@ -40,34 +40,54 @@ type cvVerseElement {
 `;
 
 const cvVerseElementResolvers = {
-  startBlock: root => root.startBlock,
-  endBlock: root => root.endBlock,
-  startItem: root => root.startItem,
-  endItem: root => root.endItem,
-  nextToken: root => root.nextToken,
-  verseRange: root => root.verses,
+  startBlock: (root) => root.startBlock,
+  endBlock: (root) => root.endBlock,
+  startItem: (root) => root.startItem,
+  endItem: (root) => root.endItem,
+  nextToken: (root) => root.nextToken,
+  verseRange: (root) => root.verses,
   items: (root, args, context) =>
-    context.docSet.itemsByIndex(context.doc.sequences[context.doc.mainId], root, args.includeContext)
-      .reduce((a, b) => a.concat([['token', 'lineSpace', ' ', null]].concat(b))),
+    context.docSet
+      .itemsByIndex(
+        context.doc.sequences[context.doc.mainId],
+        root,
+        args.includeContext
+      )
+      .reduce((a, b) =>
+        a.concat([['token', 'lineSpace', ' ', null]].concat(b))
+      ),
   dumpItems: (root, args, context) =>
     dumpItems(
-      context.docSet.itemsByIndex(context.doc.sequences[context.doc.mainId], root, args.includeContext)
-        .reduce((a, b) => a.concat([['token', 'lineSpace', ' ', null]].concat(b))),
+      context.docSet
+        .itemsByIndex(
+          context.doc.sequences[context.doc.mainId],
+          root,
+          args.includeContext
+        )
+        .reduce((a, b) =>
+          a.concat([['token', 'lineSpace', ' ', null]].concat(b))
+        )
     ),
   tokens: (root, args, context) =>
-    context.docSet.itemsByIndex(context.doc.sequences[context.doc.mainId], root, args.includeContext)
+    context.docSet
+      .itemsByIndex(
+        context.doc.sequences[context.doc.mainId],
+        root,
+        args.includeContext
+      )
       .reduce((a, b) => a.concat([['token', 'lineSpace', ' ', null]].concat(b)))
       .filter(
-        i =>
+        (i) =>
           i[0] === 'token' &&
           (!args.withChars || args.withChars.includes(i[2])) &&
-          (!args.withSubTypes || args.withSubTypes.includes(i[1])),
+          (!args.withSubTypes || args.withSubTypes.includes(i[1]))
       ),
   text: (root, args, context) => {
-    let ret = context.docSet.itemsByIndex(context.doc.sequences[context.doc.mainId], root)
+    let ret = context.docSet
+      .itemsByIndex(context.doc.sequences[context.doc.mainId], root)
       .reduce((a, b) => a.concat([['token', 'lineSpace', ' ', null]].concat(b)))
-      .filter(i => i[0] === 'token')
-      .map(t => t[1] === 'lineSpace' ? ' ' : t[2])
+      .filter((i) => i[0] === 'token')
+      .map((t) => (t[1] === 'lineSpace' ? ' ' : t[2]))
       .join('')
       .trim();
 
@@ -78,7 +98,4 @@ const cvVerseElementResolvers = {
   },
 };
 
-export {
-  cvVerseElementSchemaString,
-  cvVerseElementResolvers,
-};
+export { cvVerseElementSchemaString, cvVerseElementResolvers };

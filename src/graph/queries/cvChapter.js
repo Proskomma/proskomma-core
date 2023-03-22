@@ -9,8 +9,8 @@ type cvChapter {
 `;
 
 const cvChapterResolvers = {
-  chapter: root => parseInt(root[0]),
-  maxVerse: root => parseInt(root[1]),
+  chapter: (root) => parseInt(root[0]),
+  maxVerse: (root) => parseInt(root[1]),
 };
 
 export { cvChapterSchemaString, cvChapterResolvers };

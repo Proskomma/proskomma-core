@@ -48,7 +48,9 @@ type DocSet {
     withTags: [String!]
     """Only return documents with none of the specified tags"""
     withoutTags: [String!]
-    """Sort returned documents by the designated method (currently ${Object.keys(bookCodeCompareFunctions).join(', ')})\`"""
+    """Sort returned documents by the designated method (currently ${Object.keys(
+      bookCodeCompareFunctions
+    ).join(', ')})\`"""
     sortedBy: String
   ): [Document!]!
   """The number of documents in the docSet"""
@@ -89,19 +91,26 @@ type DocSet {
 const docSetResolvers = {
   selectors: (root) => Object.entries(root.selectors),
   selector: (root, args) => root.selectors[args.id],
-  tags: root => Array.from(root.tags),
-  tagsKv: root => Array.from(root.tags).map(t => {
-    if (t.includes(':')) {
-      return [t.substring(0, t.indexOf(':')), t.substring(t.indexOf(':') + 1)];
-    } else {
-      return [t, ''];
-    }
-  }),
+  tags: (root) => Array.from(root.tags),
+  tagsKv: (root) =>
+    Array.from(root.tags).map((t) => {
+      if (t.includes(':')) {
+        return [
+          t.substring(0, t.indexOf(':')),
+          t.substring(t.indexOf(':') + 1),
+        ];
+      } else {
+        return [t, ''];
+      }
+    }),
   hasTag: (root, args) => root.tags.has(args.tagName),
   documents: (root, args, context) => {
     const headerValuesMatch = (docHeaders, requiredHeaders) => {
       for (const requiredHeader of requiredHeaders || []) {
-        if (!(requiredHeader.key in docHeaders) || docHeaders[requiredHeader.key] !== requiredHeader.value) {
+        if (
+          !(requiredHeader.key in docHeaders) ||
+          docHeaders[requiredHeader.key] !== requiredHeader.value
+        ) {
           return false;
         }
       }
@@ -116,49 +125,76 @@ const docSetResolvers = {
     let ret = root.documents();
 
     if (args.ids) {
-      ret = ret.filter(d => args.ids.includes(d.id));
+      ret = ret.filter((d) => args.ids.includes(d.id));
     }
 
     if (args.withChars) {
-      ret = ret.filter(d => sequenceHasChars(root, d.sequences[d.mainId], args.withChars, args.allChars));
+      ret = ret.filter((d) =>
+        sequenceHasChars(
+          root,
+          d.sequences[d.mainId],
+          args.withChars,
+          args.allChars
+        )
+      );
     }
 
     if (args.withMatchingChars) {
-      ret = ret.filter(d => sequenceHasMatchingChars(root, d.sequences[d.mainId], args.withMatchingChars, args.allChars));
+      ret = ret.filter((d) =>
+        sequenceHasMatchingChars(
+          root,
+          d.sequences[d.mainId],
+          args.withMatchingChars,
+          args.allChars
+        )
+      );
     }
 
     if (args.withScopes) {
-      const allSequenceScopes = doc => new Set(
-        doc.sequences[doc.mainId].blocks
-          .map(b => context.docSet.unsuccinctifyBlockScopeLabelsSet(b))
-          .map(s => Array.from(s))
-          .reduce((a, b) => a.concat(b)),
-      );
+      const allSequenceScopes = (doc) =>
+        new Set(
+          doc.sequences[doc.mainId].blocks
+            .map((b) => context.docSet.unsuccinctifyBlockScopeLabelsSet(b))
+            .map((s) => Array.from(s))
+            .reduce((a, b) => a.concat(b))
+        );
 
-      ret = ret.filter(
-        d => {
-          const docScopes = allSequenceScopes(d);
-          const minHits = args.allScopes ? args.withScopes.length : 1;
-          return args.withScopes.filter(s => docScopes.has(s)).length >= minHits;
-        },
-      );
+      ret = ret.filter((d) => {
+        const docScopes = allSequenceScopes(d);
+        const minHits = args.allScopes ? args.withScopes.length : 1;
+        return (
+          args.withScopes.filter((s) => docScopes.has(s)).length >= minHits
+        );
+      });
     }
 
     if (args.withHeaderValues) {
-      ret = ret.filter(d => headerValuesMatch(d.headers, args.withHeaderValues));
+      ret = ret.filter((d) =>
+        headerValuesMatch(d.headers, args.withHeaderValues)
+      );
     }
 
     if (args.withTags) {
-      ret = ret.filter(d => args.withTags.filter(t => d.tags.has(t)).length === args.withTags.length);
+      ret = ret.filter(
+        (d) =>
+          args.withTags.filter((t) => d.tags.has(t)).length ===
+          args.withTags.length
+      );
     }
 
     if (args.withoutTags) {
-      ret = ret.filter(d => args.withoutTags.filter(t => d.tags.has(t)).length === 0);
+      ret = ret.filter(
+        (d) => args.withoutTags.filter((t) => d.tags.has(t)).length === 0
+      );
     }
 
     if (args.sortedBy) {
       if (!(args.sortedBy in bookCodeCompareFunctions)) {
-        throw new Error(`sortedBy value must be one of [${Object.keys(bookCodeCompareFunctions)}], not ${args.sortedBy}`);
+        throw new Error(
+          `sortedBy value must be one of [${Object.keys(
+            bookCodeCompareFunctions
+          )}], not ${args.sortedBy}`
+        );
       }
       ret.sort(bookCodeCompareFunctions[args.sortedBy]);
     }
@@ -170,41 +206,55 @@ const docSetResolvers = {
     return root.documents().length;
   },
   document: (root, args) => root.documentWithBook(args.bookCode),
-  hasMapping: root => root.tags.has('hasMapping'),
+  hasMapping: (root) => root.tags.has('hasMapping'),
   enumIndexForString: (root, args) =>
     utils.enums.enumStringIndex(root.enums[args.enumType], args.searchString),
   enumRegexIndexesForString: (root, args) =>
-    utils.enums.enumRegexIndexTuples(root.enums[args.enumType], args.searchRegex),
+    utils.enums.enumRegexIndexTuples(
+      root.enums[args.enumType],
+      args.searchRegex
+    ),
   wordLikes: (root, args) => {
-    if (args.coerceCase && !['toLower', 'toUpper', 'none'].includes(args.coerceCase)) {
-      throw new Error(`coerceCase, when present, must be 'toLower', 'toUpper' or 'none', not '${args.coerceCase}'`);
+    if (
+      args.coerceCase &&
+      !['toLower', 'toUpper', 'none'].includes(args.coerceCase)
+    ) {
+      throw new Error(
+        `coerceCase, when present, must be 'toLower', 'toUpper' or 'none', not '${args.coerceCase}'`
+      );
     }
 
     let tokens = utils.succinct.unpackEnum(root.enums.wordLike);
 
     if (args.coerceCase === 'toLower') {
-      tokens = tokens.map(t => t.toLowerCase());
+      tokens = tokens.map((t) => t.toLowerCase());
     }
 
     if (args.coerceCase === 'toUpper') {
-      tokens = tokens.map(t => t.toUpperCase());
+      tokens = tokens.map((t) => t.toUpperCase());
     }
     return Array.from(new Set(tokens));
   },
-  uniqueChars: root => {
+  uniqueChars: (root) => {
     const retSet = new Set([]);
 
-    for (const token of [...utils.succinct.unpackEnum(root.enums.wordLike), ...utils.succinct.unpackEnum(root.enums.notWordLike)]) {
+    for (const token of [
+      ...utils.succinct.unpackEnum(root.enums.wordLike),
+      ...utils.succinct.unpackEnum(root.enums.notWordLike),
+    ]) {
       for (const char of token.split('')) {
         retSet.add(char);
       }
     }
     return Array.from(retSet).sort();
   },
-  uniqueCharsString: root => {
+  uniqueCharsString: (root) => {
     const retSet = new Set([]);
 
-    for (const token of [...utils.succinct.unpackEnum(root.enums.wordLike), ...utils.succinct.unpackEnum(root.enums.notWordLike)]) {
+    for (const token of [
+      ...utils.succinct.unpackEnum(root.enums.wordLike),
+      ...utils.succinct.unpackEnum(root.enums.notWordLike),
+    ]) {
       for (const char of token.split('')) {
         retSet.add(char);
       }
@@ -213,8 +263,4 @@ const docSetResolvers = {
   },
 };
 
-export {
-  docSetSchemaString,
-  docSetResolvers,
-};
-
+export { docSetSchemaString, docSetResolvers };

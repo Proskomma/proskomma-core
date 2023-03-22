@@ -30,8 +30,7 @@ const deleteMutationsSchemaString = `
 `;
 
 const deleteMutationsResolvers = {
-  deleteDocSet: (root, args) =>
-    root.deleteDocSet(args.docSetId),
+  deleteDocSet: (root, args) => root.deleteDocSet(args.docSetId),
   deleteDocument: (root, args) =>
     root.deleteDocument(args.docSetId, args.documentId),
   deleteSequence: (root, args) => {
@@ -54,8 +53,4 @@ const deleteMutationsResolvers = {
   },
 };
 
-
-export {
-  deleteMutationsSchemaString,
-  deleteMutationsResolvers,
-};
+export { deleteMutationsSchemaString, deleteMutationsResolvers };

@@ -17,13 +17,10 @@ type selectorSpec {
 `;
 
 const selectorSpecResolvers = {
-  regex: root => root.regex || null,
-  min: root => root.min || null,
-  max: root => root.max || null,
-  enum: root => root.enum || null,
+  regex: (root) => root.regex || null,
+  min: (root) => root.min || null,
+  max: (root) => root.max || null,
+  enum: (root) => root.enum || null,
 };
 
-export {
-  selectorSpecSchemaString,
-  selectorSpecResolvers,
-};
+export { selectorSpecSchemaString, selectorSpecResolvers };

@@ -43,12 +43,18 @@ const addMutationsResolvers = {
   addDocument: (root, args) => {
     const selectorsObject = {};
 
-    args.selectors.forEach(
-      s => {
-        selectorsObject[s.key] = s.value;
-      },
+    args.selectors.forEach((s) => {
+      selectorsObject[s.key] = s.value;
+    });
+    return !!root.importDocument(
+      selectorsObject,
+      args.contentType,
+      args.content,
+      null,
+      null,
+      null,
+      args.tags || []
     );
-    return !!root.importDocument(selectorsObject, args.contentType, args.content, null, null, null, args.tags || []);
   },
   newSequence: (root, args) => {
     const document = root.documents[args.documentId];
@@ -61,16 +67,29 @@ const addMutationsResolvers = {
     const newSeqId = document.newSequence(args.type, args.tags);
 
     if (args.blocksSpec) {
-      remakeBlocks(docSet, document, document.sequences[newSeqId], args.blocksSpec);
+      remakeBlocks(
+        docSet,
+        document,
+        document.sequences[newSeqId],
+        args.blocksSpec
+      );
       document.buildChapterVerseIndex();
     }
 
     if (args.graftToMain) {
       docSet.maybeBuildPreEnums();
       const mainSequenceBG = document.sequences[document.mainId].blocks[0].bg;
-      const graftTypeEnumIndex = docSet.enumForCategoryValue('graftTypes', args.type, true);
+      const graftTypeEnumIndex = docSet.enumForCategoryValue(
+        'graftTypes',
+        args.type,
+        true
+      );
       const seqEnumIndex = docSet.enumForCategoryValue('ids', newSeqId, true);
-      utils.succinct.pushSuccinctGraftBytes(mainSequenceBG, graftTypeEnumIndex, seqEnumIndex);
+      utils.succinct.pushSuccinctGraftBytes(
+        mainSequenceBG,
+        graftTypeEnumIndex,
+        seqEnumIndex
+      );
     }
     return newSeqId;
   },
@@ -85,7 +104,4 @@ const addMutationsResolvers = {
   },
 };
 
-export {
-  addMutationsSchemaString,
-  addMutationsResolvers,
-};
+export { addMutationsSchemaString, addMutationsResolvers };

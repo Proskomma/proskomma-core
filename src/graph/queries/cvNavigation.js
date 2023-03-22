@@ -26,7 +26,9 @@ const nv = (root, newVerseRange) => {
       onNextChapter = true;
     } else if (
       index[nv].length > 0 &&
-      (!newVerseRange || onNextChapter || index[nv][0].verses !== startVerseRange)
+      (!newVerseRange ||
+        onNextChapter ||
+        index[nv][0].verses !== startVerseRange)
     ) {
       ret = [nc, nv];
     }
@@ -62,7 +64,9 @@ const pv = (root, newVerseRange) => {
       onPreviousChapter = true;
     } else if (
       index[nv].length > 0 &&
-      (!newVerseRange || onPreviousChapter || index[nv][0].verses !== startVerseRange)
+      (!newVerseRange ||
+        onPreviousChapter ||
+        index[nv][0].verses !== startVerseRange)
     ) {
       ret = [nc, nv];
     }
@@ -90,18 +94,18 @@ type cvNavigation {
 
 // root is [ < 0 chapter >, < 1 verse >, < 2 previousChapterIndex >, < 3 thisChapterIndex >, < 4 nextChapterIndex > ]
 const cvNavigationResolvers = {
-  nextVerse: root => nv(root, false),
-  previousVerse: root => pv(root, false),
-  nextVerseRangeVerse: root => nv(root, true),
-  previousVerseRangeVerse: root => pv(root, true),
-  nextChapter: root => {
+  nextVerse: (root) => nv(root, false),
+  previousVerse: (root) => pv(root, false),
+  nextVerseRangeVerse: (root) => nv(root, true),
+  previousVerseRangeVerse: (root) => pv(root, true),
+  nextChapter: (root) => {
     if (root[3].length > 0 && root[4].length > 0) {
       return (parseInt(root[0]) + 1).toString();
     } else {
       return null;
     }
   },
-  previousChapter: root => {
+  previousChapter: (root) => {
     if (root[2].length > 0 && root[3].length > 0) {
       return (parseInt(root[0]) - 1).toString();
     } else {
@@ -110,7 +114,4 @@ const cvNavigationResolvers = {
   },
 };
 
-export {
-  cvNavigationSchemaString,
-  cvNavigationResolvers,
-};
+export { cvNavigationSchemaString, cvNavigationResolvers };

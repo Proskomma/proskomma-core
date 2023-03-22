@@ -12,7 +12,7 @@ const remakeBlocks = (docSet, document, sequence, blocksSpec) => {
       document.id,
       sequence.id,
       blockN,
-      block.bg,
+      block.bg
     );
 
     if (!bgResult) {
@@ -23,7 +23,7 @@ const remakeBlocks = (docSet, document, sequence, blocksSpec) => {
       document.id,
       sequence.id,
       blockN,
-      block.os,
+      block.os
     );
 
     if (!osResult) {
@@ -34,7 +34,7 @@ const remakeBlocks = (docSet, document, sequence, blocksSpec) => {
       document.id,
       sequence.id,
       blockN,
-      block.is,
+      block.is
     );
 
     if (!isResult) {
@@ -45,7 +45,7 @@ const remakeBlocks = (docSet, document, sequence, blocksSpec) => {
       document.id,
       sequence.id,
       blockN,
-      block.items,
+      block.items
     );
 
     if (!itemsResult) {

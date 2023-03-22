@@ -1,4 +1,4 @@
-const rehash = docSet => {
+const rehash = (docSet) => {
   docSet.preEnums = {};
 
   for (const category of Object.keys(docSet.enums)) {
@@ -24,7 +24,7 @@ const rehash = docSet => {
   return true;
 };
 
-const makeRehashEnumMap = docSet => {
+const makeRehashEnumMap = (docSet) => {
   const ret = {};
 
   for (const [category, enumSuccinct] of Object.entries(docSet.enums)) {
@@ -47,7 +47,4 @@ const makeRehashEnumMap = docSet => {
   return ret;
 };
 
-export {
-  rehash,
-  makeRehashEnumMap,
-};
+export { rehash, makeRehashEnumMap };

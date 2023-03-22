@@ -34,25 +34,26 @@ type treeSequence {
 `;
 
 const treeSequenceResolvers = {
-  nNodes: root => root.blocks.length,
-  nodes: root => root.blocks,
+  nNodes: (root) => root.blocks.length,
+  nodes: (root) => root.blocks,
   tribos: (root, args, context) =>
     new Tribos().parse(context.docSet, root.blocks, args.query),
   triboi: (root, args, context) =>
-    args.queries.map(q => new Tribos().parse(context.docSet, root.blocks, q)),
+    args.queries.map((q) => new Tribos().parse(context.docSet, root.blocks, q)),
   tribosDoc: () => new Tribos().doc(),
-  tags: root => Array.from(root.tags),
-  tagsKv: root => Array.from(root.tags).map(t => {
-    if (t.includes(':')) {
-      return [t.substring(0, t.indexOf(':')), t.substring(t.indexOf(':') + 1)];
-    } else {
-      return [t, ''];
-    }
-  }),
+  tags: (root) => Array.from(root.tags),
+  tagsKv: (root) =>
+    Array.from(root.tags).map((t) => {
+      if (t.includes(':')) {
+        return [
+          t.substring(0, t.indexOf(':')),
+          t.substring(t.indexOf(':') + 1),
+        ];
+      } else {
+        return [t, ''];
+      }
+    }),
   hasTag: (root, args) => root.tags.has(args.tagName),
 };
 
-export {
-  treeSequenceSchemaString,
-  treeSequenceResolvers,
-};
+export { treeSequenceSchemaString, treeSequenceResolvers };

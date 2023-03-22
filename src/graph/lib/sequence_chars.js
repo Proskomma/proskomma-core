@@ -2,44 +2,44 @@ import utils from '../../util';
 
 const exactSearchTermIndexes = (docSet, chars, allChars) => {
   let charsIndexesArray = [
-    chars
-      .map(
-        c => [utils.enums.enumStringIndex(docSet.enums.wordLike, c)],
-      ),
+    chars.map((c) => [utils.enums.enumStringIndex(docSet.enums.wordLike, c)]),
   ];
 
   if (allChars) {
     charsIndexesArray = charsIndexesArray[0];
   } else {
-    charsIndexesArray = charsIndexesArray.map(ci => ci.reduce((a, b) => a.concat(b)));
+    charsIndexesArray = charsIndexesArray.map((ci) =>
+      ci.reduce((a, b) => a.concat(b))
+    );
   }
   return charsIndexesArray;
 };
 
 const regexSearchTermIndexes = (docSet, chars, allChars) => {
   let charsIndexesArray = [
-    chars
-      .map(
-        c =>
-          utils.enums.enumRegexIndexTuples(docSet.enums.wordLike, c)
-            .map(tup => tup[0]),
-      ),
+    chars.map((c) =>
+      utils.enums
+        .enumRegexIndexTuples(docSet.enums.wordLike, c)
+        .map((tup) => tup[0])
+    ),
   ];
 
   if (allChars) {
     charsIndexesArray = charsIndexesArray[0];
   } else {
-    charsIndexesArray = charsIndexesArray.map(ci => ci.reduce((a, b) => a.concat(b)));
+    charsIndexesArray = charsIndexesArray.map((ci) =>
+      ci.reduce((a, b) => a.concat(b))
+    );
   }
   return charsIndexesArray;
 };
 
 const sequenceMatchesSearchTerms = (seq, charsIndexesArray, allChars) => {
-  if (allChars && charsIndexesArray.filter(i => i.length === 0).length > 0) {
+  if (allChars && charsIndexesArray.filter((i) => i.length === 0).length > 0) {
     return false;
   }
 
-  charsIndexesArray = charsIndexesArray.filter(i => i.length > 0);
+  charsIndexesArray = charsIndexesArray.filter((i) => i.length > 0);
 
   if (charsIndexesArray.length === 0) {
     return false;
@@ -49,7 +49,8 @@ const sequenceMatchesSearchTerms = (seq, charsIndexesArray, allChars) => {
     let found = false;
 
     for (const charsIndex of charsIndexes) {
-      const isPresent = charsIndex >= 0 && seq.tokensPresent.get(charsIndex) > 0;
+      const isPresent =
+        charsIndex >= 0 && seq.tokensPresent.get(charsIndex) > 0;
 
       if (isPresent) {
         found = true;
@@ -79,7 +80,6 @@ const sequenceHasMatchingChars = (docSet, seq, chars, allChars) => {
 export {
   sequenceHasChars,
   sequenceHasMatchingChars,
-  // sequenceMatchesSearchTerms,
   regexSearchTermIndexes,
   exactSearchTermIndexes,
 };

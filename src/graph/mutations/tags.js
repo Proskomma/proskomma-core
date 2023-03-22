@@ -114,7 +114,4 @@ const tagMutationsResolvers = {
   },
 };
 
-export {
-  tagMutationsSchemaString,
-  tagMutationsResolvers,
-};
+export { tagMutationsSchemaString, tagMutationsResolvers };

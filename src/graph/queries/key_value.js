@@ -8,11 +8,8 @@ type KeyValue {
 }`;
 
 const keyValueResolvers = {
-  key: root => root[0],
-  value: root => root[1],
+  key: (root) => root[0],
+  value: (root) => root[1],
 };
 
-export {
-  keyValueSchemaString,
-  keyValueResolvers,
-};
+export { keyValueSchemaString, keyValueResolvers };

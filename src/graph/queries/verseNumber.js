@@ -24,21 +24,23 @@ const verseNumberResolvers = {
       'forward' in mainSequence.verseMapping &&
       `${localChapter}` in mainSequence.verseMapping.forward
     ) {
-      const mapping = utils.versification.mapVerse(mainSequence.verseMapping.forward[`${localChapter}`], localBook, localChapter, localVerse);
-      return ({
+      const mapping = utils.versification.mapVerse(
+        mainSequence.verseMapping.forward[`${localChapter}`],
+        localBook,
+        localChapter,
+        localVerse
+      );
+      return {
         book: mapping[0],
         cvs: mapping[1],
-      });
+      };
     } else {
-      return ({
+      return {
         book: localBook,
         cvs: [[localChapter, localVerse]],
-      });
+      };
     }
   },
 };
 
-export {
-  verseNumberSchemaString,
-  verseNumberResolvers,
-};
+export { verseNumberSchemaString, verseNumberResolvers };

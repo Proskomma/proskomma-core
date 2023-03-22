@@ -25,29 +25,27 @@ import {
   gcSequences,
   newSequence,
 } from './document_helpers/sequences';
-import {
-  deleteBlock,
-  newBlock,
-  rewriteBlock,
-} from './document_helpers/blocks';
+import { deleteBlock, newBlock, rewriteBlock } from './document_helpers/blocks';
 import { succinctFilter } from './document_helpers/succinct_filter';
 import { serializeSuccinct } from './document_helpers/serialize_succinct';
-import {
-  recordPreEnums,
-  rerecordPreEnums,
-} from './document_helpers/pre_enums';
+import { recordPreEnums, rerecordPreEnums } from './document_helpers/pre_enums';
 
-const {
-  addTag,
-  removeTag,
-  validateTags,
-} = utils.tags;
+const { addTag, removeTag, validateTags } = utils.tags;
 const parserConstantDef = utils.parserConstants;
 // const maybePrint = str => console.log(str);
-const maybePrint = str => str;
+const maybePrint = (str) => str;
 
 class Document {
-  constructor(processor, docSetId, contentType, contentString, filterOptions, customTags, emptyBlocks, tags) {
+  constructor(
+    processor,
+    docSetId,
+    contentType,
+    contentString,
+    filterOptions,
+    customTags,
+    emptyBlocks,
+    tags
+  ) {
     this.processor = processor;
     this.docSetId = docSetId;
     this.baseSequenceTypes = parserConstantDef.usfm.baseSequenceTypes;
@@ -64,21 +62,21 @@ class Document {
       this.sequences = {};
 
       switch (contentType.toLowerCase()) {
-      case 'usfm':
-      case 'sfm':
-        this.processUsfm(contentString);
-        break;
-      case 'usx':
-        this.processUsx(contentString);
-        break;
-      case 'tsv':
-        this.processTSV(contentString);
-        break;
-      case 'nodes':
-        this.processNodes(contentString);
-        break;
-      default:
-        throw new Error(`Unknown document contentType '${contentType}'`);
+        case 'usfm':
+        case 'sfm':
+          this.processUsfm(contentString);
+          break;
+        case 'usx':
+          this.processUsx(contentString);
+          break;
+        case 'tsv':
+          this.processTSV(contentString);
+          break;
+        case 'nodes':
+          this.processNodes(contentString);
+          break;
+        default:
+          throw new Error(`Unknown document contentType '${contentType}'`);
       }
     }
   }
@@ -92,11 +90,7 @@ class Document {
   }
 
   makeParser() {
-    return new Parser(
-      this.filterOptions,
-      this.customTags,
-      this.emptyBlocks,
-    );
+    return new Parser(this.filterOptions, this.customTags, this.emptyBlocks);
   }
 
   processUsfm(usfmString) {
@@ -106,7 +100,11 @@ class Document {
     const t2 = Date.now();
     maybePrint(`\nParse USFM in ${t2 - t} msec`);
     this.postParseScripture(parser);
-    maybePrint(`Total USFM import time = ${Date.now() - t} msec (parse = ${((t2 - t) * 100) / (Date.now() - t)}%)`);
+    maybePrint(
+      `Total USFM import time = ${Date.now() - t} msec (parse = ${
+        ((t2 - t) * 100) / (Date.now() - t)
+      }%)`
+    );
   }
 
   processUsx(usxString) {
@@ -116,12 +114,20 @@ class Document {
     const t2 = Date.now();
     maybePrint(`\nParse USX in ${t2 - t} msec`);
     this.postParseScripture(parser);
-    maybePrint(`Total USX import time = ${Date.now() - t} msec (parse = ${((t2 - t) * 100) / (Date.now() - t)}%)`);
+    maybePrint(
+      `Total USX import time = ${Date.now() - t} msec (parse = ${
+        ((t2 - t) * 100) / (Date.now() - t)
+      }%)`
+    );
   }
 
   processTSV(tsvString) {
     const parser = this.makeParser();
-    const bookCode = `T${this.processor.nextTable > 9 ? this.processor.nextTable : '0' + this.processor.nextTable}`;
+    const bookCode = `T${
+      this.processor.nextTable > 9
+        ? this.processor.nextTable
+        : '0' + this.processor.nextTable
+    }`;
     this.processor.nextTable++;
     parseTableToDocument(tsvString, parser, bookCode);
     this.headers = parser.headers;
@@ -129,7 +135,9 @@ class Document {
     this.succinctPass2(parser);
     buildChapterVerseIndex(this);
 
-    const tableSequence = Object.values(this.sequences).filter(s => s.type === 'table')[0];
+    const tableSequence = Object.values(this.sequences).filter(
+      (s) => s.type === 'table'
+    )[0];
 
     for (const [colN, colHead] of JSON.parse(tsvString).headings.entries()) {
       tableSequence.tags.add(`col${colN}:${colHead}`);
@@ -138,7 +146,11 @@ class Document {
 
   processNodes(nodesString) {
     const parser = this.makeParser();
-    const bookCode = `N${this.processor.nextNodes > 9 ? this.processor.nextNodes : '0' + this.processor.nextNodes}`;
+    const bookCode = `N${
+      this.processor.nextNodes > 9
+        ? this.processor.nextNodes
+        : '0' + this.processor.nextNodes
+    }`;
     this.processor.nextNodes++;
     parseNodes(nodesString, parser, bookCode);
     this.headers = parser.headers;
@@ -209,7 +221,7 @@ class Document {
         id: seq.id,
         type: seq.type,
         tags: new Set(seq.tags),
-        isBaseType: (seq.type in parser.baseSequenceTypes),
+        isBaseType: seq.type in parser.baseSequenceTypes,
         blocks: seq.succinctifyBlocks(docSet),
       };
     }
@@ -222,7 +234,7 @@ class Document {
     blockFilterFunc,
     itemFilterFunc,
     blockRewriteFunc,
-    itemRewriteFunc,
+    itemRewriteFunc
   ) {
     modifySequence(
       this,
@@ -231,7 +243,7 @@ class Document {
       blockFilterFunc,
       itemFilterFunc,
       blockRewriteFunc,
-      itemRewriteFunc,
+      itemRewriteFunc
     );
   }
 
@@ -242,7 +254,9 @@ class Document {
   chapterVerseIndexes() {
     const ret = {};
 
-    for (const chapN of Object.keys(this.sequences[this.mainId].chapterVerses)) {
+    for (const chapN of Object.keys(
+      this.sequences[this.mainId].chapterVerses
+    )) {
       ret[chapN] = chapterVerseIndex(this, chapN);
     }
     return ret;
@@ -302,22 +316,20 @@ class Document {
   }
 
   perf(indent) {
-    const cl = new PerfRenderFromProskomma(
-      {
-        proskomma: this.processor,
-        actions: render.perfToPerf.renderActions.identityActions,
-      },
-    );
+    const cl = new PerfRenderFromProskomma({
+      proskomma: this.processor,
+      actions: render.perfToPerf.renderActions.identityActions,
+    });
     const output = {};
 
-    cl.renderDocument(
-      {
-        docId: this.id,
-        config: {},
-        output,
-      },
-    );
-    return indent ? JSON.stringify(output.perf, null, indent) : JSON.stringify(output.perf);
+    cl.renderDocument({
+      docId: this.id,
+      config: {},
+      output,
+    });
+    return indent
+      ? JSON.stringify(output.perf, null, indent)
+      : JSON.stringify(output.perf);
   }
 
   async usfm() {
@@ -325,11 +337,13 @@ class Document {
 
     try {
       const pipelineHandler = new PipelineHandler({
-        pipelines:pipelines,
-        transforms:customTransforms,
-        proskomma:this.processor,
+        pipelines: pipelines,
+        transforms: customTransforms,
+        proskomma: this.processor,
       });
-      const output = await pipelineHandler.runPipeline('perf2usfmPipeline', { perf });
+      const output = await pipelineHandler.runPipeline('perf2usfmPipeline', {
+        perf,
+      });
       return output.usfm;
     } catch (err) {
       console.error('pipelineHandler Error :\n', err);
@@ -337,12 +351,10 @@ class Document {
   }
 
   sofria(indent, chapter) {
-    const cl = new SofriaRenderFromProskomma(
-      {
-        proskomma: this.processor,
-        actions: render.sofriaToSofria.renderActions.identityActions,
-      },
-    );
+    const cl = new SofriaRenderFromProskomma({
+      proskomma: this.processor,
+      actions: render.sofriaToSofria.renderActions.identityActions,
+    });
     const output = {};
     const config = {};
 
@@ -351,18 +363,18 @@ class Document {
     }
 
     try {
-      cl.renderDocument(
-        {
-          docId: this.id,
-          config,
-          output,
-        },
-      );
+      cl.renderDocument({
+        docId: this.id,
+        config,
+        output,
+      });
     } catch (err) {
       console.log(err);
       throw err;
     }
-    return indent ? JSON.stringify(output.sofria, null, indent) : JSON.stringify(output.sofria);
+    return indent
+      ? JSON.stringify(output.sofria, null, indent)
+      : JSON.stringify(output.sofria);
   }
 }
 

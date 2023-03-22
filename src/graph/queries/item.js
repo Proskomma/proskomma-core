@@ -41,8 +41,8 @@ type Item {
 `;
 
 const itemResolvers = {
-  type: root => root[0],
-  subType: root => root[1],
+  type: (root) => root[0],
+  subType: (root) => root[1],
   payload: (root, args) => {
     let ret = root[2];
 
@@ -53,19 +53,24 @@ const itemResolvers = {
 
       if (args.includeChars || args.excludeChars) {
         let retArray = ret.split('');
-        retArray = retArray.filter(c => !args.includeChars || args.includeChars.includes(c));
-        retArray = retArray.filter(c => !args.excludeChars || !args.excludeChars.includes(c));
+        retArray = retArray.filter(
+          (c) => !args.includeChars || args.includeChars.includes(c)
+        );
+        retArray = retArray.filter(
+          (c) => !args.excludeChars || !args.excludeChars.includes(c)
+        );
         ret = retArray.join('');
       }
     }
     return ret;
   },
-  position: root => root[3],
+  position: (root) => root[3],
   scopes: (root, args) =>
-    root[4] ? root[4].filter(s => !args.startsWith || scopeMatchesStartsWith(args.startsWith, s)) : [],
+    root[4]
+      ? root[4].filter(
+          (s) => !args.startsWith || scopeMatchesStartsWith(args.startsWith, s)
+        )
+      : [],
 };
 
-export {
-  itemSchemaString,
-  itemResolvers,
-};
+export { itemSchemaString, itemResolvers };

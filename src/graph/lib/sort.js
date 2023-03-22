@@ -3,8 +3,12 @@ import utils from '../../util';
 const ptCompare = (a, b) => {
   const bcA = a.headers.bookCode || 'GEN';
   const bcB = b.headers.bookCode || 'GEN';
-  const posA = utils.canons.ptBooks[bcA] ? utils.canons.ptBooks[bcA].position : 999;
-  const posB = utils.canons.ptBooks[bcB] ? utils.canons.ptBooks[bcB].position : 999;
+  const posA = utils.canons.ptBooks[bcA]
+    ? utils.canons.ptBooks[bcA].position
+    : 999;
+  const posB = utils.canons.ptBooks[bcB]
+    ? utils.canons.ptBooks[bcB].position
+    : 999;
   return posA - posB;
 };
 

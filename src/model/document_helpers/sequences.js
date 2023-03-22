@@ -2,7 +2,7 @@ import deepCopy from 'deep-copy-all';
 
 import utils from '../../util';
 
-const gcSequences = document => {
+const gcSequences = (document) => {
   const usedSequences = new Set();
   const docSet = document.processor.docSets[document.docSetId];
   docSet.maybeBuildEnumIndexes();
@@ -17,7 +17,11 @@ const gcSequences = document => {
         }
       }
 
-      for (const inlineGraft of docSet.unsuccinctifyItems(block.c, { grafts: true }, 0)) {
+      for (const inlineGraft of docSet.unsuccinctifyItems(
+        block.c,
+        { grafts: true },
+        0
+      )) {
         if (!used.has(inlineGraft[2])) {
           followGrafts(document, document.sequences[inlineGraft[2]], used);
         }
@@ -45,7 +49,7 @@ const newSequence = (document, seqType, tags) => {
     id: seqId,
     type: seqType,
     tags: new Set(tags || []),
-    isBaseType: (seqType in document.baseSequenceTypes),
+    isBaseType: seqType in document.baseSequenceTypes,
     blocks: [],
   };
 
@@ -62,9 +66,9 @@ const deleteSequence = (document, seqId) => {
   }
 
   if (document.sequences[seqId].type in document.baseSequenceTypes) {
-    gcSequenceReferences(document,'block', seqId);
+    gcSequenceReferences(document, 'block', seqId);
   } else {
-    gcSequenceReferences(document,'inline', seqId);
+    gcSequenceReferences(document, 'inline', seqId);
   }
   delete document.sequences[seqId];
   document.buildChapterVerseIndex(this);
@@ -81,12 +85,20 @@ const gcSequenceReferences = (document, seqContext, seqId) => {
       let pos = 0;
 
       while (pos < succinct.length) {
-        const [itemLength, itemType] = utils.succinct.headerBytes(succinct, pos);
+        const [itemLength, itemType] = utils.succinct.headerBytes(
+          succinct,
+          pos
+        );
 
         if (itemType !== utils.itemDefs.itemEnum.graft) {
           pos += itemLength;
         } else {
-          const graftSeqId = utils.succinct.succinctGraftSeqId(docSet.enums, docSet.enumIndexes, succinct, pos);
+          const graftSeqId = utils.succinct.succinctGraftSeqId(
+            docSet.enums,
+            docSet.enumIndexes,
+            succinct,
+            pos
+          );
 
           if (graftSeqId === seqId) {
             succinct.deleteItem(pos);
@@ -106,11 +118,11 @@ const modifySequence = (
   blockFilterFunc,
   itemFilterFunc,
   blockRewriteFunc,
-  itemRewriteFunc,
+  itemRewriteFunc
 ) => {
   const docSet = document.processor.docSets[document.docSetId];
   docSet.maybeBuildEnumIndexes();
-  sequenceRewriteFunc = sequenceRewriteFunc || (s => s);
+  sequenceRewriteFunc = sequenceRewriteFunc || ((s) => s);
   const oldSequence = document.sequences[seqId];
   const newSequence = sequenceRewriteFunc({
     id: seqId,
@@ -126,7 +138,7 @@ const modifySequence = (
     blockFilterFunc,
     itemFilterFunc,
     blockRewriteFunc,
-    itemRewriteFunc,
+    itemRewriteFunc
   );
   document.sequences[seqId] = newSequence;
 
@@ -142,20 +154,33 @@ const pushModifiedBlocks = (
   blockFilterFunc,
   itemFilterFunc,
   blockRewriteFunc,
-  itemRewriteFunc,
+  itemRewriteFunc
 ) => {
-  blockFilterFunc = blockFilterFunc || ((oldSequence, blockN, block) => !!block);
-  itemFilterFunc = itemFilterFunc ||
-    ((oldSequence, oldBlockN, block, itemN, itemType, itemSubType, pos) => !!block || pos);
-  blockRewriteFunc = blockRewriteFunc || ((oldSequence, blockN, block) => block);
-  itemRewriteFunc = itemRewriteFunc ||
-    (
-      (oldSequence, oldBlockN, oldBlock, newBlock, itemN, itemLength, itemType, itemSubType, pos) => {
-        for (let n = 0; n < itemLength; n++) {
-          newBlock.c.pushByte(oldBlock.c.byte(pos + n));
-        }
+  blockFilterFunc =
+    blockFilterFunc || ((oldSequence, blockN, block) => !!block);
+  itemFilterFunc =
+    itemFilterFunc ||
+    ((oldSequence, oldBlockN, block, itemN, itemType, itemSubType, pos) =>
+      !!block || pos);
+  blockRewriteFunc =
+    blockRewriteFunc || ((oldSequence, blockN, block) => block);
+  itemRewriteFunc =
+    itemRewriteFunc ||
+    ((
+      oldSequence,
+      oldBlockN,
+      oldBlock,
+      newBlock,
+      itemN,
+      itemLength,
+      itemType,
+      itemSubType,
+      pos
+    ) => {
+      for (let n = 0; n < itemLength; n++) {
+        newBlock.c.pushByte(oldBlock.c.byte(pos + n));
       }
-    );
+    });
   newSequence.blocks = [];
 
   for (const [blockN, block] of oldSequence.blocks.entries()) {
@@ -168,7 +193,7 @@ const pushModifiedBlocks = (
         block,
         newBlock,
         itemFilterFunc,
-        itemRewriteFunc,
+        itemRewriteFunc
       );
       newSequence.blocks.push(newBlock);
     }
@@ -181,25 +206,43 @@ const modifyBlockItems = (
   oldBlock,
   newBlock,
   itemFilterFunc,
-  itemRewriteFunc,
+  itemRewriteFunc
 ) => {
   let pos = 0;
   let itemN = -1;
 
   while (pos < oldBlock.c.length) {
     itemN++;
-    const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(oldBlock.c, pos);
+    const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+      oldBlock.c,
+      pos
+    );
 
-    if (itemFilterFunc(oldSequence, oldBlockN, oldBlock, itemN, itemType, itemSubtype, pos)) {
-      itemRewriteFunc(oldSequence, oldBlockN, oldBlock, newBlock, itemN, itemLength, itemType, itemSubtype, pos);
+    if (
+      itemFilterFunc(
+        oldSequence,
+        oldBlockN,
+        oldBlock,
+        itemN,
+        itemType,
+        itemSubtype,
+        pos
+      )
+    ) {
+      itemRewriteFunc(
+        oldSequence,
+        oldBlockN,
+        oldBlock,
+        newBlock,
+        itemN,
+        itemLength,
+        itemType,
+        itemSubtype,
+        pos
+      );
     }
     pos += itemLength;
   }
 };
 
-export {
-  newSequence,
-  gcSequences,
-  deleteSequence,
-  modifySequence,
-};
+export { newSequence, gcSequences, deleteSequence, modifySequence };

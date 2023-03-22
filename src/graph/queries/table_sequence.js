@@ -40,14 +40,22 @@ type tableSequence {
 `;
 
 const tableSequenceResolvers = {
-  nCells: root => root.blocks.length,
+  nCells: (root) => root.blocks.length,
   nRows: (root, args, context) => {
     const rowNs = new Set([]);
 
     for (const block of root.blocks) {
       // eslint-disable-next-line no-unused-vars
-      const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(block.bs, 0);
-      const bsPayload = context.docSet.unsuccinctifyScope(block.bs, itemType, itemSubtype, 0)[2];
+      const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+        block.bs,
+        0
+      );
+      const bsPayload = context.docSet.unsuccinctifyScope(
+        block.bs,
+        itemType,
+        itemSubtype,
+        0
+      )[2];
       rowNs.add(bsPayload.split('/')[1]);
     }
     return rowNs.size;
@@ -56,7 +64,9 @@ const tableSequenceResolvers = {
     const columnNs = new Set([]);
 
     for (const block of root.blocks) {
-      for (const scope of context.docSet.unsuccinctifyScopes(block.is).map(s => s[2])) {
+      for (const scope of context.docSet
+        .unsuccinctifyScopes(block.is)
+        .map((s) => s[2])) {
         if (scope.startsWith('tTableCol')) {
           columnNs.add(scope.split('/')[1]);
         }
@@ -69,13 +79,17 @@ const tableSequenceResolvers = {
 
     for (const block of root.blocks) {
       ret.push([
-        context.docSet.unsuccinctifyScopes(block.bs)
-          .map(s => parseInt(s[2].split('/')[1])),
-        Array.from(new Set(
-          context.docSet.unsuccinctifyScopes(block.is)
-            .filter(s => s[2].startsWith('tTableCol'))
-            .map(s => parseInt(s[2].split('/')[1])),
-        )),
+        context.docSet
+          .unsuccinctifyScopes(block.bs)
+          .map((s) => parseInt(s[2].split('/')[1])),
+        Array.from(
+          new Set(
+            context.docSet
+              .unsuccinctifyScopes(block.is)
+              .filter((s) => s[2].startsWith('tTableCol'))
+              .map((s) => parseInt(s[2].split('/')[1]))
+          )
+        ),
         context.docSet.unsuccinctifyItems(block.c, {}, 0),
       ]);
     }
@@ -88,8 +102,8 @@ const tableSequenceResolvers = {
       }
 
       const matchCellText = row[matchSpec.colN][2]
-        .filter(i => i[0] === 'token')
-        .map(i => i[2])
+        .filter((i) => i[0] === 'token')
+        .map((i) => i[2])
         .join('');
       return xre.test(matchCellText, xre(matchSpec.matching));
     };
@@ -111,8 +125,8 @@ const tableSequenceResolvers = {
       }
 
       const matchCellText = row[matchSpec.colN][2]
-        .filter(i => i[0] === 'token')
-        .map(i => i[2])
+        .filter((i) => i[0] === 'token')
+        .map((i) => i[2])
         .join('');
       return matchSpec.values.includes(matchCellText);
     };
@@ -132,8 +146,9 @@ const tableSequenceResolvers = {
     let row = -1;
 
     for (const block of root.blocks) {
-      const rows = context.docSet.unsuccinctifyScopes(block.bs)
-        .map(s => parseInt(s[2].split('/')[1]));
+      const rows = context.docSet
+        .unsuccinctifyScopes(block.bs)
+        .map((s) => parseInt(s[2].split('/')[1]));
 
       if (args.positions && !args.positions.includes(rows[0])) {
         continue;
@@ -145,48 +160,57 @@ const tableSequenceResolvers = {
       }
       ret[ret.length - 1].push([
         rows,
-        Array.from(new Set(
-          context.docSet.unsuccinctifyScopes(block.is)
-            .filter(s => s[2].startsWith('tTableCol'))
-            .map(s => parseInt(s[2].split('/')[1])),
-        )),
+        Array.from(
+          new Set(
+            context.docSet
+              .unsuccinctifyScopes(block.is)
+              .filter((s) => s[2].startsWith('tTableCol'))
+              .map((s) => parseInt(s[2].split('/')[1]))
+          )
+        ),
         context.docSet.unsuccinctifyItems(block.c, {}, 0),
       ]);
     }
 
     if (args.matches) {
-      ret = ret.filter(row => rowMatches(row, args.matches));
+      ret = ret.filter((row) => rowMatches(row, args.matches));
     }
 
     if (args.equals) {
-      ret = ret.filter(row => rowEquals(row, args.equals));
+      ret = ret.filter((row) => rowEquals(row, args.equals));
     }
 
     if (args.columns) {
-      ret = ret.map(
-        row =>
-          [...row.entries()]
-            .filter(re => args.columns.includes(re[0]))
-            .map(re => re[1]));
+      ret = ret.map((row) =>
+        [...row.entries()]
+          .filter((re) => args.columns.includes(re[0]))
+          .map((re) => re[1])
+      );
     }
     return ret;
   },
-  tags: root => Array.from(root.tags),
-  tagsKv: root => Array.from(root.tags).map(t => {
-    if (t.includes(':')) {
-      return [t.substring(0, t.indexOf(':')), t.substring(t.indexOf(':') + 1)];
-    } else {
-      return [t, ''];
-    }
-  }),
+  tags: (root) => Array.from(root.tags),
+  tagsKv: (root) =>
+    Array.from(root.tags).map((t) => {
+      if (t.includes(':')) {
+        return [
+          t.substring(0, t.indexOf(':')),
+          t.substring(t.indexOf(':') + 1),
+        ];
+      } else {
+        return [t, ''];
+      }
+    }),
   hasTag: (root, args) => root.tags.has(args.tagName),
-  headings: root => Array.from(root.tags)
-    .filter(t => t.startsWith('col'))
-    .sort((a, b) => parseInt(a.split(':')[0].substring(3)) - parseInt(b.split(':')[0].substring(3)))
-    .map(t => t.split(':')[1]),
+  headings: (root) =>
+    Array.from(root.tags)
+      .filter((t) => t.startsWith('col'))
+      .sort(
+        (a, b) =>
+          parseInt(a.split(':')[0].substring(3)) -
+          parseInt(b.split(':')[0].substring(3))
+      )
+      .map((t) => t.split(':')[1]),
 };
 
-export {
-  tableSequenceSchemaString,
-  tableSequenceResolvers,
-};
+export { tableSequenceSchemaString, tableSequenceResolvers };

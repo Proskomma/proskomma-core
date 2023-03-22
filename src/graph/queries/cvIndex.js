@@ -13,22 +13,27 @@ type cvIndex {
 `;
 
 const cvIndexResolvers = {
-  chapter: root => root[0],
-  verses: root => root[1],
+  chapter: (root) => root[0],
+  verses: (root) => root[1],
   verseNumbers: (root, args, context) => {
     context.cvIndex = root;
     return [...root[1].entries()]
-      .filter(v => v[1].length > 0)
-      .map(v => ({
+      .filter((v) => v[1].length > 0)
+      .map((v) => ({
         number: v[0],
         range: v[1][v[1].length - 1].verses,
       }));
   },
-  verseRanges: root => {
+  verseRanges: (root) => {
     const ret = [];
 
-    for (const [vn, vo] of [...root[1].entries()].filter(v => v[1].length > 0)) {
-      if (ret.length === 0 || ret[ret.length - 1].range !== vo[vo.length - 1].verses) {
+    for (const [vn, vo] of [...root[1].entries()].filter(
+      (v) => v[1].length > 0
+    )) {
+      if (
+        ret.length === 0 ||
+        ret[ret.length - 1].range !== vo[vo.length - 1].verses
+      ) {
         ret.push({
           range: vo[vo.length - 1].verses,
           numbers: [vn],
@@ -41,7 +46,4 @@ const cvIndexResolvers = {
   },
 };
 
-export {
-  cvIndexSchemaString,
-  cvIndexResolvers,
-};
+export { cvIndexSchemaString, cvIndexResolvers };

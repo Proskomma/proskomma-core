@@ -14,8 +14,8 @@ type idParts {
 `;
 
 const idPartsResolvers = {
-  type: root => root[0],
-  parts: root => root[1],
+  type: (root) => root[0],
+  parts: (root) => root[1],
   part: (root, args) => {
     if (!root[1] || args.index < 0 || args.index >= root[1].length) {
       return null;
@@ -24,7 +24,4 @@ const idPartsResolvers = {
   },
 };
 
-export {
-  idPartsSchemaString,
-  idPartsResolvers,
-};
+export { idPartsSchemaString, idPartsResolvers };

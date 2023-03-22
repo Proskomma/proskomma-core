@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import utils from '../../util';
 
 const countItems = (docSet, succinct) => {
@@ -8,7 +7,7 @@ const countItems = (docSet, succinct) => {
   while (pos < succinct.length) {
     count++;
     const headerByte = succinct.byte(pos);
-    const itemLength = headerByte & 0x0000003F;
+    const itemLength = headerByte & 0x0000003f;
     pos += itemLength;
   }
   return count;
@@ -25,9 +24,17 @@ const itemsByIndex = (docSet, mainSequence, index, includeContext) => {
   let nextToken = index.nextToken;
 
   while (currentBlock <= index.endBlock) {
-    let blockItems = docSet.unsuccinctifyItems(mainSequence.blocks[currentBlock].c, {}, nextToken);
-    const blockScope = docSet.unsuccinctifyScopes(mainSequence.blocks[currentBlock].bs)[0];
-    const blockGrafts = docSet.unsuccinctifyGrafts(mainSequence.blocks[currentBlock].bg);
+    let blockItems = docSet.unsuccinctifyItems(
+      mainSequence.blocks[currentBlock].c,
+      {},
+      nextToken
+    );
+    const blockScope = docSet.unsuccinctifyScopes(
+      mainSequence.blocks[currentBlock].bs
+    )[0];
+    const blockGrafts = docSet.unsuccinctifyGrafts(
+      mainSequence.blocks[currentBlock].bg
+    );
 
     if (currentBlock === index.startBlock && currentBlock === index.endBlock) {
       blockItems = blockItems.slice(index.startItem, index.endItem + 1);
@@ -41,11 +48,20 @@ const itemsByIndex = (docSet, mainSequence, index, includeContext) => {
       let extendedBlockItems = [];
 
       for (const bi of blockItems) {
-        extendedBlockItems.push(bi.concat([bi[0] === 'token' && bi[1] === 'wordLike' ? nextToken++ : null]));
+        extendedBlockItems.push(
+          bi.concat([
+            bi[0] === 'token' && bi[1] === 'wordLike' ? nextToken++ : null,
+          ])
+        );
       }
       blockItems = extendedBlockItems;
     }
-    ret.push([...blockGrafts, ['scope', 'start', blockScope[2]], ...blockItems, ['scope', 'end', blockScope[2]]]);
+    ret.push([
+      ...blockGrafts,
+      ['scope', 'start', blockScope[2]],
+      ...blockItems,
+      ['scope', 'end', blockScope[2]],
+    ]);
     currentBlock++;
   }
   return ret;
@@ -84,28 +100,41 @@ const sequenceItemsByScopes = (docSet, blocks, byScopes) => {
   let scopeMatchEnded = true; // Always start new itemGroup the first time
 
   for (const [blockN, block] of blocks.entries()) {
-    const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(block.bs, 0);
-    const blockScope = docSet.unsuccinctifyScope(block.bs, itemType, itemSubtype, 0)[2];
+    const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+      block.bs,
+      0
+    );
+    const blockScope = docSet.unsuccinctifyScope(
+      block.bs,
+      itemType,
+      itemSubtype,
+      0
+    )[2];
     const startBlockScope = ['scope', 'start', blockScope];
     const endBlockScope = ['scope', 'end', blockScope];
     const blockGrafts = docSet.unsuccinctifyGrafts(block.bg);
 
-    allBlockScopes = new Set(docSet.unsuccinctifyScopes(block.os)
-      .map(s => s[2])
-      .concat([blockScope]),
+    allBlockScopes = new Set(
+      docSet
+        .unsuccinctifyScopes(block.os)
+        .map((s) => s[2])
+        .concat([blockScope])
     );
 
-    for (
-      const item of blockGrafts.concat(
-        [
-          startBlockScope,
-          ...docSet.unsuccinctifyItems(block.c, {}, block.nt.nByte(0), allBlockScopes),
-          endBlockScope,
-        ],
-      ).concat(
-        (blockN !== blocks.length - 1) ? [['token', 'lineSpace', ' ']] : [],
-      )
-    ) {
+    for (const item of blockGrafts
+      .concat([
+        startBlockScope,
+        ...docSet.unsuccinctifyItems(
+          block.c,
+          {},
+          block.nt.nByte(0),
+          allBlockScopes
+        ),
+        endBlockScope,
+      ])
+      .concat(
+        blockN !== blocks.length - 1 ? [['token', 'lineSpace', ' ']] : []
+      )) {
       if (item[0] === 'scope' && item[1] === 'start') {
         waitingScopes.add(item[2]);
       }
@@ -143,21 +172,34 @@ const sequenceItemsByMilestones = (docSet, blocks, byMilestones) => {
   //   - add array
   // push item to last array
   let allBlockScopes = new Set([]);
-  const milestoneFound = (item) => item[0] === 'scope' && item[1] === 'start' && byMilestones.includes(item[2]);
+  const milestoneFound = (item) =>
+    item[0] === 'scope' &&
+    item[1] === 'start' &&
+    byMilestones.includes(item[2]);
 
   docSet.maybeBuildEnumIndexes();
   const ret = [[[], []]];
 
   for (const block of blocks) {
-    const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(block.bs, 0);
-    const blockScope = docSet.unsuccinctifyScope(block.bs, itemType, itemSubtype, 0)[2];
+    const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+      block.bs,
+      0
+    );
+    const blockScope = docSet.unsuccinctifyScope(
+      block.bs,
+      itemType,
+      itemSubtype,
+      0
+    )[2];
     const blockGrafts = docSet.unsuccinctifyGrafts(block.bg);
     allBlockScopes.add(blockScope);
-    docSet.unsuccinctifyScopes(block.os).forEach(s => allBlockScopes.add(s[2]));
+    docSet
+      .unsuccinctifyScopes(block.os)
+      .forEach((s) => allBlockScopes.add(s[2]));
     const items = blockGrafts.concat(
       [blockScope].concat(
-        docSet.unsuccinctifyItems(block.c, {}, block.nt.nByte(0)),
-      ),
+        docSet.unsuccinctifyItems(block.c, {}, block.nt.nByte(0))
+      )
     );
 
     for (const item of items) {
@@ -169,15 +211,10 @@ const sequenceItemsByMilestones = (docSet, blocks, byMilestones) => {
         ret[ret.length - 1][0] = [...allBlockScopes].sort();
         ret.push([[], []]);
 
-        for (
-          const bs of [...allBlockScopes]
-            .filter(
-              s => {
-                const excludes = ['blockTag', 'verse', 'verses', 'chapter'];
-                return excludes.includes(s.split('/')[0]) || byMilestones.includes(s);
-              },
-            )
-        ) {
+        for (const bs of [...allBlockScopes].filter((s) => {
+          const excludes = ['blockTag', 'verse', 'verses', 'chapter'];
+          return excludes.includes(s.split('/')[0]) || byMilestones.includes(s);
+        })) {
           allBlockScopes.delete(bs);
         }
         allBlockScopes.add(blockScope);

@@ -2,77 +2,68 @@ import { PerfRenderFromJson } from 'proskomma-json-tools';
 import xre from 'xregexp';
 import { lexingRegexes } from '../parser/lexers/lexingRegexes';
 
-const wordLikeRegex = lexingRegexes.filter(r => r[1] === 'wordLike')[0][2];
-const lineSpaceRegex = lexingRegexes.filter(r => r[1] === 'lineSpace')[0][2];
-const punctuationRegex = lexingRegexes.filter(r => r[1] === 'punctuation')[0][2];
+const wordLikeRegex = lexingRegexes.filter((r) => r[1] === 'wordLike')[0][2];
+const lineSpaceRegex = lexingRegexes.filter((r) => r[1] === 'lineSpace')[0][2];
+const punctuationRegex = lexingRegexes.filter(
+  (r) => r[1] === 'punctuation'
+)[0][2];
 
-const closeAllOpenScopes = workspace => {
-  [...workspace.os]
-    .reverse()
-    .forEach(o => {
-      workspace.block.items.push({
-        type: 'scope',
-        subType: 'end',
-        payload: o,
-      },
-      );
-    },
-    );
+const closeAllOpenScopes = (workspace) => {
+  [...workspace.os].reverse().forEach((o) => {
+    workspace.block.items.push({
+      type: 'scope',
+      subType: 'end',
+      payload: o,
+    });
+  });
   workspace.os = [];
 };
 
-const closeParagraphScopes = workspace => {
-  [...workspace.os.filter(o => ['span'].includes(o.split('/')[1]))]
+const closeParagraphScopes = (workspace) => {
+  [...workspace.os.filter((o) => ['span'].includes(o.split('/')[1]))]
     .reverse()
-    .forEach(o => {
+    .forEach((o) => {
       workspace.block.items.push({
         type: 'scope',
         subType: 'end',
         payload: o,
       });
-      workspace.os = [...workspace.os.filter(wo => wo !== o)];
-    },
-    );
+      workspace.os = [...workspace.os.filter((wo) => wo !== o)];
+    });
 };
 
-const closeVerseScopes = workspace => {
-  [...workspace.os.filter(o => ['verse', 'verses'].includes(o.split('/')[0]))]
+const closeVerseScopes = (workspace) => {
+  [...workspace.os.filter((o) => ['verse', 'verses'].includes(o.split('/')[0]))]
     .reverse()
-    .forEach(o => {
+    .forEach((o) => {
       workspace.block.items.push({
         type: 'scope',
         subType: 'end',
         payload: o,
       });
-      workspace.os = [...workspace.os.filter(wo => wo !== o)];
-    },
-    );
+      workspace.os = [...workspace.os.filter((wo) => wo !== o)];
+    });
 };
 
-const closeChapterScopes = workspace => {
-  [...workspace.os.filter(o => ['chapter'].includes(o.split('/')[0]))]
+const closeChapterScopes = (workspace) => {
+  [...workspace.os.filter((o) => ['chapter'].includes(o.split('/')[0]))]
     .reverse()
-    .forEach(o => {
+    .forEach((o) => {
       workspace.block.items.push({
         type: 'scope',
         subType: 'end',
         payload: o,
       });
-      workspace.os = [...workspace.os.filter(wo => wo !== o)];
-    },
-    );
+      workspace.os = [...workspace.os.filter((wo) => wo !== o)];
+    });
 };
 
 const perf2PkJsonActions = {
-
   startDocument: [
     {
       description: 'Set up word object',
       test: () => true,
-      action: ({
-        workspace,
-        output,
-      }) => {
+      action: ({ workspace, output }) => {
         output.pkJson = {};
         workspace.sequenceId = null;
         workspace.block = null;
@@ -108,10 +99,7 @@ const perf2PkJsonActions = {
     {
       description: 'Stash for next para',
       test: () => true,
-      action: ({
-        context,
-        workspace,
-      }) => {
+      action: ({ context, workspace }) => {
         const target = context.sequences[0].block.target;
 
         if (target) {
@@ -129,10 +117,7 @@ const perf2PkJsonActions = {
     {
       description: 'Follow inline grafts',
       test: () => true,
-      action: ({
-        context,
-        workspace,
-      }) => {
+      action: ({ context, workspace }) => {
         const target = context.sequences[0].element.target;
 
         if (target) {
@@ -150,18 +135,16 @@ const perf2PkJsonActions = {
     {
       description: 'Add object for paragraph block',
       test: () => true,
-      action: ({
-        context,
-        workspace,
-        output,
-      }) => {
+      action: ({ context, workspace, output }) => {
         workspace.block = {
           os: [...workspace.os],
           is: [],
           bs: {
             type: 'scope',
             subType: 'start',
-            payload: `blockTag/${context.sequences[0].block.subType.split(':')[1]}`,
+            payload: `blockTag/${
+              context.sequences[0].block.subType.split(':')[1]
+            }`,
           },
           bg: [...workspace.waitingBlockGrafts],
           items: [],
@@ -183,7 +166,8 @@ const perf2PkJsonActions = {
   mark: [
     {
       description: 'ts mark as milestone',
-      test: ({ context }) => ['usfm:ts'].includes(context.sequences[0].element.subType),
+      test: ({ context }) =>
+        ['usfm:ts'].includes(context.sequences[0].element.subType),
       action: ({ workspace }) => {
         const milestoneScope = `milestone/ts`;
 
@@ -205,11 +189,9 @@ const perf2PkJsonActions = {
     },
     {
       description: 'Chapter',
-      test: ({ context }) => ['chapter'].includes(context.sequences[0].element.subType),
-      action: ({
-        context,
-        workspace,
-      }) => {
+      test: ({ context }) =>
+        ['chapter'].includes(context.sequences[0].element.subType),
+      action: ({ context, workspace }) => {
         closeVerseScopes(workspace);
         closeChapterScopes(workspace);
         const element = context.sequences[0].element;
@@ -228,18 +210,16 @@ const perf2PkJsonActions = {
     },
     {
       description: 'Verses',
-      test: ({ context }) => ['verses'].includes(context.sequences[0].element.subType),
-      action: ({
-        context,
-        workspace,
-      }) => {
+      test: ({ context }) =>
+        ['verses'].includes(context.sequences[0].element.subType),
+      action: ({ context, workspace }) => {
         closeVerseScopes(workspace);
         const element = context.sequences[0].element;
         const vn = element.atts['number'];
         let va = [parseInt(vn)];
 
         if (vn.includes('-')) {
-          let [vs, ve] = vn.split('-').map(s => parseInt(s));
+          let [vs, ve] = vn.split('-').map((s) => parseInt(s));
           va = [vs];
 
           while (vs <= ve) {
@@ -281,10 +261,7 @@ const perf2PkJsonActions = {
     {
       description: 'Add scope and update state',
       test: () => true,
-      action: ({
-        context,
-        workspace,
-      }) => {
+      action: ({ context, workspace }) => {
         const element = context.sequences[0].element;
         const milestoneScope = `milestone/${element.subType.split(':')[1]}`;
 
@@ -302,7 +279,9 @@ const perf2PkJsonActions = {
           const valueParts = attValue.toString().split(',');
 
           for (const [partN, part] of valueParts.entries()) {
-            const attScope = `attribute/milestone/${element.subType.split(':')[1]}/${attKey}/${partN}/${part}`;
+            const attScope = `attribute/milestone/${
+              element.subType.split(':')[1]
+            }/${attKey}/${partN}/${part}`;
 
             if (!workspace.block.is.includes(attScope)) {
               workspace.block.is.push(attScope);
@@ -323,15 +302,16 @@ const perf2PkJsonActions = {
     {
       description: 'Remove scope and update state',
       test: () => true,
-      action: ({
-        context,
-        workspace,
-      }) => {
+      action: ({ context, workspace }) => {
         const element = context.sequences[0].element;
-        const attScopeRoot = `attribute/milestone/${element.subType.split(':')[1]}`;
+        const attScopeRoot = `attribute/milestone/${
+          element.subType.split(':')[1]
+        }`;
 
-        for (const att of [...workspace.os.filter(s => s.startsWith(attScopeRoot))].reverse()) {
-          workspace.os = workspace.os.filter(o => o !== att);
+        for (const att of [
+          ...workspace.os.filter((s) => s.startsWith(attScopeRoot)),
+        ].reverse()) {
+          workspace.os = workspace.os.filter((o) => o !== att);
           workspace.block.items.push({
             type: 'scope',
             subType: 'end',
@@ -340,7 +320,7 @@ const perf2PkJsonActions = {
         }
 
         const milestoneScope = `milestone/${element.subType.split(':')[1]}`;
-        workspace.os = workspace.os.filter(s => s !== milestoneScope);
+        workspace.os = workspace.os.filter((s) => s !== milestoneScope);
         workspace.block.items.push({
           type: 'scope',
           subType: 'end',
@@ -354,12 +334,11 @@ const perf2PkJsonActions = {
     {
       description: 'Add scope and update state',
       test: () => true,
-      action: ({
-        context,
-        workspace,
-      }) => {
+      action: ({ context, workspace }) => {
         const element = context.sequences[0].element;
-        const wrapperScope = `${element.subType === 'usfm:w' ? 'spanWithAtts' : 'span'}/${element.subType.split(':')[1]}`;
+        const wrapperScope = `${
+          element.subType === 'usfm:w' ? 'spanWithAtts' : 'span'
+        }/${element.subType.split(':')[1]}`;
 
         if (!workspace.block.is.includes(wrapperScope)) {
           workspace.block.is.push(wrapperScope);
@@ -396,18 +375,17 @@ const perf2PkJsonActions = {
     {
       description: 'Remove scope and update state',
       test: () => true,
-      action: ({
-        context,
-        workspace,
-      }) => {
+      action: ({ context, workspace }) => {
         const element = context.sequences[0].element;
 
-        for (const [attKey, attValue] of [...Object.entries(element.atts || {})].reverse()) {
+        for (const [attKey, attValue] of [
+          ...Object.entries(element.atts || {}),
+        ].reverse()) {
           const valueParts = attValue.toString().split(',');
 
           for (const [partN, part] of [...valueParts.entries()].reverse()) {
             const attScope = `attribute/spanWithAtts/w/${attKey}/${partN}/${part}`;
-            workspace.os = workspace.os.filter(o => o !== attScope);
+            workspace.os = workspace.os.filter((o) => o !== attScope);
             workspace.block.items.push({
               type: 'scope',
               subType: 'end',
@@ -416,8 +394,10 @@ const perf2PkJsonActions = {
           }
         }
 
-        const wrapperScope = `${element.subType === 'usfm:w' ? 'spanWithAtts' : 'span'}/${element.subType.split(':')[1]}`;
-        workspace.os = workspace.os.filter(s => s !== wrapperScope);
+        const wrapperScope = `${
+          element.subType === 'usfm:w' ? 'spanWithAtts' : 'span'
+        }/${element.subType.split(':')[1]}`;
+        workspace.os = workspace.os.filter((s) => s !== wrapperScope);
         workspace.block.items.push({
           type: 'scope',
           subType: 'end',
@@ -431,10 +411,7 @@ const perf2PkJsonActions = {
     {
       description: 'Log occurrences',
       test: () => true,
-      action: ({
-        context,
-        workspace,
-      }) => {
+      action: ({ context, workspace }) => {
         const text = context.sequences[0].element.text;
         const re = xre.union(lexingRegexes.map((x) => x[2]));
         const words = xre.match(text, re, 'all');
@@ -483,24 +460,23 @@ const perf2PkJsonActions = {
           while (itemN > 0) {
             const movingScope = thisBlockItems.shift();
             lastBlockItems.push(movingScope);
-            sequenceBlocks[blockN].os = sequenceBlocks[blockN].os.filter(s => s !== movingScope.payload);
+            sequenceBlocks[blockN].os = sequenceBlocks[blockN].os.filter(
+              (s) => s !== movingScope.payload
+            );
             itemN--;
           }
         }
       },
     },
   ],
-
 };
 
 const perf2PkJsonCode = function ({ perf }) {
-  const cl = new PerfRenderFromJson(
-    {
-      srcJson: perf,
-      ignoreMissingSequences: true,
-      actions: perf2PkJsonActions,
-    },
-  );
+  const cl = new PerfRenderFromJson({
+    srcJson: perf,
+    ignoreMissingSequences: true,
+    actions: perf2PkJsonActions,
+  });
   const output = {};
 
   cl.renderDocument({

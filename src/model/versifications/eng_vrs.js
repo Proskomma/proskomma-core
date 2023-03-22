@@ -1,4 +1,4 @@
-export default `# Versification  "English"
+const vrs = `# Versification  "English"
 # Version=2.0
 #
 # modifications by Reinier de Blois 13/March/2012
@@ -451,3 +451,5 @@ S3Y 1:37 = DAG 3:58
 S3Y 1:36 = DAG 3:59
 S3Y 1:38-68 = DAG 3:60-90
 `;
+
+export default vrs;

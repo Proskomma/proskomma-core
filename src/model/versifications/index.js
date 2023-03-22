@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import engText from './eng_vrs';
 import lxxText from './lxx_vrs';
 import orgText from './org_vrs';
@@ -6,7 +5,7 @@ import rscText from './rsc_vrs';
 import rsoText from './rso_vrs';
 import vulText from './vul_vrs';
 
-const exports = {
+const exporting = {
   eng: { raw: engText },
   lxx: { raw: lxxText },
   org: { raw: orgText },
@@ -17,16 +16,16 @@ const exports = {
 
 const cvRegex = /^([A-Z0-9]{3}) (([0-9]+:[0-9]+) ?)*$/;
 
-for (const [vrsName, vrsRecord] of Object.entries(exports)) {
+for (const [vrsName, vrsRecord] of Object.entries(exporting)) {
   vrsRecord.cv = {};
-  const lineMatches = vrsRecord.raw.split('\n').filter(l => l.match(cvRegex));
+  const lineMatches = vrsRecord.raw.split('\n').filter((l) => l.match(cvRegex));
 
   if (!lineMatches) {
     continue;
   }
 
   for (const line of lineMatches) {
-    const cvBook = line.slice(0,3);
+    const cvBook = line.slice(0, 3);
     vrsRecord.cv[cvBook] = {};
 
     for (const cvString of line.substr(4).split(' ')) {
@@ -36,4 +35,4 @@ for (const [vrsName, vrsRecord] of Object.entries(exports)) {
   }
 }
 
-export default exports;
+export default exporting;

@@ -7,11 +7,7 @@ const rehashMutationsSchemaString = `
 `;
 
 const rehashMutationsResolvers = {
-  rehashDocSet: (root, args) =>
-    root.rehashDocSet(args.docSetId),
+  rehashDocSet: (root, args) => root.rehashDocSet(args.docSetId),
 };
 
-export {
-  rehashMutationsSchemaString,
-  rehashMutationsResolvers,
-};
+export { rehashMutationsSchemaString, rehashMutationsResolvers };

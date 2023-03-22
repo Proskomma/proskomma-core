@@ -1,9 +1,6 @@
 import utils from '../util';
-import { Sequence } from './model/sequence';
-import {
-  specs,
-  buildSpecLookup,
-} from './parser_specs';
+import { Sequence } from './model';
+import { specs, buildSpecLookup } from './parser_specs';
 
 const { labelForScope } = utils.scopeDefs;
 const parserConstantDef = utils.parserConstants;
@@ -25,19 +22,24 @@ const Parser = class {
   setSequences() {
     this.sequences = {};
 
-    for (const [sType, sArity] of Object.entries({ ...this.baseSequenceTypes, ...this.inlineSequenceTypes })) {
+    for (const [sType, sArity] of Object.entries({
+      ...this.baseSequenceTypes,
+      ...this.inlineSequenceTypes,
+    })) {
       switch (sArity) {
-      case '1':
-        this.sequences[sType] = new Sequence(sType);
-        break;
-      case '?':
-        this.sequences[sType] = null;
-        break;
-      case '*':
-        this.sequences[sType] = [];
-        break;
-      default:
-        throw new Error(`Unexpected sequence arity '${sArity}' for '${sType}'`);
+        case '1':
+          this.sequences[sType] = new Sequence(sType);
+          break;
+        case '?':
+          this.sequences[sType] = null;
+          break;
+        case '*':
+          this.sequences[sType] = [];
+          break;
+        default:
+          throw new Error(
+            `Unexpected sequence arity '${sArity}' for '${sType}'`
+          );
       }
     }
     this.mainLike = this.sequences.main;
@@ -68,7 +70,10 @@ const Parser = class {
       this.closeActiveScopes(`endTag/${lexedItem.fullTagName}`);
     }
 
-    if (['startMilestoneTag'].includes(lexedItem.subclass) && lexedItem.sOrE === 'e') {
+    if (
+      ['startMilestoneTag'].includes(lexedItem.subclass) &&
+      lexedItem.sOrE === 'e'
+    ) {
       this.closeActiveScopes(`endMilestone/${lexedItem.tagName}`);
     }
 
@@ -85,9 +90,13 @@ const Parser = class {
       changeBaseSequence = false;
 
       if (spec.parser.baseSequenceType) {
-        const returnSequenceType = spec.parser.baseSequenceType === 'mainLike' ? this.mainLike.type : spec.parser.baseSequenceType;
+        const returnSequenceType =
+          spec.parser.baseSequenceType === 'mainLike'
+            ? this.mainLike.type
+            : spec.parser.baseSequenceType;
 
-        changeBaseSequence = (returnSequenceType !== this.current.baseSequenceType) ||
+        changeBaseSequence =
+          returnSequenceType !== this.current.baseSequenceType ||
           spec.parser.forceNewSequence;
       }
 
@@ -97,25 +106,34 @@ const Parser = class {
 
         if ('newBlock' in spec.parser && spec.parser.newBlock) {
           this.closeActiveScopes('endBlock');
-          this.current.sequence.newBlock(labelForScope('blockTag', [lexedItem.fullTagName]));
+          this.current.sequence.newBlock(
+            labelForScope('blockTag', [lexedItem.fullTagName])
+          );
         }
       } else if (spec.parser.inlineSequenceType) {
         this.current.inlineSequenceType = spec.parser.inlineSequenceType;
         this.current.parentSequence = this.current.sequence;
 
-        if (this.current.parentSequence.type === 'header') { // Not lovely, needed for \cp before first content
+        if (this.current.parentSequence.type === 'header') {
+          // Not lovely, needed for \cp before first content
           this.current.parentSequence = this.sequences.main;
         }
         this.current.sequence = new Sequence(this.current.inlineSequenceType);
-        this.current.sequence.newBlock(labelForScope('inline', spec.parser.inlineSequenceType));
-        this.sequences[this.current.inlineSequenceType].push(this.current.sequence);
+        this.current.sequence.newBlock(
+          labelForScope('inline', spec.parser.inlineSequenceType)
+        );
+        this.sequences[this.current.inlineSequenceType].push(
+          this.current.sequence
+        );
         this.current.parentSequence.addItem({
           type: 'graft',
           subType: this.current.inlineSequenceType,
           payload: this.current.sequence.id,
         });
       } else if ('newBlock' in spec.parser && spec.parser.newBlock) {
-        this.current.sequence.newBlock(labelForScope('blockTag', [lexedItem.fullTagName]));
+        this.current.sequence.newBlock(
+          labelForScope('blockTag', [lexedItem.fullTagName])
+        );
       }
 
       if ('during' in spec.parser) {
@@ -166,7 +184,7 @@ const Parser = class {
   }
 
   emptySequences(sequences) {
-    return sequences.filter(s => s.blocks.length === 0).map(s => s.id);
+    return sequences.filter((s) => s.blocks.length === 0).map((s) => s.id);
   }
 
   substitutePubNumberScopes(seq) {
@@ -178,7 +196,10 @@ const Parser = class {
       const itItems = [...block.items];
 
       for (const [n, item] of itItems.entries()) {
-        if (item.type === 'graft' && ['pubNumber', 'altNumber'].includes(item.subType)) {
+        if (
+          item.type === 'graft' &&
+          ['pubNumber', 'altNumber'].includes(item.subType)
+        ) {
           const graftContent = sequenceById[item.payload].text().trim();
           const scopeId = itItems[n + 1].payload.split('/')[1];
           scopeToGraftContent[scopeId] = graftContent;
@@ -191,11 +212,13 @@ const Parser = class {
     // Substitute scopeIds for graft content
     if (Object.keys(scopeToGraftContent).length > 0) {
       for (const block of seq.blocks) {
-        for (const scope of block.items.filter(i => i.type === 'scope')) {
+        for (const scope of block.items.filter((i) => i.type === 'scope')) {
           const scopeParts = scope.payload.split('/');
 
           if (['altChapter', 'pubVerse', 'altVerse'].includes(scopeParts[0])) {
-            scope.payload = `${scopeParts[0]}/${scopeToGraftContent[scopeParts[1]]}`;
+            scope.payload = `${scopeParts[0]}/${
+              scopeToGraftContent[scopeParts[1]]
+            }`;
           }
         }
       }
@@ -224,11 +247,13 @@ const Parser = class {
     // Substitute scopeIds for graft content
     if (Object.keys(scopeToGraftContent).length > 0) {
       for (const block of seq.blocks) {
-        for (const scope of block.items.filter(i => i.type === 'scope')) {
+        for (const scope of block.items.filter((i) => i.type === 'scope')) {
           const scopeParts = scope.payload.split('/');
 
           if (scopeParts[0] === 'esbCat') {
-            scope.payload = `${scopeParts[0]}/${scopeToGraftContent[scopeParts[1]]}`;
+            scope.payload = `${scopeParts[0]}/${
+              scopeToGraftContent[scopeParts[1]]
+            }`;
           }
         }
       }
@@ -238,21 +263,26 @@ const Parser = class {
   allSequences() {
     const ret = [];
 
-    for (const [seqName, seqArity] of Object.entries({ ...this.baseSequenceTypes, ...this.inlineSequenceTypes })) {
+    for (const [seqName, seqArity] of Object.entries({
+      ...this.baseSequenceTypes,
+      ...this.inlineSequenceTypes,
+    })) {
       switch (seqArity) {
-      case '1':
-      case '?':
-        if (this.sequences[seqName]) {
-          ret.push(this.sequences[seqName]);
-        }
-        break;
-      case '*':
-        this.sequences[seqName].forEach(s => {
-          ret.push(s);
-        });
-        break;
-      default:
-        throw new Error(`Unexpected sequence arity '${seqArity}' for '${seqName}'`);
+        case '1':
+        case '?':
+          if (this.sequences[seqName]) {
+            ret.push(this.sequences[seqName]);
+          }
+          break;
+        case '*':
+          this.sequences[seqName].forEach((s) => {
+            ret.push(s);
+          });
+          break;
+        default:
+          throw new Error(
+            `Unexpected sequence arity '${seqArity}' for '${seqName}'`
+          );
       }
     }
     return ret;
@@ -261,7 +291,7 @@ const Parser = class {
   sequenceById() {
     const ret = {};
 
-    this.allSequences().forEach(s => {
+    this.allSequences().forEach((s) => {
       ret[s.id] = s;
     });
     return ret;
@@ -270,7 +300,12 @@ const Parser = class {
   filter() {
     const usedSequences = [];
     const sequenceById = this.sequenceById();
-    this.filterGrafts(this.sequences.main.id, sequenceById, usedSequences, this.filterOptions);
+    this.filterGrafts(
+      this.sequences.main.id,
+      sequenceById,
+      usedSequences,
+      this.filterOptions
+    );
     this.removeUnusedSequences(usedSequences);
     this.filterScopes(Object.values(sequenceById), this.filterOptions);
   }
@@ -281,9 +316,10 @@ const Parser = class {
 
     for (const si of childSequences) {
       if (seqById[si].type === 'main') {
-        console.log('MAIN is child!');
-        console.log(JSON.stringify(seqById[seqId], null, 2));
-        process.exit(1);
+        throw new Error(
+          'MAIN is child!',
+          JSON.stringify(seqById[seqId], null, 2)
+        );
       }
       this.filterGrafts(si, seqById, used, options);
     }
@@ -292,26 +328,33 @@ const Parser = class {
   removeUnusedSequences(usedSequences) {
     for (const seq of this.allSequences()) {
       if (!usedSequences.includes(seq.id)) {
-        const seqArity = { ...this.baseSequenceTypes, ...this.inlineSequenceTypes }[seq.type];
+        const seqArity = {
+          ...this.baseSequenceTypes,
+          ...this.inlineSequenceTypes,
+        }[seq.type];
 
         switch (seqArity) {
-        case '1':
-          throw new Error('Attempting to remove sequence with arity of 1');
-        case '?':
-          this.sequences[seq.type] = null;
-          break;
-        case '*':
-          this.sequences[seq.type] = this.sequences[seq.type].filter(s => s.id !== seq.id);
-          break;
-        default:
-          throw new Error(`Unexpected sequence arity '${seqArity}' for '${seq.type}'`);
+          case '1':
+            throw new Error('Attempting to remove sequence with arity of 1');
+          case '?':
+            this.sequences[seq.type] = null;
+            break;
+          case '*':
+            this.sequences[seq.type] = this.sequences[seq.type].filter(
+              (s) => s.id !== seq.id
+            );
+            break;
+          default:
+            throw new Error(
+              `Unexpected sequence arity '${seqArity}' for '${seq.type}'`
+            );
         }
       }
     }
   }
 
   filterScopes(sequences, options) {
-    sequences.forEach(s => s.filterScopes(options));
+    sequences.forEach((s) => s.filterScopes(options));
   }
 
   specForItem(item) {
@@ -322,7 +365,11 @@ const Parser = class {
     }
 
     for (const accessor of ['tagName', 'sOrE']) {
-      if (accessor in item && accessor in this.specLookup[context] && item[accessor] in this.specLookup[context][accessor]) {
+      if (
+        accessor in item &&
+        accessor in this.specLookup[context] &&
+        item[accessor] in this.specLookup[context][accessor]
+      ) {
         return { parser: this.specLookup[context][accessor][item[accessor]] };
       }
     }
@@ -339,14 +386,14 @@ const Parser = class {
       targetSequence = this.current.sequence;
     }
 
-    const matchedScopes = targetSequence.activeScopes.filter(
-      sc => sc.endedBy.includes(closeLabel),
-    ).reverse();
+    const matchedScopes = targetSequence.activeScopes
+      .filter((sc) => sc.endedBy.includes(closeLabel))
+      .reverse();
 
     targetSequence.activeScopes = targetSequence.activeScopes.filter(
-      sc => !sc.endedBy.includes(closeLabel),
+      (sc) => !sc.endedBy.includes(closeLabel)
     );
-    matchedScopes.forEach(ms => this.closeActiveScope(ms, targetSequence));
+    matchedScopes.forEach((ms) => this.closeActiveScope(ms, targetSequence));
   }
 
   closeActiveScope(sc, targetSequence) {
@@ -368,24 +415,26 @@ const Parser = class {
     const arity = this.baseSequenceTypes[newType];
 
     switch (arity) {
-    case '1':
-      this.current.sequence = this.sequences[newType];
-      break;
-    case '?':
-      if (!this.sequences[newType]) {
-        this.sequences[newType] = new Sequence(newType);
-      }
-      this.current.sequence = this.sequences[newType];
-      break;
-    case '*':
-      this.current.sequence = new Sequence(newType);
+      case '1':
+        this.current.sequence = this.sequences[newType];
+        break;
+      case '?':
+        if (!this.sequences[newType]) {
+          this.sequences[newType] = new Sequence(newType);
+        }
+        this.current.sequence = this.sequences[newType];
+        break;
+      case '*':
+        this.current.sequence = new Sequence(newType);
 
-      if (!parserSpec.useTempSequence) {
-        this.sequences[newType].push(this.current.sequence);
-      }
-      break;
-    default:
-      throw new Error(`Unexpected base sequence arity '${arity}' for '${newType}'`);
+        if (!parserSpec.useTempSequence) {
+          this.sequences[newType].push(this.current.sequence);
+        }
+        break;
+      default:
+        throw new Error(
+          `Unexpected base sequence arity '${arity}' for '${newType}'`
+        );
     }
 
     if (!parserSpec.useTempSequence && this.current.sequence.type !== 'main') {
@@ -410,7 +459,9 @@ const Parser = class {
       if ('mainSequence' in parserSpec && parserSpec.mainSequence) {
         targetSequence = this.sequences.main;
       }
-      parserSpec.newScopes.forEach(sc => this.openNewScope(pt, sc, true, targetSequence));
+      parserSpec.newScopes.forEach((sc) =>
+        this.openNewScope(pt, sc, true, targetSequence)
+      );
     }
   }
 
@@ -443,23 +494,21 @@ const Parser = class {
   }
 
   substituteEndedBys(endedBy, pt) {
-    return endedBy.map(
-      eb => {
-        let ret = eb
-          .replace('$fullTagName$', pt.fullTagName)
-          .replace('$tagName$', pt.tagName);
+    return endedBy.map((eb) => {
+      let ret = eb
+        .replace('$fullTagName$', pt.fullTagName)
+        .replace('$tagName$', pt.tagName);
 
-        if (this.current.attributeContext) {
-          ret = ret.replace(
-            '$attributeContext$',
-            this.current.attributeContext
-              .replace('milestone', 'endMilestone')
-              .replace('spanWithAtts', 'endTag'),
-          );
-        }
-        return ret;
-      },
-    );
+      if (this.current.attributeContext) {
+        ret = ret.replace(
+          '$attributeContext$',
+          this.current.attributeContext
+            .replace('milestone', 'endMilestone')
+            .replace('spanWithAtts', 'endTag')
+        );
+      }
+      return ret;
+    });
   }
 
   addToken(pt) {

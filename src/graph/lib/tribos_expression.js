@@ -3,26 +3,43 @@ import xre from 'xregexp';
 const aggregateFunctions = {
   equals: (docSet, node, a, b) => a === b,
   notEqual: (docSet, node, a, b) => a !== b,
-  and: (docSet, node, ...args) => args.filter(a => !a).length === 0,
-  or: (docSet, node, ...args) => args.filter(a => a).length > 0,
+  and: (docSet, node, ...args) => args.filter((a) => !a).length === 0,
+  or: (docSet, node, ...args) => args.filter((a) => a).length > 0,
   not: (docSet, node, a) => !a,
-  idRef: (docSet, node) => docSet.unsuccinctifyScopes(node.bs)[0][2].split('/')[1],
-  parentIdRef: (docSet, node) => docSet.unsuccinctifyScopes(node.is).filter(s => s[2].startsWith('tTreeParent'))[0][2].split('/')[1],
-  nChildren: (docSet, node) => docSet.unsuccinctifyScopes(node.is).filter(s => s[2].startsWith('tTreeChild')).length,
+  idRef: (docSet, node) =>
+    docSet.unsuccinctifyScopes(node.bs)[0][2].split('/')[1],
+  parentIdRef: (docSet, node) =>
+    docSet
+      .unsuccinctifyScopes(node.is)
+      .filter((s) => s[2].startsWith('tTreeParent'))[0][2]
+      .split('/')[1],
+  nChildren: (docSet, node) =>
+    docSet
+      .unsuccinctifyScopes(node.is)
+      .filter((s) => s[2].startsWith('tTreeChild')).length,
   contentRef: (docSet, node, label) => {
-    const labelIG = docSet.sequenceItemsByScopes([node], ['tTreeContent/'], false)
-      .filter(ig => {
-        const key = ig[0].filter(s => s.startsWith('tTreeContent'))[0].split('/')[1];
+    const labelIG = docSet
+      .sequenceItemsByScopes([node], ['tTreeContent/'], false)
+      .filter((ig) => {
+        const key = ig[0]
+          .filter((s) => s.startsWith('tTreeContent'))[0]
+          .split('/')[1];
         return key === label;
       });
-    return labelIG[0] ?
-      labelIG[0][1].filter(i => i[0] === 'token').map(t => t[2]).join('') :
-      '';
+    return labelIG[0]
+      ? labelIG[0][1]
+          .filter((i) => i[0] === 'token')
+          .map((t) => t[2])
+          .join('')
+      : '';
   },
   hasContent: (docSet, node, label) => {
-    const labelIG = docSet.sequenceItemsByScopes([node], ['tTreeContent/'], false)
-      .filter(ig => {
-        const key = ig[0].filter(s => s.startsWith('tTreeContent'))[0].split('/')[1];
+    const labelIG = docSet
+      .sequenceItemsByScopes([node], ['tTreeContent/'], false)
+      .filter((ig) => {
+        const key = ig[0]
+          .filter((s) => s.startsWith('tTreeContent'))[0]
+          .split('/')[1];
         return key === label;
       });
     return labelIG.length > 0;
@@ -50,13 +67,13 @@ const aggregateFunctions = {
 };
 
 const parseFunctions = {
-  quotedString: str => str.substring(1, str.length - 1),
-  int: str => parseInt(str),
+  quotedString: (str) => str.substring(1, str.length - 1),
+  int: (str) => parseInt(str),
   true: () => true,
   false: () => false,
 };
 
-const splitArgs = str => {
+const splitArgs = (str) => {
   const ret = [[]];
   let pos = 0;
   let nParen = 0;
@@ -64,58 +81,102 @@ const splitArgs = str => {
 
   while (str && pos < str.length) {
     switch (str[pos]) {
-    case '\\':
-      ret[ret.length - 1].push(str[pos]);
+      case '\\':
+        ret[ret.length - 1].push(str[pos]);
 
-      if (str[pos + 1] ==='\'') {
-        ret[ret.length - 1].push(str[pos + 1]);
-        pos++;
-      }
-      break;
-    case '\'':
-      ret[ret.length - 1].push(str[pos]);
-      inQuote = !inQuote;
-      break;
-    case '(':
-      if (inQuote) {
-        ret[ret.length - 1].push(str[pos]);
-      } else {
-        ret[ret.length - 1].push(str[pos]);
-        nParen++;
-      }
-      break;
-    case ')':
-      if (inQuote) {
-        ret[ret.length - 1].push(str[pos]);
-      } else {
-        ret[ret.length - 1].push(str[pos]);
-        nParen--;
-      }
-      break;
-    case ',':
-      if (!inQuote && nParen === 0) {
-        ret.push([]);
-
-        while (str[pos + 1] === ' ') {
+        if (str[pos + 1] === "'") {
+          ret[ret.length - 1].push(str[pos + 1]);
           pos++;
         }
-      } else {
+        break;
+      case "'":
         ret[ret.length - 1].push(str[pos]);
-      }
-      break;
-    default:
-      ret[ret.length - 1].push(str[pos]);
+        inQuote = !inQuote;
+        break;
+      case '(':
+        if (inQuote) {
+          ret[ret.length - 1].push(str[pos]);
+        } else {
+          ret[ret.length - 1].push(str[pos]);
+          nParen++;
+        }
+        break;
+      case ')':
+        if (inQuote) {
+          ret[ret.length - 1].push(str[pos]);
+        } else {
+          ret[ret.length - 1].push(str[pos]);
+          nParen--;
+        }
+        break;
+      case ',':
+        if (!inQuote && nParen === 0) {
+          ret.push([]);
+
+          while (str[pos + 1] === ' ') {
+            pos++;
+          }
+        } else {
+          ret[ret.length - 1].push(str[pos]);
+        }
+        break;
+      default:
+        ret[ret.length - 1].push(str[pos]);
     }
     pos++;
   }
-  return ret.map(e => e.join(''));
+  return ret.map((e) => e.join(''));
 };
 
 const expressions = {
-  expression: { oneOf: ['stringExpression', 'intExpression', 'booleanExpression'] },
-  booleanExpression: { oneOf: ['booleanPrimitive', 'equals', 'notEqual', 'and', 'or', 'not', 'contains', 'startsWith', 'endsWith', 'matches', 'gt', 'lt', 'ge', 'le', 'hasContent'] },
-  stringExpression: { oneOf: ['concat', 'left', 'right', 'string', 'idRef', 'parentIdRef', 'contentRef', 'stringPrimitive'] },
-  intExpression: { oneOf: ['length', 'indexOf', 'int', 'nChildren', 'intPrimitive', 'add', 'sub', 'mul', 'div', 'mod'] },
+  expression: {
+    oneOf: ['stringExpression', 'intExpression', 'booleanExpression'],
+  },
+  booleanExpression: {
+    oneOf: [
+      'booleanPrimitive',
+      'equals',
+      'notEqual',
+      'and',
+      'or',
+      'not',
+      'contains',
+      'startsWith',
+      'endsWith',
+      'matches',
+      'gt',
+      'lt',
+      'ge',
+      'le',
+      'hasContent',
+    ],
+  },
+  stringExpression: {
+    oneOf: [
+      'concat',
+      'left',
+      'right',
+      'string',
+      'idRef',
+      'parentIdRef',
+      'contentRef',
+      'stringPrimitive',
+    ],
+  },
+  intExpression: {
+    oneOf: [
+      'length',
+      'indexOf',
+      'int',
+      'nChildren',
+      'intPrimitive',
+      'add',
+      'sub',
+      'mul',
+      'div',
+      'mod',
+    ],
+  },
   equals: {
     regex: xre('^==\\((.+)\\)$'),
     doc: {
@@ -224,7 +285,8 @@ const expressions = {
       operator: 'matches',
       args: ['string', 'regex'],
       result: 'boolean',
-      description: 'Does the first string match the regex in the second string?',
+      description:
+        'Does the first string match the regex in the second string?',
     },
     argStructure: [['stringExpression', [2, 2]]],
   },
@@ -236,7 +298,10 @@ const expressions = {
       result: 'string',
       description: 'The first n characters of the string',
     },
-    argStructure: [['stringExpression', [1, 1]], ['intExpression', [1, 1]]],
+    argStructure: [
+      ['stringExpression', [1, 1]],
+      ['intExpression', [1, 1]],
+    ],
   },
   right: {
     regex: xre('^right\\((.+)\\)$'),
@@ -246,7 +311,10 @@ const expressions = {
       result: 'string',
       description: 'The last n characters of the string',
     },
-    argStructure: [['stringExpression', [1, 1]], ['intExpression', [1, 1]]],
+    argStructure: [
+      ['stringExpression', [1, 1]],
+      ['intExpression', [1, 1]],
+    ],
   },
   length: {
     regex: xre('^length\\((.+)\\)$'),
@@ -264,7 +332,8 @@ const expressions = {
       operator: 'indexOf',
       args: ['string', 'string'],
       result: 'number',
-      description: 'The integer position at which the second string starts in the first string',
+      description:
+        'The integer position at which the second string starts in the first string',
     },
     argStructure: [['stringExpression', [2, 2]]],
   },
@@ -314,12 +383,12 @@ const expressions = {
       operator: 'parentId',
       args: [],
       result: 'string',
-      description: 'The node\'s parent ID',
+      description: "The node's parent ID",
     },
     argStructure: [],
   },
   nChildren: {
-    regex:  xre('^nChildren$'),
+    regex: xre('^nChildren$'),
     doc: {
       operator: 'nChildren',
       args: [],
@@ -374,7 +443,8 @@ const expressions = {
       operator: 'mod',
       args: ['integer', 'integer'],
       result: 'integer',
-      description: 'The modulus of the first integer when divided by the second',
+      description:
+        'The modulus of the first integer when divided by the second',
     },
     argStructure: [['intExpression', [2, 2]]],
   },
@@ -404,7 +474,8 @@ const expressions = {
       operator: '>=',
       args: ['integer', 'integer'],
       result: 'boolean',
-      description: 'Is the first integer numerically greater than or equal to the second?',
+      description:
+        'Is the first integer numerically greater than or equal to the second?',
     },
     argStructure: [['intExpression', [2, 2]]],
   },
@@ -414,12 +485,13 @@ const expressions = {
       operator: '<=',
       args: ['integer', 'integer'],
       result: 'boolean',
-      description: 'Is the first integer numerically less than or equal to the second?',
+      description:
+        'Is the first integer numerically less than or equal to the second?',
     },
     argStructure: [['intExpression', [2, 2]]],
   },
   stringPrimitive: {
-    regex: xre('^(\'([^\']|\\\\\')*\')$'),
+    regex: xre("^('([^']|\\\\')*')$"),
     parseFunctions: [null, 'quotedString'],
   },
   intPrimitive: {
@@ -432,23 +504,34 @@ const expressions = {
   },
 };
 
-const parseRegexExpression = (docSet, node, predicateString, expressionId, matches) => {
+const parseRegexExpression = (
+  docSet,
+  node,
+  predicateString,
+  expressionId,
+  matches
+) => {
   // console.log(`parseRegexExpression ${predicateString} ${expressionId} ${matches}`);
   const expressionRecord = expressions[expressionId];
 
   if (!expressionRecord) {
-    throw new Error(`Unknown expression ${expressionId} for predicate ${predicateString}`);
+    throw new Error(
+      `Unknown expression ${expressionId} for predicate ${predicateString}`
+    );
   }
 
-  const nExpectedArgs = structure => [
-    structure.map(a => a[1][0]).reduce((a, b) => a + b),
-    structure.filter(a => a[1][1] === null).length > 0,
+  const nExpectedArgs = (structure) => [
+    structure.map((a) => a[1][0]).reduce((a, b) => a + b),
+    structure.filter((a) => a[1][1] === null).length > 0,
   ];
 
   if (expressionRecord.parseFunctions) {
     let found = false;
 
-    for (const [n, parseFunction] of expressionRecord.parseFunctions.entries()) {
+    for (const [
+      n,
+      parseFunction,
+    ] of expressionRecord.parseFunctions.entries()) {
       if (!parseFunction || !matches[n]) {
         continue;
       }
@@ -468,11 +551,15 @@ const parseRegexExpression = (docSet, node, predicateString, expressionId, match
       const nExpected = nExpectedArgs(argStructure);
 
       if (argRecords.length < nExpected[0]) {
-        return { errors: `Expected at least ${nExpected[0]} args for '${expressionId}', found ${argRecords.length}` };
+        return {
+          errors: `Expected at least ${nExpected[0]} args for '${expressionId}', found ${argRecords.length}`,
+        };
       }
 
       if (!nExpected[1] && argRecords.length > nExpected[0]) {
-        return { errors: `Expected at most ${nExpected[0]} args for '${expressionId}', found ${argRecords.length}` };
+        return {
+          errors: `Expected at most ${nExpected[0]} args for '${expressionId}', found ${argRecords.length}`,
+        };
       }
 
       let argRecordN = 0;
@@ -481,30 +568,51 @@ const parseRegexExpression = (docSet, node, predicateString, expressionId, match
 
       while (argRecordN < argRecords.length) {
         const argRecord = argRecords[argRecordN];
-        const argResult = parseExpression(docSet, node, argRecord, argStructure[argStructureN][0]);
+        const argResult = parseExpression(
+          docSet,
+          node,
+          argRecord,
+          argStructure[argStructureN][0]
+        );
 
-        if ('breakOn' in expressionRecord && !argRecord.errors && argResult.data === expressionRecord.breakOn) {
+        if (
+          'breakOn' in expressionRecord &&
+          !argRecord.errors &&
+          argResult.data === expressionRecord.breakOn
+        ) {
           return argResult;
         }
         argResults.push(argResult);
         argRecordN++;
         nOccs++;
 
-        if (argStructure[argStructureN][1][1] && nOccs >= argStructure[argStructureN][1][1]) {
+        if (
+          argStructure[argStructureN][1][1] &&
+          nOccs >= argStructure[argStructureN][1][1]
+        ) {
           argStructureN++;
           nOccs = 0;
         }
       }
     }
 
-    if (argResults.filter(ar => ar.errors).length === 0) {
+    if (argResults.filter((ar) => ar.errors).length === 0) {
       // console.log(expressionId);
-      const args = argResults.map(ar => ar.data);
-      const aggregated = aggregateFunctions[expressionId](docSet, node, ...args);
+      const args = argResults.map((ar) => ar.data);
+      const aggregated = aggregateFunctions[expressionId](
+        docSet,
+        node,
+        ...args
+      );
       // console.log('aggregated', expressionId, argRecords, aggregated);
-      return { data:  aggregated };
+      return { data: aggregated };
     }
-    return { errors: `Could not parse arguments to ${expressionId}: ${argRecords.filter(ar => ar.errors).map(ar => ar.errors).join('; ')}` };
+    return {
+      errors: `Could not parse arguments to ${expressionId}: ${argRecords
+        .filter((ar) => ar.errors)
+        .map((ar) => ar.errors)
+        .join('; ')}`,
+    };
   }
 };
 
@@ -513,7 +621,9 @@ const parseExpression = (docSet, node, predicate, expressionId) => {
   const expressionRecord = expressions[expressionId];
 
   if (!expressionRecord) {
-    throw new Error(`Unknown expression ${expressionId} for predicate ${predicate}`);
+    throw new Error(
+      `Unknown expression ${expressionId} for predicate ${predicate}`
+    );
   }
 
   if (expressionRecord.oneOf) {
@@ -524,7 +634,7 @@ const parseExpression = (docSet, node, predicate, expressionId) => {
 
       if (!optionResult.errors) {
         return optionResult;
-      } else if (!errors || (optionResult.errors.length < errors.length)) {
+      } else if (!errors || optionResult.errors.length < errors.length) {
         errors = optionResult.errors;
       }
     }
@@ -533,7 +643,13 @@ const parseExpression = (docSet, node, predicate, expressionId) => {
     const matches = xre.exec(predicate, expressionRecord.regex);
 
     if (matches) {
-      const reResult = parseRegexExpression(docSet, node, predicate, expressionId, matches);
+      const reResult = parseRegexExpression(
+        docSet,
+        node,
+        predicate,
+        expressionId,
+        matches
+      );
       return reResult;
     } else {
       return { errors: `Could not match ${predicate}` };
@@ -542,8 +658,13 @@ const parseExpression = (docSet, node, predicate, expressionId) => {
 };
 
 const doPredicate = (docSet, result, predicateString) => ({
-  data: result.data.filter(node => {
-    const nodeResult = parseExpression(docSet, node, predicateString, 'booleanExpression');
+  data: result.data.filter((node) => {
+    const nodeResult = parseExpression(
+      docSet,
+      node,
+      predicateString,
+      'booleanExpression'
+    );
 
     // console.log();
     if (nodeResult.errors) {

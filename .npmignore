@@ -1,5 +1,9 @@
 src/
+test/
+node_modules/
 scripts/
 discussion/
+docs/
 .nyc_output/
 .idea/
+.parcel-cache

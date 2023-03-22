@@ -35,117 +35,130 @@ type kvSequence {
 `;
 
 const kvSequenceResolvers = {
-  nEntries: root => root.blocks.length,
+  nEntries: (root) => root.blocks.length,
   entries: (root, args, context) => {
-    let ret = root.blocks.map(
-      b => [
-        context.docSet.unsuccinctifyScopes(b.bs)
-          .map(s => s[2].split('/')[1])[0],
-        context.docSet.unsuccinctifyScopes(b.is)
-          .filter(s => s[2].startsWith('kvSecondary/'))
-          .map(s => [s[2].split('/')[1], s[2].split('/')[2]]),
-        context.docSet.sequenceItemsByScopes([b], ['kvField/'], false),
-      ],
-    );
+    let ret = root.blocks.map((b) => [
+      context.docSet
+        .unsuccinctifyScopes(b.bs)
+        .map((s) => s[2].split('/')[1])[0],
+      context.docSet
+        .unsuccinctifyScopes(b.is)
+        .filter((s) => s[2].startsWith('kvSecondary/'))
+        .map((s) => [s[2].split('/')[1], s[2].split('/')[2]]),
+      context.docSet.sequenceItemsByScopes([b], ['kvField/'], false),
+    ]);
 
     if (args.keyMatches) {
-      ret = ret.filter(e => xre.test(e[0], xre(args.keyMatches)));
+      ret = ret.filter((e) => xre.test(e[0], xre(args.keyMatches)));
     }
 
     if (args.keyEquals) {
-      ret = ret.filter(e => args.keyEquals.includes(e[0]));
+      ret = ret.filter((e) => args.keyEquals.includes(e[0]));
     }
 
     if (args.secondaryMatches) {
       const matchesOb = {};
-      args.secondaryMatches.forEach(sm => (matchesOb[sm.key] = sm.matches));
-      ret = ret.filter(
-        e => {
-          const secondaryOb = {};
-          e[1].forEach(st => (secondaryOb[st[0]] = st[1]));
+      args.secondaryMatches.forEach((sm) => (matchesOb[sm.key] = sm.matches));
+      ret = ret.filter((e) => {
+        const secondaryOb = {};
+        e[1].forEach((st) => (secondaryOb[st[0]] = st[1]));
 
-          for (const mo of Object.entries(matchesOb)) {
-            const secondaryString = secondaryOb[mo[0]];
+        for (const mo of Object.entries(matchesOb)) {
+          const secondaryString = secondaryOb[mo[0]];
 
-            if (!secondaryString || !xre.test(secondaryString, xre(mo[1]))) {
-              return false;
-            }
+          if (!secondaryString || !xre.test(secondaryString, xre(mo[1]))) {
+            return false;
           }
-          return true;
-        });
+        }
+        return true;
+      });
     }
 
     if (args.secondaryEquals) {
       const equalsOb = {};
-      args.secondaryEquals.forEach(sm => (equalsOb[sm.key] = sm.values));
-      ret = ret.filter(
-        e => {
-          const secondaryOb = {};
-          e[1].forEach(st => (secondaryOb[st[0]] = st[1]));
+      args.secondaryEquals.forEach((sm) => (equalsOb[sm.key] = sm.values));
+      ret = ret.filter((e) => {
+        const secondaryOb = {};
+        e[1].forEach((st) => (secondaryOb[st[0]] = st[1]));
 
-          for (const mo of Object.entries(equalsOb)) {
-            const secondaryString = secondaryOb[mo[0]];
+        for (const mo of Object.entries(equalsOb)) {
+          const secondaryString = secondaryOb[mo[0]];
 
-            if (!secondaryString || !mo[1].includes(secondaryString)) {
-              return false;
-            }
+          if (!secondaryString || !mo[1].includes(secondaryString)) {
+            return false;
           }
-          return true;
-        });
+        }
+        return true;
+      });
     }
 
     if (args.contentMatches) {
       const matchesOb = {};
-      args.contentMatches.forEach(sm => (matchesOb[sm.key] = sm.matches));
-      ret = ret.filter(
-        e => {
-          const contentOb = {};
-          e[2].forEach(st => (contentOb[st[0].filter(s => s.startsWith('kvField'))[0].split('/')[1]] = st[1].filter(i => i[0] === 'token').map(t => t[2]).join('')));
+      args.contentMatches.forEach((sm) => (matchesOb[sm.key] = sm.matches));
+      ret = ret.filter((e) => {
+        const contentOb = {};
+        e[2].forEach(
+          (st) =>
+            (contentOb[
+              st[0].filter((s) => s.startsWith('kvField'))[0].split('/')[1]
+            ] = st[1]
+              .filter((i) => i[0] === 'token')
+              .map((t) => t[2])
+              .join(''))
+        );
 
-          for (const mo of Object.entries(matchesOb)) {
-            const contentString = contentOb[mo[0]];
+        for (const mo of Object.entries(matchesOb)) {
+          const contentString = contentOb[mo[0]];
 
-            if (!contentString || !xre.test(contentString, xre(mo[1]))) {
-              return false;
-            }
+          if (!contentString || !xre.test(contentString, xre(mo[1]))) {
+            return false;
           }
-          return true;
-        });
+        }
+        return true;
+      });
     }
 
     if (args.contentEquals) {
       const equalsOb = {};
-      args.contentEquals.forEach(sm => (equalsOb[sm.key] = sm.values));
-      ret = ret.filter(
-        e => {
-          const contentOb = {};
-          e[2].forEach(st => (contentOb[st[0].filter(s => s.startsWith('kvField'))[0].split('/')[1]] = st[1].filter(i => i[0] === 'token').map(t => t[2]).join('')));
+      args.contentEquals.forEach((sm) => (equalsOb[sm.key] = sm.values));
+      ret = ret.filter((e) => {
+        const contentOb = {};
+        e[2].forEach(
+          (st) =>
+            (contentOb[
+              st[0].filter((s) => s.startsWith('kvField'))[0].split('/')[1]
+            ] = st[1]
+              .filter((i) => i[0] === 'token')
+              .map((t) => t[2])
+              .join(''))
+        );
 
-          for (const mo of Object.entries(equalsOb)) {
-            const contentString = contentOb[mo[0]];
+        for (const mo of Object.entries(equalsOb)) {
+          const contentString = contentOb[mo[0]];
 
-            if (!contentString || !contentString.includes(mo[1])) {
-              return false;
-            }
+          if (!contentString || !contentString.includes(mo[1])) {
+            return false;
           }
-          return true;
-        });
+        }
+        return true;
+      });
     }
 
     return ret;
   },
-  tags: root => Array.from(root.tags),
-  tagsKv: root => Array.from(root.tags).map(t => {
-    if (t.includes(':')) {
-      return [t.substring(0, t.indexOf(':')), t.substring(t.indexOf(':') + 1)];
-    } else {
-      return [t, ''];
-    }
-  }),
+  tags: (root) => Array.from(root.tags),
+  tagsKv: (root) =>
+    Array.from(root.tags).map((t) => {
+      if (t.includes(':')) {
+        return [
+          t.substring(0, t.indexOf(':')),
+          t.substring(t.indexOf(':') + 1),
+        ];
+      } else {
+        return [t, ''];
+      }
+    }),
   hasTag: (root, args) => root.tags.has(args.tagName),
 };
 
-export {
-  kvSequenceSchemaString,
-  kvSequenceResolvers,
-};
+export { kvSequenceSchemaString, kvSequenceResolvers };

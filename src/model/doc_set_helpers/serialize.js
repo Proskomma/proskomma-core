@@ -1,4 +1,4 @@
-const serializeSuccinct = docSet => {
+const serializeSuccinct = (docSet) => {
   const ret = {
     id: docSet.id,
     metadata: { selectors: docSet.selectors },

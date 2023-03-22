@@ -45,31 +45,36 @@ type ItemGroup {
 `;
 
 const itemGroupResolvers = {
-  items: root => root[1],
+  items: (root) => root[1],
   tokens: (root, args) =>
-    root[1].filter(i =>
-      i[0] === 'token' &&
-      (!args.withChars || args.withChars.includes(i[2])) &&
-      (!args.withSubTypes || args.withSubTypes.includes(i[1])),
+    root[1].filter(
+      (i) =>
+        i[0] === 'token' &&
+        (!args.withChars || args.withChars.includes(i[2])) &&
+        (!args.withSubTypes || args.withSubTypes.includes(i[1]))
     ),
   text: (root, args) => {
-    const tokensText = root[1].filter(i => i[0] === 'token').map(t => t[2]).join('');
-    return args.normalizeSpace ? tokensText.replace(/[ \t\n\r]+/g, ' ') : tokensText;
+    const tokensText = root[1]
+      .filter((i) => i[0] === 'token')
+      .map((t) => t[2])
+      .join('');
+    return args.normalizeSpace
+      ? tokensText.replace(/[ \t\n\r]+/g, ' ')
+      : tokensText;
   },
   scopeLabels: (root, args) =>
-    root[0].filter(s => !args.startsWith || scopeMatchesStartsWith(args.startsWith, s)),
-  dump: root => dumpItemGroup(root),
-  includedScopes: root =>
+    root[0].filter(
+      (s) => !args.startsWith || scopeMatchesStartsWith(args.startsWith, s)
+    ),
+  dump: (root) => dumpItemGroup(root),
+  includedScopes: (root) =>
     Array.from(
       new Set(
         root[1]
-          .filter(i => i[0] === 'scope' && i[1] === 'start')
-          .map(t => t[2]),
-      ),
+          .filter((i) => i[0] === 'scope' && i[1] === 'start')
+          .map((t) => t[2])
+      )
     ),
 };
 
-export {
-  itemGroupSchemaString,
-  itemGroupResolvers,
-};
+export { itemGroupSchemaString, itemGroupResolvers };
