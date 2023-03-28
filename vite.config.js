@@ -31,7 +31,7 @@ export default defineConfig({
       // External packages that should not be bundled into your library.
       external: [],
     },
-    minify: true
+    minify: false
   },
 
   test: {
