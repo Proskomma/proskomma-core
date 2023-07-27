@@ -24,6 +24,7 @@ const pk5 = pkWithDoc('../test_data/usfm/verse_breaks_in_blocks.usfm', {
   lang: 'eng',
   abbr: 'ust',
 })[0];
+
 const pk6 = pkWithDoc('../test_data/usfm/whitespace.usfm', {
   lang: 'eng',
   abbr: 'ust',
@@ -36,7 +37,14 @@ const pk8 = pkWithDoc('../test_data/usfm/add_test.usfm', {
   lang: 'eng',
   abbr: 'ust',
 })[0];
-
+const pk9 = pkWithDoc('../test_data/usfm/milestone_attributes.usfm', {
+  lang: 'eng',
+  abbr: 'ust',
+})[0];
+const pk10 = pkWithDoc('../test_data/usfm/66-JUD-ust.usfm', {
+  lang: 'eng',
+  abbr: 'ust',
+})[0];
 const blocksText = blocks => blocks.map(
   b => b.items.map(
     i => i.type === 'token' ? i.payload : '',
@@ -173,6 +181,100 @@ test(
     }
   },
 );
+test(
+  `Excludes scopes type is doing something (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(2);
+      const query = '{' +
+        '  documents {' +
+        '    mainSequence {' +
+        '      blocks {' +
+        '        items (excludeScopeTypes : ["milestone","attribute"]) {' +
+        '        payload scopes}' +
+        '      }' +
+        '    }' +
+        '  }' +
+        '}';
+      const query2 = '{' +
+        '  documents {' +
+        '    mainSequence {' +
+        '      blocks {' +
+        '        items (excludeScopeTypes : []) {' +
+        '        payload scopes}' +
+        '      }' +
+        '    }' +
+        '  }' +
+        '}';
+      const query3 = '{' +
+        '  documents {' +
+        '    mainSequence {' +
+        '      blocks {' +
+        '        items{' +
+        '        payload scopes}' +
+        '      }' +
+        '    }' +
+        '  }' +
+        '}';
+      const result = await pk9.gqlQuery(query);
+      const result2 = await pk9.gqlQuery(query2);
+      const result3 = await pk9.gqlQuery(query3);
+
+      t.equal(result2.data.documents[0].mainSequence.blocks[0].items.length,
+        result3.data.documents[0].mainSequence.blocks[0].items.length)
+      t.equal(result.data.documents[0].mainSequence.blocks[0].items.length < result2.data.documents[0].mainSequence.blocks[0].items.length, true)
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+test(
+  `Excludes scopes type is make us gain time (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(0);
+      const query = '{' +
+        '  documents {' +
+        '    mainSequence {' +
+        '      blocks {' +
+        '        items (excludeScopeTypes : ["milestone","attribute","spanWithAtts"]) {' +
+        '           type subType payload}' +
+        '        bg {subType payload}' +
+        '        bs {payload}' +
+        '      }' +
+        '    }' +
+        '  }' +
+        '}';
+
+      const query2 = '{' +
+        '  documents {' +
+        '    mainSequence {' +
+        '      blocks {' +
+        '        items{' +
+        '           type subType payload}' +
+        '        bg {subType payload}' +
+        '        bs {payload}' +
+        '      }' +
+        '    }' +
+        '  }' +
+        '}';
+
+
+      console.time('without exclude scope type')
+      const result2 = await pk10.gqlQuery(query2);
+      console.timeEnd('without exclude scope type')
+
+      console.time('with exclude scope type')
+      const result = await pk10.gqlQuery(query);
+      console.timeEnd('with exclude scope type')
+
+
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
 
 test(
   `Token includeChars (${testGroup})`,

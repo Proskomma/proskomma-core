@@ -76,13 +76,34 @@ const unsuccinctifyItems = (
       scopes.add(item[2]);
 
       if (Object.keys(options).length === 0 || options.scopes) {
-        ret.push(item);
+        if (Object.keys(options).length === 0 || !options.excludeScopeTypes || options.excludeScopeTypes.length === 0) {
+          ret.push(item);
+
+        }
+        else if (!options.excludeScopeTypes.includes(item[2].split("/")[0])) {
+          ret.push(item);
+
+
+
+        }
       }
     } else if (item[0] === 'scope' && item[1] === 'end') {
       scopes.delete(item[2]);
 
       if (Object.keys(options).length === 0 || options.scopes) {
-        ret.push(item);
+        if (Object.keys(options).length === 0 || !options.excludeScopeTypes || options.excludeScopeTypes.length === 0) {
+          ret.push(item);
+
+        }
+        else if (!options.excludeScopeTypes.includes(item[2].split("/")[0])) {
+          ret.push(item);
+
+
+
+        }
+        else {
+          //console.log("excluded items", item)
+        }
       }
     } else if (item[0] === 'graft') {
       if (Object.keys(options).length === 0 || options.grafts) {

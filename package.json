@@ -1,6 +1,6 @@
 {
   "name": "proskomma-core",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "A Scripture Runtime Engine",
   "files": [
     "dist"

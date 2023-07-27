@@ -56,6 +56,8 @@ type Block {
     withScriptureCV: String
     """If true, adds scope and nextToken information to each token"""
     includeContext: Boolean
+    """Do not return scopes types in list (eg milestone)"""
+    excludeScopeTypes: [String!]
   ) : [Item!]! 
   """A list of tokens from the c (content) field of the block"""
   tokens(
@@ -137,6 +139,7 @@ const blockResolvers = {
         tokens: true,
         scopes: true,
         grafts: true,
+        excludeScopeTypes: args.excludeScopeTypes || [],
         requiredScopes: args.withScopes || [],
         anyScope: args.anyScope || false,
       });
@@ -189,11 +192,11 @@ const blockResolvers = {
   text: (root, args, context) => {
     const tokens = args.withScriptureCV
       ? context.docSet.unsuccinctifyItemsWithScriptureCV(
-          root,
-          args.withScriptureCV,
-          { tokens: true },
-          false
-        )
+        root,
+        args.withScriptureCV,
+        { tokens: true },
+        false
+      )
       : context.docSet.unsuccinctifyItems(root.c, { tokens: true }, null);
     let ret = tokens
       .map((t) => t[2])
