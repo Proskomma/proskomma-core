@@ -232,7 +232,7 @@ test(
   `Excludes scopes type is make us gain time (${testGroup})`,
   async function (t) {
     try {
-      t.plan(0);
+      t.plan(1);
       const query = '{' +
         '  documents {' +
         '    mainSequence {' +
@@ -260,14 +260,14 @@ test(
         '}';
 
 
-      console.time('without exclude scope type')
-      const result2 = await pk10.gqlQuery(query2);
-      console.timeEnd('without exclude scope type')
+      let t1 = Date.now()
+      await pk10.gqlQuery(query2);
+      t1 = Date.now() - t1
 
-      console.time('with exclude scope type')
-      const result = await pk10.gqlQuery(query);
-      console.timeEnd('with exclude scope type')
-
+      let t2 = Date.now()
+      await pk10.gqlQuery(query);
+      t2 = Date.now() - t2
+      t.ok(t2<t1)
 
     } catch (err) {
       console.log(err);

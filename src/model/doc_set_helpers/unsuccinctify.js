@@ -60,7 +60,23 @@ const unsuccinctifyItems = (
   const scopes = new Set(openScopes || []);
 
   while (pos < succinct.length) {
-    const [item, itemLength] = docSet.unsuccinctifyItem(succinct, pos, {});
+    const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
+      succinct,
+      pos
+    );
+    if ([utils.itemDefs.itemEnum.startScope, utils.itemDefs.itemEnum.endScope].includes(itemType)) {
+      const itemTypeName = utils.succinct.succinctScopeType(itemSubtype);
+      if (
+        Object.keys(options).length > 0 &&
+        options.scopes &&
+        options.excludeScopeTypes &&
+        options.excludeScopeTypes.includes(itemTypeName)
+      ) {
+        pos += itemLength;
+        continue;
+      }
+    }
+    const item = docSet.unsuccinctifyItem(succinct, pos, {})[0];
 
     if (item[0] === 'token') {
       if (Object.keys(options).length === 0 || options.tokens) {

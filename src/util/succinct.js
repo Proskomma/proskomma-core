@@ -34,6 +34,10 @@ const succinctScopeLabel = (enums, enumIndexes, succinct, itemSubtype, pos) => {
   return `${scopeType}${scopeBits}`;
 };
 
+const succinctScopeType = itemSubtype => {
+  return scopeDefs.scopeEnumLabels[itemSubtype];
+};
+
 const succinctGraftName = (enums, enumIndexes, itemSubtype) => {
   const graftIndex = enumIndexes.graftTypes[itemSubtype];
   return enums.graftTypes.countedString(graftIndex);
@@ -165,6 +169,7 @@ export default {
   pushSuccinctScopeBytes,
   succinctTokenChars,
   succinctScopeLabel,
+  succinctScopeType,
   succinctGraftName,
   succinctGraftSeqId,
   unpackEnum,
