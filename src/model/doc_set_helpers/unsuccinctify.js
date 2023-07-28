@@ -6,13 +6,13 @@ const unsuccinctifyBlock = (docSet, block, options) => {
   const succinctBlockScope = block.bs;
   const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
     succinctBlockScope,
-    0
+    0,
   );
   const blockScope = docSet.unsuccinctifyScope(
     succinctBlockScope,
     itemType,
     itemSubtype,
-    0
+    0,
   );
   const blockGrafts = docSet.unsuccinctifyGrafts(block.bg);
   const openScopes = docSet.unsuccinctifyScopes(block.os);
@@ -21,7 +21,7 @@ const unsuccinctifyBlock = (docSet, block, options) => {
   const blockItems = docSet.unsuccinctifyItems(
     block.c,
     options || {},
-    nextToken
+    nextToken,
   );
   return {
     bs: blockScope,
@@ -38,19 +38,19 @@ const unsuccinctifyItems = (
   succinct,
   options,
   nextToken,
-  openScopes
+  openScopes,
 ) => {
   if (nextToken === undefined) {
     throw new Error(
-      'nextToken (previously includeContext) must now be provided to unsuccinctifyItems'
+      'nextToken (previously includeContext) must now be provided to unsuccinctifyItems',
     );
   }
 
   if (nextToken !== null && typeof nextToken !== 'number') {
     throw new Error(
       `nextToken (previously includeContext) must be null or an integer, not ${typeof nextToken} '${JSON.stringify(
-        nextToken
-      )}' in unsuccinctifyItems`
+        nextToken,
+      )}' in unsuccinctifyItems`,
     );
   }
 
@@ -59,12 +59,34 @@ const unsuccinctifyItems = (
   let tokenCount = nextToken || 0;
   const scopes = new Set(openScopes || []);
 
+  const scopeEnums = [utils.itemDefs.itemEnum.startScope, utils.itemDefs.itemEnum.endScope];
+
   while (pos < succinct.length) {
     const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
       succinct,
-      pos
+      pos,
     );
-    if ([utils.itemDefs.itemEnum.startScope, utils.itemDefs.itemEnum.endScope].includes(itemType)) {
+    if (Object.keys(options).length > 0) {
+      if (!options.scopes &&
+        scopeEnums.includes(itemType)
+      ) {
+        pos += itemLength;
+        continue;
+      }
+      if (!options.tokens &&
+        itemType === utils.itemDefs.itemEnum.token
+      ) {
+        pos += itemLength;
+        continue;
+      }
+      if (!options.grafts &&
+        itemType === utils.itemDefs.itemEnum.graft
+      ) {
+        pos += itemLength;
+        continue;
+      }
+    }
+    if (scopeEnums.includes(itemType)) {
       const itemTypeName = utils.succinct.succinctScopeType(itemSubtype);
       if (
         Object.keys(options).length > 0 &&
@@ -82,44 +104,21 @@ const unsuccinctifyItems = (
       if (Object.keys(options).length === 0 || options.tokens) {
         if (nextToken !== null) {
           item.push(
-            item[0] === 'token' && item[1] === 'wordLike' ? tokenCount++ : null
+            item[0] === 'token' && item[1] === 'wordLike' ? tokenCount++ : null,
           );
           item.push([...scopes]);
         }
         ret.push(item);
       }
     } else if (item[0] === 'scope' && item[1] === 'start') {
-      scopes.add(item[2]);
-
       if (Object.keys(options).length === 0 || options.scopes) {
-        if (Object.keys(options).length === 0 || !options.excludeScopeTypes || options.excludeScopeTypes.length === 0) {
-          ret.push(item);
-
-        }
-        else if (!options.excludeScopeTypes.includes(item[2].split("/")[0])) {
-          ret.push(item);
-
-
-
-        }
+        scopes.add(item[2]);
+        ret.push(item);
       }
     } else if (item[0] === 'scope' && item[1] === 'end') {
-      scopes.delete(item[2]);
-
       if (Object.keys(options).length === 0 || options.scopes) {
-        if (Object.keys(options).length === 0 || !options.excludeScopeTypes || options.excludeScopeTypes.length === 0) {
-          ret.push(item);
-
-        }
-        else if (!options.excludeScopeTypes.includes(item[2].split("/")[0])) {
-          ret.push(item);
-
-
-
-        }
-        else {
-          //console.log("excluded items", item)
-        }
+        scopes.delete(item[2]);
+        ret.push(item);
       }
     } else if (item[0] === 'graft') {
       if (Object.keys(options).length === 0 || options.grafts) {
@@ -135,33 +134,33 @@ const unsuccinctifyItem = (docSet, succinct, pos, options) => {
   let item = null;
   const [itemLength, itemType, itemSubtype] = utils.succinct.headerBytes(
     succinct,
-    pos
+    pos,
   );
 
   switch (itemType) {
-    case utils.itemDefs.itemEnum.token:
-      if (Object.keys(options).length === 0 || options.tokens) {
-        item = docSet.unsuccinctifyToken(succinct, itemSubtype, pos);
-      }
-      break;
-    case utils.itemDefs.itemEnum.startScope:
-    case utils.itemDefs.itemEnum.endScope:
-      if (Object.keys(options).length === 0 || options.scopes) {
-        item = docSet.unsuccinctifyScope(succinct, itemType, itemSubtype, pos);
-      }
-      break;
-    case utils.itemDefs.itemEnum.graft:
-      if (Object.keys(options).length === 0 || options.grafts) {
-        item = docSet.unsuccinctifyGraft(succinct, itemSubtype, pos);
-      }
-      break;
+  case utils.itemDefs.itemEnum.token:
+    if (Object.keys(options).length === 0 || options.tokens) {
+      item = docSet.unsuccinctifyToken(succinct, itemSubtype, pos);
+    }
+    break;
+  case utils.itemDefs.itemEnum.startScope:
+  case utils.itemDefs.itemEnum.endScope:
+    if (Object.keys(options).length === 0 || options.scopes) {
+      item = docSet.unsuccinctifyScope(succinct, itemType, itemSubtype, pos);
+    }
+    break;
+  case utils.itemDefs.itemEnum.graft:
+    if (Object.keys(options).length === 0 || options.grafts) {
+      item = docSet.unsuccinctifyGraft(succinct, itemSubtype, pos);
+    }
+    break;
   }
   return [item, itemLength];
 };
 
 const unsuccinctifyPrunedItems = (docSet, block, options) => {
   const openScopes = new Set(
-    docSet.unsuccinctifyScopes(block.os).map((ri) => ri[2])
+    docSet.unsuccinctifyScopes(block.os).map((ri) => ri[2]),
   );
   const requiredScopes = options.requiredScopes || [];
   const anyScope = options.anyScope || false;
@@ -195,7 +194,7 @@ const unsuccinctifyPrunedItems = (docSet, block, options) => {
     block.c,
     options,
     block.nt.nByte(0),
-    openScopes
+    openScopes,
   )) {
     if (item[0] === 'scope' && item[1] === 'start') {
       openScopes.add(item[2]);
@@ -215,7 +214,7 @@ const unsuccinctifyPrunedItems = (docSet, block, options) => {
 const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
   options = options || {};
   const openScopes = new Set(
-    docSet.unsuccinctifyScopes(block.os).map((ri) => ri[2])
+    docSet.unsuccinctifyScopes(block.os).map((ri) => ri[2]),
   );
 
   const cvMatchFunction = () => {
@@ -230,7 +229,7 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
         }
 
         for (const scope of [...Array(toC - fromC + 1).keys()].map(
-          (n) => `chapter/${n + fromC}`
+          (n) => `chapter/${n + fromC}`,
         )) {
           if (openScopes.has(scope)) {
             return true;
@@ -267,7 +266,7 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
 
         const chapterScope = `chapter/${fromC}`;
         const verseScopes = [...Array(toV - fromV + 1).keys()].map(
-          (n) => `verse/${n + fromV}`
+          (n) => `verse/${n + fromV}`,
         );
 
         if (!openScopes.has(chapterScope)) {
@@ -292,18 +291,18 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
 
         if (fromC > toC) {
           throw new Error(
-            `Chapter range must be from min to max, not '${fromC}-${toV}'`
+            `Chapter range must be from min to max, not '${fromC}-${toV}'`,
           );
         }
 
         const scopeArray = [...openScopes];
         const chapterScopes = scopeArray.filter((s) =>
-          s.startsWith('chapter/')
+          s.startsWith('chapter/'),
         );
 
         if (chapterScopes.length > 1) {
           throw new Error(
-            `Expected zero or one chapter for item, found ${chapterScopes.length}`
+            `Expected zero or one chapter for item, found ${chapterScopes.length}`,
           );
         }
 
@@ -315,7 +314,7 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
           return (
             scopeArray.filter(
               (s) =>
-                s.startsWith('verse/') && parseInt(s.split('/')[1]) >= fromV
+                s.startsWith('verse/') && parseInt(s.split('/')[1]) >= fromV,
             ).length > 0 ||
             (fromV === 0 &&
               scopeArray.filter((s) => s.startsWith('verse')).length === 0)
@@ -323,7 +322,7 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
         } else if (chapterNo === toC) {
           return (
             scopeArray.filter(
-              (s) => s.startsWith('verse/') && parseInt(s.split('/')[1]) <= toV
+              (s) => s.startsWith('verse/') && parseInt(s.split('/')[1]) <= toV,
             ).length > 0 ||
             (toV === 0 &&
               scopeArray.filter((s) => s.startsWith('verse')).length === 0)
@@ -357,7 +356,7 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
   for (const item of docSet.unsuccinctifyItems(
     block.c,
     {},
-    block.nt.nByte(0)
+    block.nt.nByte(0),
   )) {
     if (item[0] === 'scope' && item[1] === 'start') {
       openScopes.add(item[2]);
