@@ -1,11 +1,12 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
-import nodePolyfills from '@esbuild-plugins/node-globals-polyfill';
+// import nodePolyfills from '@esbuild-plugins/node-globals-polyfill';
 // import { join } from 'path';
 
 export default defineConfig({
   // cacheDir: '../../node_modules/.vite/pk-core',
-  plugins: [nodePolyfills({buffer:true})],
+  // no need to polyfill anymore with vite 5 ?
+  // plugins: [nodePolyfills({buffer:true})],
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [
@@ -42,9 +43,9 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
   },
-  resolve: {
-    alias: {
-      emitter: require.resolve('emitter-component'),
-    },
-  },
+  // resolve: {
+  //   alias: {
+  //     emitter: require.resolve('emitter-component'),
+  //   },
+  // },
 });
