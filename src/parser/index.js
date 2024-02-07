@@ -316,10 +316,7 @@ const Parser = class {
 
     for (const si of childSequences) {
       if (seqById[si].type === 'main') {
-        throw new Error(
-          'MAIN is child!',
-          JSON.stringify(seqById[seqId], null, 2)
-        );
+        throw new Error(`MAIN is child!\n${JSON.stringify(seqById[seqId], null, 2)}`);
       }
       this.filterGrafts(si, seqById, used, options);
     }

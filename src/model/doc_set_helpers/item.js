@@ -74,7 +74,7 @@ const sequenceItemsByScopes = (docSet, blocks, byScopes) => {
   //   - turn found scopes into string
   //   - if that scope string doesn't exist, add to lookup table and push array
   //   - add item to array matching scope string
-  let allBlockScopes = [];
+  let allBlockScopes;
 
   const allScopesPresent = () => {
     for (const requiredScope of byScopes) {

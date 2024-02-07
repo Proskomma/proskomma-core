@@ -238,7 +238,7 @@ const updateBlockIndexesAfterEdit = (docSet, sequence, blockPosition) => {
     );
 
     if (!labelsMatch(openScopeLabels, nextOSLabels)) {
-      const osBA = new ByteArray(nextOSLabels.length);
+      const osBA = new ByteArray(nextOSLabels.size);
 
       for (const scopeLabel of Array.from(openScopeLabels)) {
         addSuccinctScope(docSet, osBA, scopeLabel);

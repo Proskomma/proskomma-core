@@ -577,7 +577,7 @@ const parseRegexExpression = (
 
         if (
           'breakOn' in expressionRecord &&
-          !argRecord.errors &&
+          !argResult.errors &&
           argResult.data === expressionRecord.breakOn
         ) {
           return argResult;
@@ -608,7 +608,7 @@ const parseRegexExpression = (
       return { data: aggregated };
     }
     return {
-      errors: `Could not parse arguments to ${expressionId}: ${argRecords
+      errors: `Could not parse arguments to ${expressionId}: ${argResults
         .filter((ar) => ar.errors)
         .map((ar) => ar.errors)
         .join('; ')}`,

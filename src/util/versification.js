@@ -177,7 +177,12 @@ const preSuccinctVerseMapping = (mappingJson) => {
 
     const [fromBook, fromCVV] = fromSpec.split(' ');
     const toBook = toSpecs[0].split(' ')[0];
-    const record = toBook === fromBook ? ['cv'] : ['bcv'];
+    const record = [];
+    if(toBook === fromBook) {
+      record.push('cv');
+    } else {
+      record.push('bcv');
+    }
     let [fromCh, fromV] = fromCVV.split(':');
     let toV = fromV;
 
