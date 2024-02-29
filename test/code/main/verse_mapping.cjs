@@ -256,7 +256,8 @@ test(
   `Russian mapping for Psalms (${testGroup})`,
   async function (t) {
     try {
-      t.plan(5);
+      const chapters = ["1", "21", "22", "23", "24"];
+      t.plan(2 * chapters.length);
       const pk = new Proskomma();
       pk.importDocument({lang: "rus", abbr: "rsb"}, "usfm", fse.readFileSync(path.resolve(__dirname, '../../test_data/usfm/psa_rsb.usfm')).toString());
       pk.importDocument({lang: "eng", abbr: "webbe"}, "usx", fse.readFileSync(path.resolve(__dirname, '../../test_data/usx/web_psa.usx')).toString());
@@ -268,7 +269,7 @@ test(
         .toString();
       mutationQuery = `mutation { setVerseMapping(docSetId: "eng_webbe" vrsSource: """${vrs}""")}`;
       await pk.gqlQuery(mutationQuery);
-      for (const chapterN of ["1", "21", "22", "23", "24"]) {
+      for (const chapterN of chapters) {
         let docSetQuery =
           `{ 
           docSet(id: "rus_rsb") {
@@ -283,6 +284,20 @@ test(
         }
       }`;
         let result;
+        t.doesNotThrow(() => result = pk.gqlQuerySync(docSetQuery));
+        docSetQuery =
+          `{ 
+          docSet(id: "eng_webbe") {
+            id
+            documents {
+              bookCode: header(id: "bookCode")    
+              mappedCvs(chapter: "${chapterN}", mappedDocSetId: "rus_rsb") {
+                scopeLabels
+                text
+            }
+          }
+        }
+      }`;
         t.doesNotThrow(() => result = pk.gqlQuerySync(docSetQuery));
         // console.log(JSON.stringify(result, null, 2));
       }
