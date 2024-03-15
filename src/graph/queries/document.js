@@ -491,7 +491,6 @@ const documentResolvers = {
       .filter((ve) => ve.length > 0)
       .map((ve) => ve[0].verses);
     let ret = [];
-
     for (const verse of verses) {
       ret.push(
         do_cv(

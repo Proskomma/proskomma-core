@@ -2,6 +2,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const test = require('tape');
 const deepCopy = require('deep-copy-all');
+const {Proskomma} = require('../../../dist');
 
 const { pkWithDoc, pkWithDocs } = require('../../lib/load.cjs');
 
@@ -245,6 +246,63 @@ test(
       t.ok(mappedCVs.scopeLabels.includes('fromVerse/0'));
       t.ok(mappedCVs.scopeLabels.includes('chapter/64'));
       t.ok(mappedCVs.scopeLabels.includes('verse/1'));
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+test(
+  `Russian mapping for Psalms (${testGroup})`,
+  async function (t) {
+    try {
+      const chapters = ["1", "21", "22", "23", "24"];
+      t.plan(4 * chapters.length);
+      const pk = new Proskomma();
+      pk.importDocument({lang: "rus", abbr: "rsb"}, "usfm", fse.readFileSync(path.resolve(__dirname, '../../test_data/usfm/psa_rsb.usfm')).toString());
+      pk.importDocument({lang: "eng", abbr: "webbe"}, "usx", fse.readFileSync(path.resolve(__dirname, '../../test_data/usx/web_psa.usx')).toString());
+      let vrs = fse.readFileSync(path.resolve(__dirname, '../../test_data/vrs/rsc.vrs'))
+        .toString();
+      let mutationQuery = `mutation { setVerseMapping(docSetId: "rus_rsb" vrsSource: """${vrs}""")}`;
+      await pk.gqlQuery(mutationQuery);
+      vrs = fse.readFileSync(path.resolve(__dirname, '../../test_data/vrs/webbe.vrs'))
+        .toString();
+      mutationQuery = `mutation { setVerseMapping(docSetId: "eng_webbe" vrsSource: """${vrs}""")}`;
+      await pk.gqlQuery(mutationQuery);
+      for (const chapterN of chapters) {
+        let docSetQuery =
+          `{ 
+          docSet(id: "rus_rsb") {
+            id
+            documents {
+              bookCode: header(id: "bookCode")    
+              mappedCvs(chapter: "${chapterN}", mappedDocSetId: "eng_webbe") {
+                scopeLabels
+                text
+            }
+          }
+        }
+      }`;
+        let result;
+        t.doesNotThrow(() => result = pk.gqlQuerySync(docSetQuery));
+        t.false(result.errors);
+        docSetQuery =
+          `{ 
+          docSet(id: "eng_webbe") {
+            id
+            documents {
+              bookCode: header(id: "bookCode")    
+              mappedCvs(chapter: "${chapterN}", mappedDocSetId: "rus_rsb") {
+                scopeLabels
+                text
+            }
+          }
+        }
+      }`;
+        t.doesNotThrow(() => result = pk.gqlQuerySync(docSetQuery));
+        t.false(result.errors);
+        // console.log(JSON.stringify(result, null, 2));
+      }
     } catch (err) {
       console.log(err);
     }
