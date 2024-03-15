@@ -257,7 +257,7 @@ test(
   async function (t) {
     try {
       const chapters = ["1", "21", "22", "23", "24"];
-      t.plan(2 * chapters.length);
+      t.plan(4 * chapters.length);
       const pk = new Proskomma();
       pk.importDocument({lang: "rus", abbr: "rsb"}, "usfm", fse.readFileSync(path.resolve(__dirname, '../../test_data/usfm/psa_rsb.usfm')).toString());
       pk.importDocument({lang: "eng", abbr: "webbe"}, "usx", fse.readFileSync(path.resolve(__dirname, '../../test_data/usx/web_psa.usx')).toString());
@@ -285,6 +285,7 @@ test(
       }`;
         let result;
         t.doesNotThrow(() => result = pk.gqlQuerySync(docSetQuery));
+        t.false(result.errors);
         docSetQuery =
           `{ 
           docSet(id: "eng_webbe") {
@@ -299,6 +300,7 @@ test(
         }
       }`;
         t.doesNotThrow(() => result = pk.gqlQuerySync(docSetQuery));
+        t.false(result.errors);
         // console.log(JSON.stringify(result, null, 2));
       }
     } catch (err) {

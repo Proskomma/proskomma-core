@@ -25,26 +25,30 @@ const do_chapter_cv = (
   context,
   mainSequence,
   chapterN,
-  includeContext
+  includeContext,
 ) => {
   const ci = root.chapterIndex(chapterN);
 
   if (ci) {
     const block = mainSequence.blocks[ci.startBlock];
-    return [
-      [
-        updatedOpenScopes(
-          context.docSet.unsuccinctifyScopes(block.os).map((s) => s[2]),
+    if (block) {
+      return [
+        [
+          updatedOpenScopes(
+            context.docSet.unsuccinctifyScopes(block.os).map((s) => s[2]),
+            context.docSet
+              .unsuccinctifyItems(block.c, {}, 0, [])
+              .slice(0, ci.startItem + 1)
+              .filter((i) => i[0] === 'scope'),
+          ),
           context.docSet
-            .unsuccinctifyItems(block.c, {}, 0, [])
-            .slice(0, ci.startItem + 1)
-            .filter((i) => i[0] === 'scope')
-        ),
-        context.docSet
-          .itemsByIndex(mainSequence, ci, includeContext || false)
-          .reduce((a, b) => a.concat([['token', 'lineSpace', ' ']].concat(b))),
-      ],
-    ];
+            .itemsByIndex(mainSequence, ci, includeContext || false)
+            .reduce((a, b) => a.concat([['token', 'lineSpace', ' ']].concat(b))),
+        ],
+      ];
+    } else {
+      return [];
+    }
   } else {
     return [];
   }
@@ -58,7 +62,7 @@ const do_chapter_verse_array = (
   verses,
   includeContext,
   doMap,
-  mappedDocSetId
+  mappedDocSetId,
 ) => {
   let docSet = context.docSet;
   let book = root.headers.bookCode;
@@ -84,8 +88,8 @@ const do_chapter_verse_array = (
             mainSequence.verseMapping.forward[chapterN],
             root.headers.bookCode,
             chapterN,
-            verse
-          )
+            verse,
+          ),
         );
       }
 
@@ -113,8 +117,8 @@ const do_chapter_verse_array = (
                 mappedMainSequence.verseMapping.reversed[`${origC}`],
                 book,
                 origC,
-                origV
-              )
+                origV,
+              ),
             );
           } else {
             doubleMappings.push([book, [[origC, origV]]]);
@@ -149,8 +153,8 @@ const do_chapter_verse_array = (
   for (const [chapter, verse] of chapterVerses) {
     if (cvis[chapter]) {
       let retItems = [];
-      let firstStartBlock;
-      let firstStartItem;
+      let firstStartBlock = 0;
+      let firstStartItem = 0;
 
       if (cvis[chapter][verse]) {
         for (const ve of cvis[chapter][verse]) {
@@ -162,23 +166,22 @@ const do_chapter_verse_array = (
             docSet
               .itemsByIndex(documentMainSequence, ve, includeContext || null)
               .reduce((a, b) =>
-                a.concat([['token', 'lineSpace', ' ']].concat(b))
-              )
+                a.concat([['token', 'lineSpace', ' ']].concat(b)),
+              ),
           );
         }
 
         const block = documentMainSequence.blocks[firstStartBlock];
-
-        retItemGroups.push([
+        retItemGroups.push(block ? [
           updatedOpenScopes(
             docSet.unsuccinctifyScopes(block.os).map((s) => s[2]),
             docSet
               .unsuccinctifyItems(block.c, {}, 0, [])
               .slice(0, firstStartItem + 1)
-              .filter((i) => i[0] === 'scope')
+              .filter((i) => i[0] === 'scope'),
           ),
           retItems,
-        ]);
+        ] : []);
       }
     }
   }
@@ -194,13 +197,13 @@ const scopesMatchAChapterSpec = (scopes, chapterSpecs) => {
       scopes.filter(
         (s) =>
           s.startsWith('verse/') &&
-          parseInt(s.split('/')[1]) >= chapterSpecs[0][1]
+          parseInt(s.split('/')[1]) >= chapterSpecs[0][1],
       ).length > 0) &&
     (!chapterSpecs[0][2] ||
       scopes.filter(
         (s) =>
           s.startsWith('verse/') &&
-          parseInt(s.split('/')[1]) <= chapterSpecs[0][2]
+          parseInt(s.split('/')[1]) <= chapterSpecs[0][2],
       ).length > 0)
   ) {
     return true;
@@ -215,14 +218,14 @@ const do_chapterVerses = (
   mainSequence,
   fromCV,
   toCV,
-  includeContext
+  includeContext,
 ) => {
   const [fromCInt, fromVInt] = fromCV.split(':').map((str) => parseInt(str));
   const [toCInt, toVInt] = toCV.split(':').map((str) => parseInt(str));
 
   if (toCInt < fromCInt) {
     throw new Error(
-      `cv chapterVerses requires fromChapter <= toChapter, not ${fromCInt} to ${toCInt}`
+      `cv chapterVerses requires fromChapter <= toChapter, not ${fromCInt} to ${toCInt}`,
     );
   }
 
@@ -241,7 +244,7 @@ const do_chapterVerses = (
     .sequenceItemsByScopes(
       mainSequence.blocks,
       ['chapter/', 'verse/'],
-      includeContext
+      includeContext,
     )
     .filter((ig) => scopesMatchAChapterSpec(ig[0], chapterSpecs));
 };
@@ -252,7 +255,7 @@ const do_cv_separate_args = (
   context,
   mainSequence,
   doMap,
-  mappedDocSetId
+  mappedDocSetId,
 ) => {
   if (args.chapter && !args.verses) {
     // whole chapter
@@ -261,7 +264,7 @@ const do_cv_separate_args = (
       context,
       mainSequence,
       args.chapter,
-      args.includeContext
+      args.includeContext,
     );
   } else if (args.verses) {
     // c:v, c:v-v one day, may be mapped
@@ -273,7 +276,7 @@ const do_cv_separate_args = (
       args.verses,
       args.includeContext,
       doMap,
-      mappedDocSetId
+      mappedDocSetId,
     );
   } else {
     throw new Error('Unexpected args to do_cv_separate_args');
@@ -290,7 +293,7 @@ const do_cv_string_arg = (root, args, context, mainSequence) => {
       mainSequence,
       fromSpec,
       toSpec,
-      args.includeContext
+      args.includeContext,
     );
   } else if (xre.test(args.chapterVerses, xre('^[0-9]+:[0-9]+-[0-9]+$'))) {
     // c:v-v
@@ -302,7 +305,7 @@ const do_cv_string_arg = (root, args, context, mainSequence) => {
       mainSequence,
       `${ch}:${fromV}`,
       `${ch}:${toV}`,
-      args.includeContext
+      args.includeContext,
     );
   } else if (xre.test(args.chapterVerses, xre('^[0-9]+:[0-9]+$'))) {
     // c:v
@@ -313,7 +316,7 @@ const do_cv_string_arg = (root, args, context, mainSequence) => {
       mainSequence,
       `${ch}:${v}`,
       `${ch}:${v}`,
-      args.includeContext
+      args.includeContext,
     );
   } else if (xre.test(args.chapterVerses, xre('^[0-9]+$'))) {
     // c
@@ -334,11 +337,11 @@ const do_cv_string_arg = (root, args, context, mainSequence) => {
       mainSequence,
       `${ch}:${Math.min(verseNs)}`,
       `${ch}:${Math.max(verseNs)}`,
-      args.includeContext
+      args.includeContext,
     );
   } else {
     throw new Error(
-      `Could not parse chapterVerses string '${args.chapterVerses}'`
+      `Could not parse chapterVerses string '${args.chapterVerses}'`,
     );
   }
 };
@@ -366,7 +369,7 @@ const do_cv = (root, args, context, doMap, mappedDocSetId) => {
       context,
       mainSequence,
       doMap,
-      mappedDocSetId
+      mappedDocSetId,
     );
   } else {
     return do_cv_string_arg(root, args, context, mainSequence);
