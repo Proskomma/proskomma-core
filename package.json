@@ -1,6 +1,6 @@
 {
   "name": "proskomma-core",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "description": "A Scripture Runtime Engine",
   "files": [
     "dist"
@@ -17,8 +17,8 @@
     "build": "rm -fr dist && vite build",
     "test": "rm -fr dist && vite build && export PKSRC=dist && bash -c \"tape -r @babel/register test/code/**/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
     "win:test": "rm -fr dist && vite build && set PKSRC=dist&& bash -c \"tape -r @babel/register test/code/**/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
-    "rawTest": "rm -fr dist && vite build && export PKSRC=dist && bash -c \"tape -r @babel/register test/code/*.cjs\"",
-    "oneTest": "rm -fr dist && vite build && bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
+    "rawTest": "rm -fr dist && vite build && export PKSRC=dist && bash -c \"tape -r @babel/register test/code/**/*.cjs\"",
+    "oneTest": "rm -fr dist && vite build && export PKSRC=dist && bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
     "prepublishOnly": "npm run build"
   },
   "repository": {

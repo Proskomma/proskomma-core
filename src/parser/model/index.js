@@ -254,9 +254,22 @@ const Sequence = class {
     const emptyBlocks = [];
     let changed = false;
 
+    const emptyMilestones = blockItems => {
+      const milestoneScopes = blockItems.filter(i => i.type === "scope" && i.payload.startsWith("milestone"));
+      const startMilestones = new Set([]);
+      for (const milestoneScope of milestoneScopes) {
+        if (milestoneScope.subType === "start") {
+          startMilestones.add(milestoneScope.payload);
+        } else if (startMilestones.has(milestoneScope.payload)) {
+          return true;
+        }
+      }
+      return false;
+    }
     for (const blockRecord of this.blocks.entries()) {
       if (
         blockRecord[1].tokens().length === 0 &&
+        !emptyMilestones(blockRecord[1].items) &&
         !canBeEmpty.includes(blockRecord[1].bs.payload)
       ) {
         emptyBlocks.push(blockRecord);
