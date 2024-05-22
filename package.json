@@ -1,6 +1,6 @@
 {
   "name": "proskomma-core",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "description": "A Scripture Runtime Engine",
   "files": [
     "dist"
@@ -17,8 +17,8 @@
     "build": "rm -fr dist && vite build",
     "test": "rm -fr dist && vite build && export PKSRC=dist && bash -c \"tape -r @babel/register test/code/**/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
     "win:test": "rm -fr dist && vite build && set PKSRC=dist&& bash -c \"tape -r @babel/register test/code/**/*.cjs | node_modules/tap-summary/bin/cmd.js\"",
-    "rawTest": "rm -fr dist && vite build && export PKSRC=dist && bash -c \"tape -r @babel/register test/code/*.cjs\"",
-    "oneTest": "rm -fr dist && vite build && bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
+    "rawTest": "rm -fr dist && vite build && export PKSRC=dist && bash -c \"tape -r @babel/register test/code/**/*.cjs\"",
+    "oneTest": "rm -fr dist && vite build && export PKSRC=dist && bash -c \"tape -r @babel/register test/code/$TESTSCRIPT.cjs\"",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -66,11 +66,11 @@
     "@babel/register": "^7.18.9",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "events": "^3.3.0",
-    "parcel": "^2.8.3",
+    "parcel": "^2.12.0",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "tap-summary": "^4.0.0",
-    "tape": "^5.6.0",
+    "tape": "^5.7.5",
     "typescript": "^4.9.5",
     "vite": "^4.1.4"
   }

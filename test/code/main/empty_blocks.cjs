@@ -12,6 +12,10 @@ const pk = pkWithDoc('../test_data/usfm/en_ust_psa_1.usfm', {
   lang: 'fra',
   abbr: 'hello',
 })[0];
+const pk2 = pkWithDoc('../test_data/usfm/empty_milestone.usfm', {
+  lang: 'ara',
+  abbr: 'xxa',
+})[0];
 
 const customProskomma = class extends Proskomma {
   constructor() {
@@ -64,6 +68,23 @@ test(
       t.equal(sequences.filter(s => s.type === 'heading').length, 3);
       t.equal(sequences.filter(s => s.type === 'heading' && s.blocks[0].bs.payload === 'blockTag/s5').length, 3);
       t.equal(sequences.filter(s => s.type === 'main')[0].blocks[0].bs.payload, 'blockTag/m');
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+test(
+  `With empty milestone (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(4);
+      const result = await pk2.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const mainSequenceBlocks = result.data.documents[0].sequences.filter(s => s.type === 'main')[0].blocks;
+      t.equal(mainSequenceBlocks.length, 2);
+      t.equal(mainSequenceBlocks[0].bs.payload, 'blockTag/p');
+      t.equal(mainSequenceBlocks[1].bs.payload, 'blockTag/q');
     } catch (err) {
       console.log(err);
     }
