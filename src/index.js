@@ -499,12 +499,12 @@ class Proskomma {
     this.docSets[docSetId].buildEnumIndexes();
   }
 
-  loadSuccinctDocSet(succinctOb) {
+  loadSuccinctDocSet(succinctOb, bookCodes) {
     const succinctId = succinctOb.id;
 
-    if (succinctId in this.docSets) {
+    if (succinctId in this.docSets && !bookCodes) {
       throw new Error(
-        `Attempting to succinct load docSet ${succinctId} which is already loaded`
+        `Attempting to succinct load docSet ${succinctId} which is already loaded, without bookCodes argument`
       );
     }
 
@@ -530,12 +530,29 @@ class Proskomma {
     docSet.buildPreEnums();
     const docs = [];
 
-    for (const docId of Object.keys(succinctOb.docs)) {
+    const selectDocs = dId => !bookCodes || bookCodes.includes(succinctOb.docs[dId].headers.bookCode)
+
+    for (const docId of Object.keys(succinctOb.docs).filter(selectDocs)) {
       let doc = this.newDocumentFromSuccinct(docId, succinctOb);
       docs.push(doc);
     }
     docSet.preEnums = {};
     return docs;
+  }
+
+  augmentSuccinctDocSet(succinctOb, bookCodes) {
+    if (!bookCodes || bookCodes.length === 0) {
+      throw new Error("bookCodes argument must be present and contain at least one element in augmentSuccinctDocSet");
+    }
+    const selectDocs = dId => bookCodes.includes(succinctOb.docs[dId]).headers.bookCode;
+    if (!this.docSets[succinctOb.id]) {
+      throw new Error(`docSet id '${succinctOb.id}' not found in Proskomma when using augmentSuccinctDocSet. Load it first with optional bookCodes argument`);
+    }
+    for (const docId of Object.keys(succinctOb.docs).filter(selectDocs)) {
+      if (!this.documents[docId]) {
+        this.newDocumentFromSuccinct(docId, succinctOb);
+      }
+    }
   }
 
   newDocumentFromSuccinct(docId, succinctOb) {

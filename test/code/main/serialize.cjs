@@ -1,6 +1,7 @@
 const test = require('tape');
 const { Validator } = require('proskomma-json-tools');
-
+const path = require('path');
+const fse = require('fs-extra');
 const { Proskomma, utils } = require('../../../src');
 const { unpackEnum } = utils.succinct;
 
@@ -97,6 +98,49 @@ test(
       t.equal(result.data.documents.length, 1);
       t.ok(result.data.documents[0].header === 'Gálatas');
       t.ok(result.data.documents[0].headers.filter(h => h.key === 'h')[0].value === 'Gálatas');
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+test(
+  `Incremental load (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(8);
+      // Make succinct for two documents
+      const tempPk = new Proskomma();
+      const selectors = {
+        lang: "eng",
+        abbr: "web"
+      };
+      tempPk.importDocument(
+        selectors,
+        "usfm",
+        fse.readFileSync(path.resolve("./test/test_data/usfm/1pe_webbe.usfm")).toString()
+      );
+      tempPk.importDocument(
+        selectors,
+        "usfm",
+        fse.readFileSync(path.resolve("./test/test_data/usfm/web_ecc.usfm")).toString()
+      );
+      let query = '{ docSets { id } }';
+      let result = await tempPk.gqlQuery(query);
+      const docSetId = result.data.docSets[0].id;
+      const serialized = tempPk.serializeSuccinct(docSetId);
+      // Load in one go
+      const togetherPk = new Proskomma();
+      t.doesNotThrow(() => togetherPk.loadSuccinctDocSet(serialized));
+      t.equal(togetherPk.gqlQuerySync('{nDocuments}').data.nDocuments, 2);
+      // Load one book at a time
+      const incrementalPk = new Proskomma();
+      t.doesNotThrow(() => incrementalPk.loadSuccinctDocSet(serialized, ["1PE"]));
+      t.equal(incrementalPk.gqlQuerySync('{nDocuments}').data.nDocuments, 1);
+      t.doesNotThrow(() => incrementalPk.loadSuccinctDocSet(serialized, ["1PE"]));
+      t.equal(incrementalPk.gqlQuerySync('{nDocuments}').data.nDocuments, 1);
+      t.doesNotThrow(() => incrementalPk.loadSuccinctDocSet(serialized, ["ECC"]));
+      t.equal(incrementalPk.gqlQuerySync('{nDocuments}').data.nDocuments, 2);
     } catch (err) {
       console.log(err);
     }
