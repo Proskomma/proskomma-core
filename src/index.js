@@ -544,7 +544,10 @@ class Proskomma {
     if (!bookCodes || bookCodes.length === 0) {
       throw new Error("bookCodes argument must be present and contain at least one element in augmentSuccinctDocSet");
     }
-    const selectDocs = dId => bookCodes.includes(succinctOb.docs[dId]).headers.bookCode;
+    const selectDocs = dId => {
+      const doc = succinctOb.docs[dId];
+      return bookCodes.includes(doc.headers.bookCode);
+    };
     if (!this.docSets[succinctOb.id]) {
       throw new Error(`docSet id '${succinctOb.id}' not found in Proskomma when using augmentSuccinctDocSet. Load it first with optional bookCodes argument`);
     }

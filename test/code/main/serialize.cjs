@@ -129,6 +129,7 @@ test(
       let result = await tempPk.gqlQuery(query);
       const docSetId = result.data.docSets[0].id;
       const serialized = tempPk.serializeSuccinct(docSetId);
+      // console.log(Object.keys(serialized), Object.keys(serialized.docs), Object.entries(serialized.docs).filter(dkv => typeof dkv[1] === 'object' && !Array.isArray(dkv[1])).map(dkv => [dkv[0], Object.keys(dkv[1]), dkv[1].headers]));
       // Load in one go
       const togetherPk = new Proskomma();
       t.doesNotThrow(() => togetherPk.loadSuccinctDocSet(serialized));
@@ -141,6 +142,79 @@ test(
       t.equal(incrementalPk.gqlQuerySync('{nDocuments}').data.nDocuments, 1);
       t.doesNotThrow(() => incrementalPk.loadSuccinctDocSet(serialized, ["ECC"]));
       t.equal(incrementalPk.gqlQuerySync('{nDocuments}').data.nDocuments, 2);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+test(
+  `Incremental load by rebuilding bundle (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(6);
+      // Make succinct for three documents
+      const serverPk = new Proskomma();
+      const selectors = {
+        lang: "eng",
+        abbr: "web"
+      };
+      serverPk.importDocument(
+        selectors,
+        "usfm",
+        fse.readFileSync(path.resolve("./test/test_data/usfm/1pe_webbe.usfm")).toString()
+      );
+      serverPk.importDocument(
+        selectors,
+        "usfm",
+        fse.readFileSync(path.resolve("./test/test_data/usfm/web_psa51.usfm")).toString()
+      );
+      serverPk.importDocument(
+        selectors,
+        "usfm",
+        fse.readFileSync(path.resolve("./test/test_data/usfm/web_ecc.usfm")).toString()
+      );
+      let query = '{ docSets { id } }';
+      let result = await serverPk.gqlQuery(query);
+      const docSetId = result.data.docSets[0].id;
+      const fullSerialized = serverPk.serializeSuccinct(docSetId);
+      // Make object where keys correspond to URLs in a client/server scenario
+      const serializedBits = {};
+      serializedBits["initialDocSet"] = fullSerialized;
+      let first = true;
+      for (const docKey of Object.keys(fullSerialized.docs)) {
+        if (!first) {
+          serializedBits[docKey] = fullSerialized.docs[docKey];
+          delete serializedBits["initialDocSet"].docs[docKey];
+        } else {
+          first = false;
+        }
+      }
+      // Simulate loading one book at a time, where each key of serializedBits corresponds to an imaginary fetch from a remote server
+      const clientPk = new Proskomma();
+      const succinctInProgress = serializedBits["initialDocSet"]; // The succinct thingey we are going to build incrementally in system storage
+      let timestamp = Date.now();
+      t.doesNotThrow(() => clientPk.loadSuccinctDocSet(succinctInProgress));
+      // console.log(`Initial one-book docSet loaded in ${Date.now()-timestamp} msec`);
+      let inProgressState = clientPk.gqlQuerySync('{nDocuments documents {id bookCode: header(id: "bookCode")}}');
+      // console.log("Initial Query");
+      // console.log(JSON.stringify(inProgressState)); // Initial state has all enums plus one book
+      let expectedNDocs = 1;
+      t.equal(inProgressState.data.nDocuments, expectedNDocs);
+      for (const [bitKey, bitValue] of Object.entries(serializedBits)) {
+        if (bitKey !== "initialDocSet") {
+          succinctInProgress.docs[bitKey] = bitValue; // We just drop the new doc into the docs object and, theoretically, everything works
+          const bookCode = bitValue.headers["bookCode"];
+          // console.log("Loading", bookCode);
+          timestamp = Date.now();
+          t.doesNotThrow(() => clientPk.augmentSuccinctDocSet(succinctInProgress, [bookCode]));
+          // console.log(`Loaded in ${Date.now()-timestamp} msec`);
+          expectedNDocs++;
+          inProgressState = clientPk.gqlQuerySync('{nDocuments documents {id bookCode: header(id: "bookCode")}}');
+          // console.log(JSON.stringify(inProgressState));
+          t.equal(inProgressState.data.nDocuments, expectedNDocs);
+        }
+      }
     } catch (err) {
       console.log(err);
     }
