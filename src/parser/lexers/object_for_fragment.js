@@ -2,7 +2,7 @@ import xre from 'xregexp';
 
 const makePrintable = (subclass, matchedBits) => ({
   subclass,
-  printValue: matchedBits[0],
+  printValue: matchedBits[0].replace(/~/g, "\u00a0"),
 });
 
 const makeChapter = (subclass, matchedBits) => ({
@@ -70,6 +70,18 @@ const makeMilestone = (subclass, matchedBits) => {
 
     if (subclass === 'emptyMilestone') {
       ret.printValue = `\\${ret.tagName}\\*`;
+      ret.attributes = matchedBits[1] ? matchedBits[1]
+        .split('|')
+        .slice(1)
+        .map(a => a.split("="))
+        .map(
+          aa => [
+            aa[0],
+            aa[1]
+              .replace(/"/g,"")
+              .replace(/[\\*]/g,"")
+          ]
+        ) : [];
     } else {
       ret.printValue = `\\${ret.tagName}`;
       ret.sOrE = matchedBits[3];

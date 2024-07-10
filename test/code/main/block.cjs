@@ -29,6 +29,10 @@ const pk6 = pkWithDoc('../test_data/usfm/whitespace.usfm', {
   lang: 'eng',
   abbr: 'ust',
 })[0];
+const pk6b = pkWithDoc('../test_data/usfm/whitespace_nbsp.usfm', {
+  lang: 'eng',
+  abbr: 'ust',
+})[0];
 const pk7 = pkWithDoc('../test_data/usx/web_psa.usx', {
   lang: 'eng',
   abbr: 'web',
@@ -148,6 +152,22 @@ test(
       t.equal(result.errors, undefined);
       const block = result.data.documents[0].mainSequence.blocks[0];
       t.equal(block.text, 'This is how the Good News of JC began...');
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+test(
+  `Handle tilde => nbsp (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(2);
+      const query = '{ documents { mainSequence { blocks {text(normalizeSpace:true)} } } }';
+      const result = await pk6b.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const block = result.data.documents[0].mainSequence.blocks[0];
+      t.equal(block.text, 'This is how the Good News of JC began...');
     } catch (err) {
       console.log(err);
     }
