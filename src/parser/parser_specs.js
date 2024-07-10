@@ -504,8 +504,10 @@ const specs = (pt) => [
     // EMPTY MILESTONE - add open and close scope
     contexts: [['emptyMilestone']],
     parser: {
-      during: (parser, pt) =>
-        parser.addEmptyMilestone(labelForScope('milestone', [pt.tagName])),
+      during: (parser, pt) => {
+        // console.log("PARSER", pt)
+        parser.addEmptyMilestone(labelForScope('milestone', [pt.tagName]));
+      },
     },
   },
   {
