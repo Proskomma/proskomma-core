@@ -301,6 +301,56 @@ test(
 );
 
 test(
+  `Translation Questions (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(3);
+      const kvQuery = blocksSpec2Query(
+        fse.readJSONSync(path.resolve(__dirname, '../../test_data/inputBlockSpec/kvQuestions.json')),
+      );
+
+      let query = `mutation { newSequence(` +
+        ` documentId: "${pkDoc.id}"` +
+        ` type: "kv"` +
+        ` blocksSpec: ${kvQuery}` +
+        ` graftToMain: true) }`;
+
+      let result = await pk.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const newSeqId = result.data.newSequence;
+      query = `mutation { addSequenceTags(docSetId: "eng_ust", documentId: "${pkDoc.id}", sequenceId: "${newSeqId}", tags: ["kvquestions"]) }`;
+      // console.log(query);
+      result = await pk.gqlQuery(query);
+      t.equal(result.errors, undefined);
+
+      query = `{
+        docSets {
+          document(bookCode:"JUD") {
+            kvSequences(withTags:"kvquestions") {
+              entries {
+                key
+                secondaryKeys { key value }
+                itemGroups {
+                  scopeLabels(startsWith:"kvField")
+                  text
+                }
+              }
+            }
+          }
+        }
+      }`;
+      result = await pk.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const document = result.data.docSets[0].document;
+      const kv = document.kvSequences[0].entries.map(kv => cleanKV(kv));
+      // console.log(kv);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+test(
   `Dodson lexicon mutation (${testGroup})`,
   async function (t) {
     try {

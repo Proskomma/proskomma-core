@@ -1,0 +1,238 @@
+[
+  {
+    "bs": {
+      "type": "scope",
+      "subType": "start",
+      "payload": "kvPrimary/1:1"
+    },
+    "bg": [],
+    "os": [],
+    "is": [
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvField/question"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvField/answer"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvSecondary/level/basic"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvSecondary/type/observe"
+      }
+    ],
+    "items": [
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvSecondary/level/basic"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvSecondary/type/observe"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvField/question"
+      },
+      {
+        "type": "token",
+        "subType": "wordLike",
+        "payload": "Does"
+      },
+      {
+        "type": "token",
+        "subType": "lineSpace",
+        "payload": " "
+      },
+      {
+        "type": "token",
+        "subType": "wordLike",
+        "payload": "God"
+      },
+      {
+        "type": "token",
+        "subType": "lineSpace",
+        "payload": " "
+      },
+      {
+        "type": "token",
+        "subType": "wordLike",
+        "payload": "Lie"
+      },
+      {
+        "type": "token",
+        "subType": "punctuation",
+        "payload": "?"
+      },
+      {
+        "type": "scope",
+        "subType": "end",
+        "payload": "kvField/question"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvField/answer"
+      },
+      {
+        "type": "token",
+        "subType": "wordLike",
+        "payload": "No"
+      },
+      {
+        "type": "token",
+        "subType": "punctuation",
+        "payload": "."
+      },
+      {
+        "type": "scope",
+        "subType": "end",
+        "payload": "kvField/answer"
+      },
+      {
+        "type": "scope",
+        "subType": "end",
+        "payload": "kvSecondary/type/observe"
+      },
+      {
+        "type": "scope",
+        "subType": "end",
+        "payload": "kvSecondary/level/basic"
+      }
+    ]
+  },
+  {
+    "bs": {
+      "type": "scope",
+      "subType": "start",
+      "payload": "kvPrimary/1:2"
+    },
+    "bg": [],
+    "os": [],
+    "is": [
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvField/question"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvField/answer"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvSecondary/level/advanced"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvSecondary/type/interpret"
+      }
+    ],
+    "items": [
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvSecondary/level/advanced"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvSecondary/type/interpret"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvField/question"
+      },
+      {
+        "type": "token",
+        "subType": "wordLike",
+        "payload": "Where"
+      },
+      {
+        "type": "token",
+        "subType": "lineSpace",
+        "payload": " "
+      },
+      {
+        "type": "token",
+        "subType": "wordLike",
+        "payload": "does"
+      },
+      {
+        "type": "token",
+        "subType": "lineSpace",
+        "payload": " "
+      },
+      {
+        "type": "token",
+        "subType": "wordLike",
+        "payload": "God"
+      },
+      {
+        "type": "token",
+        "subType": "lineSpace",
+        "payload": " "
+      },
+      {
+        "type": "token",
+        "subType": "wordLike",
+        "payload": "Live"
+      },
+      {
+        "type": "token",
+        "subType": "punctuation",
+        "payload": "?"
+      },
+      {
+        "type": "scope",
+        "subType": "end",
+        "payload": "kvField/question"
+      },
+      {
+        "type": "scope",
+        "subType": "start",
+        "payload": "kvField/answer"
+      },
+      {
+        "type": "token",
+        "subType": "wordLike",
+        "payload": "Everywhere"
+      },
+      {
+        "type": "token",
+        "subType": "punctuation",
+        "payload": "."
+      },
+      {
+        "type": "scope",
+        "subType": "end",
+        "payload": "kvField/answer"
+      },
+      {
+        "type": "scope",
+        "subType": "end",
+        "payload": "kvSecondary/type/observe"
+      },
+      {
+        "type": "scope",
+        "subType": "end",
+        "payload": "kvSecondary/level/basic"
+      }
+    ]
+  }
+]

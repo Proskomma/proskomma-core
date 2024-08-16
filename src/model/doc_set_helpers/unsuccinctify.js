@@ -216,7 +216,6 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
   const openScopes = new Set(
     docSet.unsuccinctifyScopes(block.os).map((ri) => ri[2]),
   );
-
   const cvMatchFunction = () => {
     if (xre.exec(cv, xre('^[1-9][0-9]*$'))) {
       return () => openScopes.has(`chapter/${cv}`);
@@ -305,7 +304,7 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
             `Expected zero or one chapter for item, found ${chapterScopes.length}`,
           );
         }
-
+      
         const chapterNo = parseInt(chapterScopes[0].split('/')[1]);
 
         if (chapterNo < fromC || chapterNo > toC) {
@@ -335,7 +334,6 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
       throw new Error(`Bad cv reference '${cv}'`);
     }
   };
-
   const itemMatchesCV = cvMatchFunction();
 
   const itemInOptions = (item) => {
@@ -352,24 +350,45 @@ const unsuccinctifyItemsWithScriptureCV = (docSet, block, cv, options) => {
   };
 
   const ret = [];
-
-  for (const item of docSet.unsuccinctifyItems(
-    block.c,
-    {},
-    block.nt.nByte(0),
-  )) {
-    if (item[0] === 'scope' && item[1] === 'start') {
-      openScopes.add(item[2]);
-    }
-
-    if (itemMatchesCV() && itemInOptions(item)) {
-      ret.push(item);
-    }
-
-    if (item[0] === 'scope' && item[1] === 'end') {
-      openScopes.delete(item[2]);
+  if(options.excludeScopeTypes){
+    for (const item of docSet.unsuccinctifyItems(
+      block.c,
+      options,
+      block.nt.nByte(0),
+    )) {
+      if (item[0] === 'scope' && item[1] === 'start') {
+        openScopes.add(item[2]);
+      }
+  
+      if (itemMatchesCV() && itemInOptions(item)) {
+        ret.push(item);
+      }
+  
+      if (item[0] === 'scope' && item[1] === 'end') {
+        openScopes.delete(item[2]);
+      }
     }
   }
+  else{
+    for (const item of docSet.unsuccinctifyItems(
+      block.c,
+      {},
+      block.nt.nByte(0),
+    )) {
+      if (item[0] === 'scope' && item[1] === 'start') {
+        openScopes.add(item[2]);
+      }
+  
+      if (itemMatchesCV() && itemInOptions(item)) {
+        ret.push(item);
+      }
+  
+      if (item[0] === 'scope' && item[1] === 'end') {
+        openScopes.delete(item[2]);
+      }
+    }
+  }
+ 
   return ret;
 };
 

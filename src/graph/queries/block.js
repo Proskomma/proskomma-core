@@ -1,6 +1,6 @@
-import xre from 'xregexp';
-import utils from '../../util';
-import { dumpBlock } from '../lib/dump';
+import xre from "xregexp";
+import utils from "../../util";
+import { dumpBlock } from "../lib/dump";
 
 const scopeMatchesStartsWith = (sw, s) => {
   if (sw.length === 0) {
@@ -124,15 +124,23 @@ const blockResolvers = {
   nt: (root) => root.nt.nByte(0),
   items: (root, args, context) => {
     if (args.withScopes && args.withScriptureCV) {
-      throw new Error('Cannot specify both withScopes and withScriptureCV');
+      throw new Error("Cannot specify both withScopes and withScriptureCV");
     }
 
     if (args.withScriptureCV) {
       return context.docSet.unsuccinctifyItemsWithScriptureCV(
         root,
         args.withScriptureCV,
-        {},
-        args.includeContext || false
+        args.excludeScopeTypes
+          ? {
+              tokens: true,
+              scopes: true,
+              grafts: true,
+              excludeScopeTypes: args.excludeScopeTypes || [],
+              anyScope: args.anyScope || false,
+              includeContext: args.includeContext || false,
+            }
+          : {}
       );
     } else {
       return context.docSet.unsuccinctifyPrunedItems(root, {
@@ -146,14 +154,13 @@ const blockResolvers = {
     }
   },
   tokens: (root, args, context) => {
-    if (Object.keys(args).filter((a) => a.includes('Chars')).length > 1) {
+    if (Object.keys(args).filter((a) => a.includes("Chars")).length > 1) {
       throw new Error(
         'Only one of "withChars", "withAnyCaseChars" and "withCharsMatchingRegex" may be specified'
       );
     }
 
     let ret;
-
     if (args.withScriptureCV) {
       ret = context.docSet.unsuccinctifyItemsWithScriptureCV(
         root,
@@ -187,34 +194,34 @@ const blockResolvers = {
       });
     }
 
-    return ret.filter((i) => i[0] === 'token');
+    return ret.filter((i) => i[0] === "token");
   },
   text: (root, args, context) => {
     const tokens = args.withScriptureCV
       ? context.docSet.unsuccinctifyItemsWithScriptureCV(
-        root,
-        args.withScriptureCV,
-        { tokens: true },
-        false
-      )
+          root,
+          args.withScriptureCV,
+          { tokens: true },
+          false
+        )
       : context.docSet.unsuccinctifyItems(root.c, { tokens: true }, null);
     let ret = tokens
       .map((t) => t[2])
-      .join('')
+      .join("")
       .trim();
 
     if (args.normalizeSpace) {
-      ret = ret.replace(/[ \t\n\r]+/g, ' ');
+      ret = ret.replace(/[ \t\n\r]+/g, " ");
     }
     return ret;
   },
   itemGroups: (root, args, context) => {
     if (args.byScopes && args.byMilestones) {
-      throw new Error('Cannot specify both byScopes and byMilestones');
+      throw new Error("Cannot specify both byScopes and byMilestones");
     }
 
     if (!args.byScopes && !args.byMilestones) {
-      throw new Error('Must specify either byScopes or byMilestones');
+      throw new Error("Must specify either byScopes or byMilestones");
     }
 
     if (args.byScopes) {
