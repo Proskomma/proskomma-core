@@ -14,6 +14,11 @@ const pk2 = pkWithDoc('../test_data/usx/web_psa_40_60.usx', {
   abbr: 'web',
 })[0];
 
+const pk3 = pkWithDoc('../test_data/usfm/en_ust_oba.usfm', {
+  lang: 'eng',
+  abbr: 'web',
+})[0];
+
 test(
   `Bad cv (${testGroup})`,
   async function (t) {
@@ -306,6 +311,56 @@ test(
       t.ok(lastBlockText.endsWith('drinking.'));
     } catch (err) {
       console.log(err);
+    }
+  },
+);
+test(
+  `Chapter/verse with excludeScopeType (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(5);
+      const query =
+        `{ docSets 
+          { document(bookCode:"OBA") 
+           { sequences 
+            { blocks(withScriptureCV:"1:1-3") 
+              { items(withScriptureCV:"1:1-3" ,excludeScopeTypes:["milestone", "attribute", "spanWithAtts"])
+                {  
+                  type
+                  subType
+                  payload
+                } 
+              } 
+            } 
+          } 
+        }
+      }`;
+      const result = await pk3.gqlQuery(query);
+      t.equal(result.errors, undefined);
+
+      // Flatten all items across all blocks into a single array
+      const items = result.data.docSets[0].document.sequences[0].blocks.flatMap(block => block.items);
+
+      // Find the specific scopes for verses 1, 2, and 3
+      const verse1 = items.find(item => item.type === 'scope' && item.subType === 'start' && item.payload === 'verses/1');
+      const verse2 = items.find(item => item.type === 'scope' && item.subType === 'start' && item.payload === 'verses/2');
+      const verse3 = items.find(item => item.type === 'scope' && item.subType === 'start' && item.payload === 'verses/3');
+
+      // Ensure excluded scope types are not present
+      const excludeScopeType = items.find(item => 
+        item.payload.startsWith('attribute') || 
+        item.payload.startsWith('milestone') || 
+        item.payload.startsWith('spanWithAtts')
+      );
+
+      t.notEqual(verse1, undefined, 'Didnt found scope start for verses/1');
+      t.notEqual(verse2, undefined, 'Didnt found scope start for verses/2');
+      t.notEqual(verse3, undefined, 'Didnt found scope start for verses/3');
+      t.equal(excludeScopeType, undefined, 'Excluded scope types found');
+
+    } catch (err) {
+      console.log(err);
+      t.fail('Test threw an unexpected error');
     }
   },
 );
