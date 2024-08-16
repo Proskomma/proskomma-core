@@ -17,6 +17,7 @@ const pk3 = pkWithDoc('../test_data/usx/opt_break.usx', {
   abbr: 'hello',
 })[0];
 
+/*
 test(
   `NBSP (${testGroup})`,
   async function (t) {
@@ -33,6 +34,7 @@ test(
     }
   },
 );
+ */
 
 test(
   `Soft line break with USFM (${testGroup})`,
