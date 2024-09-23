@@ -116,8 +116,13 @@ type Sequence {
     """Whether to coerce the strings (toLower|toUpper|none)"""
     coerceCase: String
   ) : [String!]!
+  """A list of token strings the sequence with counts"""
+  uniqueTokenCounts(
+      """Whether to coerce the strings (toLower|toUpper|none)"""
+    coerceCase: String
+) : [KeyCount!]!
     """A list of unique characters in the sequence with counts"""
-  uniqueCharacters: [KeyCount!]!
+  uniqueCharacterCounts: [KeyCount!]!
   """Returns true if a main sequence contains the specified tokens"""
   hasChars(
     """Token strings to be matched exactly"""
@@ -344,7 +349,7 @@ const sequenceResolvers = {
         }
         return Array.from(tokens).sort();
     },
-    uniqueCharacters: (root, args, context) => {
+    uniqueCharacterCounts: (root, args, context) => {
         const characters = {};
         root.blocks
             .forEach(b =>
@@ -359,6 +364,36 @@ const sequenceResolvers = {
                     )
             )
         return Object.entries(characters)
+            .sort((a, b) => b[1] - a[1]);
+    },
+    uniqueTokenCounts: (root, args, context) => {
+        const wordlikes = {};
+        root.blocks
+            .forEach(b =>
+                context.docSet
+                    .unsuccinctifyItems(b.c, {tokens: true}, null)
+                    .forEach(t => {
+                            let wordlike = t[2];
+                        if (
+                            args.coerceCase &&
+                            !['toLower', 'toUpper', 'none'].includes(args.coerceCase)
+                        ) {
+                            throw new Error(
+                                `coerceCase, when present, must be 'toLower', 'toUpper' or 'none', not '${args.coerceCase}'`
+                            );
+                        }
+                            if (args.coerceCase === 'toLower') {
+                                wordlike = wordlike.toLowerCase();
+                            }
+
+                            if (args.coerceCase === 'toUpper') {
+                                wordlike = wordlike.toUpperCase();
+                            }
+                            wordlikes[wordlike] ? wordlikes[wordlike] += 1 : wordlikes[wordlike] = 1;
+                        }
+                    )
+            )
+        return Object.entries(wordlikes)
             .sort((a, b) => b[1] - a[1]);
     },
     hasChars: (root, args, context) => {
