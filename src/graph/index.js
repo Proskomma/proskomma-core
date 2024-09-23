@@ -1,74 +1,76 @@
-import { keyValueSchemaString, keyValueResolvers } from './queries/key_value';
-import { cvSchemaString, cvResolvers } from './queries/cv';
-import { idPartsSchemaString, idPartsResolvers } from './queries/idParts';
-import { inputAttSpecSchemaString } from './queries/input_att_spec';
-import { keyMatchesSchemaString } from './queries/input_key_matches';
-import { inputKeyValueSchemaString } from './queries/input_key_value';
-import { keyValuesSchemaString } from './queries/input_key_values';
-import { inputItemObjectSchemaString } from './queries/inputItemObject';
-import { itemSchemaString, itemResolvers } from './queries/item';
-import { itemGroupSchemaString, itemGroupResolvers } from './queries/itemGroup';
-import { kvEntrySchemaString, kvEntryResolvers } from './queries/kv_entry';
+import {keyValueSchemaString, keyValueResolvers} from './queries/key_value';
+import {keyCountSchemaString, keyCountResolvers} from './queries/key_count';
+import {cvSchemaString, cvResolvers} from './queries/cv';
+import {idPartsSchemaString, idPartsResolvers} from './queries/idParts';
+import {inputAttSpecSchemaString} from './queries/input_att_spec';
+import {keyMatchesSchemaString} from './queries/input_key_matches';
+import {inputKeyValueSchemaString} from './queries/input_key_value';
+import {keyValuesSchemaString} from './queries/input_key_values';
+import {inputItemObjectSchemaString} from './queries/inputItemObject';
+import {itemSchemaString, itemResolvers} from './queries/item';
+import {itemGroupSchemaString, itemGroupResolvers} from './queries/itemGroup';
+import {kvEntrySchemaString, kvEntryResolvers} from './queries/kv_entry';
 import {
-  regexIndexSchemaString,
-  regexIndexResolvers,
+    regexIndexSchemaString,
+    regexIndexResolvers,
 } from './queries/regex_index';
-import { rowEqualsSpecSchemaString } from './queries/row_equals_spec';
-import { rowMatchSpecSchemaString } from './queries/row_match_spec';
-import { verseRangeSchemaString } from './queries/verseRange';
-import { origSchemaString } from './queries/orig';
+import {rowEqualsSpecSchemaString} from './queries/row_equals_spec';
+import {rowMatchSpecSchemaString} from './queries/row_match_spec';
+import {verseRangeSchemaString} from './queries/verseRange';
+import {origSchemaString} from './queries/orig';
 import {
-  verseNumberSchemaString,
-  verseNumberResolvers,
+    verseNumberSchemaString,
+    verseNumberResolvers,
 } from './queries/verseNumber';
-import { cellSchemaString, cellResolvers } from './queries/cell';
-import { cIndexSchemaString, cIndexResolvers } from './queries/cIndex';
+import {cellSchemaString, cellResolvers} from './queries/cell';
+import {cIndexSchemaString, cIndexResolvers} from './queries/cIndex';
 import {
-  cvVerseElementSchemaString,
-  cvVerseElementResolvers,
+    cvVerseElementSchemaString,
+    cvVerseElementResolvers,
 } from './queries/cvVerseElement';
-import { cvVersesSchemaString, cvVersesResolvers } from './queries/cvVerses';
-import { cvIndexSchemaString, cvIndexResolvers } from './queries/cvIndex';
+import {cvVersesSchemaString, cvVersesResolvers} from './queries/cvVerses';
+import {cvIndexSchemaString, cvIndexResolvers} from './queries/cvIndex';
 import {
-  cvNavigationSchemaString,
-  cvNavigationResolvers,
+    cvNavigationSchemaString,
+    cvNavigationResolvers,
 } from './queries/cvNavigation';
-import { inputBlockSpecSchemaString } from './queries/inputBlockSpec';
-import { nodeSchemaString, nodeResolvers } from './queries/node';
+import {inputBlockSpecSchemaString} from './queries/inputBlockSpec';
+import {nodeSchemaString, nodeResolvers} from './queries/node';
 import {
-  kvSequenceSchemaString,
-  kvSequenceResolvers,
+    kvSequenceSchemaString,
+    kvSequenceResolvers,
 } from './queries/kv_sequence';
 import {
-  tableSequenceSchemaString,
-  tableSequenceResolvers,
+    tableSequenceSchemaString,
+    tableSequenceResolvers,
 } from './queries/table_sequence';
 import {
-  treeSequenceSchemaString,
-  treeSequenceResolvers,
+    treeSequenceSchemaString,
+    treeSequenceResolvers,
 } from './queries/tree_sequence';
-import { blockSchemaString, blockResolvers } from './queries/block';
-import { sequenceSchemaString, sequenceResolvers } from './queries/sequence';
-import { documentSchemaString, documentResolvers } from './queries/document';
-import { docSetSchemaString, docSetResolvers } from './queries/doc_set';
-import { querySchemaString, queryResolvers } from './queries';
+import {blockSchemaString, blockResolvers} from './queries/block';
+import {sequenceSchemaString, sequenceResolvers} from './queries/sequence';
+import {documentSchemaString, documentResolvers} from './queries/document';
+import {docSetSchemaString, docSetResolvers} from './queries/doc_set';
+import {querySchemaString, queryResolvers} from './queries';
 import {
-  selectorSpecSchemaString,
-  selectorSpecResolvers,
+    selectorSpecSchemaString,
+    selectorSpecResolvers,
 } from './queries/selector_spec';
-import { inputSelectorSpecSchemaString } from './queries/input_selector_spec';
-import { mutationsSchemaString, mutationsResolvers } from './mutations';
+import {inputSelectorSpecSchemaString} from './queries/input_selector_spec';
+import {mutationsSchemaString, mutationsResolvers} from './mutations';
 import {
-  versificationSchemaString,
-  versificationResolvers,
+    versificationSchemaString,
+    versificationResolvers,
 } from './queries/versification';
-import { cvBookSchemaString, cvBookResolvers } from './queries/cvBook';
-import { cvChapterSchemaString, cvChapterResolvers } from './queries/cvChapter';
+import {cvBookSchemaString, cvBookResolvers} from './queries/cvBook';
+import {cvChapterSchemaString, cvChapterResolvers} from './queries/cvChapter';
 
 const typeDefs = `
       ${querySchemaString}
       ${mutationsSchemaString}
       ${keyValueSchemaString}
+      ${keyCountSchemaString}
       ${cvSchemaString}
       ${idPartsSchemaString}
       ${inputAttSpecSchemaString}
@@ -108,34 +110,35 @@ const typeDefs = `
   `;
 
 const resolvers = {
-  Mutation: mutationsResolvers,
-  Query: queryResolvers,
-  KeyValue: keyValueResolvers,
-  cv: cvResolvers,
-  idParts: idPartsResolvers,
-  Item: itemResolvers,
-  ItemGroup: itemGroupResolvers,
-  kvEntry: kvEntryResolvers,
-  regexIndex: regexIndexResolvers,
-  verseNumber: verseNumberResolvers,
-  cell: cellResolvers,
-  cIndex: cIndexResolvers,
-  cvVerseElement: cvVerseElementResolvers,
-  cvVerses: cvVersesResolvers,
-  cvIndex: cvIndexResolvers,
-  cvNavigation: cvNavigationResolvers,
-  node: nodeResolvers,
-  kvSequence: kvSequenceResolvers,
-  tableSequence: tableSequenceResolvers,
-  treeSequence: treeSequenceResolvers,
-  Block: blockResolvers,
-  Sequence: sequenceResolvers,
-  Document: documentResolvers,
-  DocSet: docSetResolvers,
-  selectorSpec: selectorSpecResolvers,
-  versification: versificationResolvers,
-  cvBook: cvBookResolvers,
-  cvChapter: cvChapterResolvers,
+    Mutation: mutationsResolvers,
+    Query: queryResolvers,
+    KeyValue: keyValueResolvers,
+    KeyCount: keyCountResolvers,
+    cv: cvResolvers,
+    idParts: idPartsResolvers,
+    Item: itemResolvers,
+    ItemGroup: itemGroupResolvers,
+    kvEntry: kvEntryResolvers,
+    regexIndex: regexIndexResolvers,
+    verseNumber: verseNumberResolvers,
+    cell: cellResolvers,
+    cIndex: cIndexResolvers,
+    cvVerseElement: cvVerseElementResolvers,
+    cvVerses: cvVersesResolvers,
+    cvIndex: cvIndexResolvers,
+    cvNavigation: cvNavigationResolvers,
+    node: nodeResolvers,
+    kvSequence: kvSequenceResolvers,
+    tableSequence: tableSequenceResolvers,
+    treeSequence: treeSequenceResolvers,
+    Block: blockResolvers,
+    Sequence: sequenceResolvers,
+    Document: documentResolvers,
+    DocSet: docSetResolvers,
+    selectorSpec: selectorSpecResolvers,
+    versification: versificationResolvers,
+    cvBook: cvBookResolvers,
+    cvChapter: cvChapterResolvers,
 };
 
-export { typeDefs, resolvers };
+export {typeDefs, resolvers};
