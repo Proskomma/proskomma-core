@@ -1,5 +1,6 @@
 import {keyValueSchemaString, keyValueResolvers} from './queries/key_value';
 import {keyCountSchemaString, keyCountResolvers} from './queries/key_count';
+import {keyCountCategorySchemaString, keyCountCategoryResolvers} from './queries/key_count_category';
 import {cvSchemaString, cvResolvers} from './queries/cv';
 import {idPartsSchemaString, idPartsResolvers} from './queries/idParts';
 import {inputAttSpecSchemaString} from './queries/input_att_spec';
@@ -71,6 +72,7 @@ const typeDefs = `
       ${mutationsSchemaString}
       ${keyValueSchemaString}
       ${keyCountSchemaString}
+      ${keyCountCategorySchemaString}
       ${cvSchemaString}
       ${idPartsSchemaString}
       ${inputAttSpecSchemaString}
@@ -114,6 +116,7 @@ const resolvers = {
     Query: queryResolvers,
     KeyValue: keyValueResolvers,
     KeyCount: keyCountResolvers,
+    KeyCountCategory: keyCountCategoryResolvers,
     cv: cvResolvers,
     idParts: idPartsResolvers,
     Item: itemResolvers,

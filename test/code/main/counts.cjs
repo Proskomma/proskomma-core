@@ -43,3 +43,22 @@ test(
         }
     },
 );
+
+test(
+    `Unicode blocks (${testGroup})`,
+    async function (t) {
+        try {
+            t.plan(4);
+            const query = '{ documents { mainSequence { uniqueCharacterCounts { key count category } } } }';
+            const result = await pk.gqlQuery(query);
+            t.equal(result.errors, undefined);
+            const content = result.data.documents[0].mainSequence.uniqueCharacterCounts;
+            t.equal(content.filter(i => i.key === "“").length, 1);
+            t.equal(content.filter(i => i.key === "“")[0].count, 46);
+            t.equal(content.filter(i => i.key === "“")[0].category, 'General Punctuation');
+        } catch (err) {
+            console.log(err);
+        }
+    },
+);
+

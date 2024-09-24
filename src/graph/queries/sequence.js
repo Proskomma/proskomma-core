@@ -5,6 +5,8 @@ import {
     exactSearchTermIndexes,
 } from '../lib/sequence_chars';
 
+import unicodeTree from '../lib/unicode_tree.json';
+
 const options = {
     tokens: false,
     scopes: true,
@@ -48,6 +50,20 @@ const blockHasAtts = (
     }
     return false;
 };
+
+const unicodeBlock = c => {
+    const unicodeN = c.charCodeAt(0);
+    let tree = unicodeTree;
+    while (typeof tree !== "string") {
+        const [limit, branch] = tree[0];
+        if (unicodeN <= limit) {
+            tree = branch;
+        } else {
+            tree = tree[1][1];
+        }
+    }
+    return tree;
+}
 
 const sequenceSchemaString = `
 """A contiguous flow of content"""
@@ -122,7 +138,7 @@ type Sequence {
     coerceCase: String
 ) : [KeyCount!]!
     """A list of unique characters in the sequence with counts"""
-  uniqueCharacterCounts: [KeyCount!]!
+  uniqueCharacterCounts: [KeyCountCategory!]!
   """Returns true if a main sequence contains the specified tokens"""
   hasChars(
     """Token strings to be matched exactly"""
@@ -364,6 +380,7 @@ const sequenceResolvers = {
                     )
             )
         return Object.entries(characters)
+            .map(c => [c[0], c[1], unicodeBlock(c[0])])
             .sort((a, b) => b[1] - a[1]);
     },
     uniqueTokenCounts: (root, args, context) => {
