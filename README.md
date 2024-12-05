@@ -1,7 +1,3 @@
-# EXPERIMENTAL
-
-DISCLAIMER : if you want the production version please [click on this link](https://github.com/mvahowe/proskomma-js)
-
 # proskomma-core
 
 A Javascript Implementation of the Proskomma Scripture Processing Model.
