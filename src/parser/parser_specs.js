@@ -55,8 +55,8 @@ const specs = (pt) => [
                         if (label === 'id') {
                             const idBits = parser.headers[label].split(" ", 2);
                             if (
-                                idBits[0].length >= 3 &&
-                                idBits[0].length <= 12 &&
+                                idBits[0].length >= 2 &&
+                                idBits[0].length <= 32 &&
                                 idTest.test(idBits[0])
                             ) {
                                 parser.headers['bookCode'] = idBits[0];
