@@ -532,3 +532,21 @@ test(
     }
   },
 );
+
+test(
+    `Array length issue on bad verse range (${testGroup})`,
+    async function (t) {
+      try {
+        t.plan(1);
+        const pkLocal = pkWithDoc('../test_data/usfm/jdg_array_length.usfm', {
+          lang: 'foo',
+          abbr: 'baa',
+        });
+        const query = '{ docSets { documents { id headers {key value} } } }';
+        const result = await pkLocal[0].gqlQuery(query);
+        t.equal(result.errors, undefined);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+);

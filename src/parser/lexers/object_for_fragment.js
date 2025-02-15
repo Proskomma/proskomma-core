@@ -20,7 +20,10 @@ const makeVerses = (subclass, matchedBits) => {
   };
 
   if (ret.numberString.includes('-')) {
-    const [fromV, toV] = ret.numberString.split('-').map((v) => parseInt(v));
+    let [fromV, toV] = ret.numberString.split('-').map((v) => parseInt(v));
+    if (!toV) {
+      toV = fromV;
+    }
     ret.numbers = Array.from(Array(toV - fromV + 1).keys()).map(
       (v) => v + fromV
     );
