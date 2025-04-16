@@ -177,7 +177,7 @@ const Parser = class {
         this.substituteEsbCatScopes(seq);
       }
 
-      if (['footnote', 'xref'].includes(seq.type)) {
+      if (['footnote', 'xref', "fig"].includes(seq.type)) {
         seq.lastBlock().inlineToEnd();
       }
     }

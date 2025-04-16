@@ -1,0 +1,12 @@
+\id XXB
+\h Храм
+\toc1 Храм
+\toc2 Храм
+\toc3 Храм
+\c 1
+\li \f + abcd \f* foo baa
+\q \fig |src="Temple04.png" size="span"\fig*
+\p \bd Иерусалимского храма во времена Иисуса Христа\bd*
+\c 2
+\pc \fig Blabla|src="Temple03_Russian.png" size="span"\fig* moreBla
+\pi \bd План Иерусалимского храма во времена Иисуса Христа\bd*

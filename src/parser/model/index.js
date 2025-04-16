@@ -266,11 +266,16 @@ const Sequence = class {
       }
       return false;
     }
+    const blockGrafts = blockItems => {
+      const grafts = blockItems.filter(i => i.type === "graft" && i.subType === "fig");
+      return grafts.length > 0;
+    }
     for (const blockRecord of this.blocks.entries()) {
       if (
         blockRecord[1].tokens().length === 0 &&
-        !emptyMilestones(blockRecord[1].items) &&
-        !canBeEmpty.includes(blockRecord[1].bs.payload)
+          !emptyMilestones(blockRecord[1].items) &&
+          !blockGrafts(blockRecord[1].items) &&
+          !canBeEmpty.includes(blockRecord[1].bs.payload)
       ) {
         emptyBlocks.push(blockRecord);
       }
