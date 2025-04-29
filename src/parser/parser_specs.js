@@ -580,6 +580,7 @@ const specs = (pt) => [
                 [
                     'w',
                     'rb',
+                    'jmp'
                     // 'xt',
                 ].concat(pt.customTags.word),
             ],
