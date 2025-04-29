@@ -507,7 +507,7 @@ const specs = (pt) => [
         parser: {
             during: (parser, pt) => {
                 // console.log("PARSER", pt)
-                parser.addEmptyMilestone(labelForScope('milestone', [pt.tagName]));
+                parser.addEmptyMilestone(labelForScope('milestone', [pt.tagName]), pt);
             },
         },
     },
