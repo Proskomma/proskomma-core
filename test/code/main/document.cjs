@@ -415,10 +415,10 @@ test(
         t.equal(result.errors, undefined);
         result = await pk6.gqlQuery(query);
         t.equal(result.errors, undefined);
-        result = await pk7.gqlQuery(query);
-        t.equal(result.errors, undefined);
         console.log(result.errors);
         console.log(JSON.stringify(JSON.parse(result.data.documents[0].usj), null, 2));
+        result = await pk7.gqlQuery(query);
+        t.equal(result.errors, undefined);
       } catch (err) {
         console.log(err);
       }

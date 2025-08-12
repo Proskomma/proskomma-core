@@ -141,6 +141,48 @@ const actions = {
             },
         },
     ],
+    startMilestone: [
+        {
+            description: 'Output start milestone',
+            test: () => true,
+            action: ({ context, workspace }) => {
+                let element = context.sequences[0].element;
+                const milestoneOb = {
+                    type: "ms",
+                    marker: oneifyTag(element.subType.split(':')[1]) + "-s",
+                };
+                if (element.atts) {
+                    for (const [k, v] of Object.entries(element.atts)) {
+                        milestoneOb[k] = v.join(",")
+                    }
+                }
+                if (workspace.wrapperStack.length > 0) {
+                    workspace.wrapperStack[workspace.wrapperStack.length - 1].content.push(milestoneOb)
+                } else {
+                    workspace.paraStack[workspace.paraStack.length - 1].content.push(milestoneOb);
+                }
+            },
+        },
+    ],
+    endMilestone: [
+        {
+            description: 'Output end milestone',
+            test: () => true,
+            action: ({ context, workspace }) => {
+                let element = context.sequences[0].element;
+                const milestoneOb = {
+                    type: "ms",
+                    marker: oneifyTag(element.subType.split(':')[1]) + "-e",
+                    content: []
+                };
+                if (workspace.wrapperStack.length > 0) {
+                    workspace.wrapperStack[workspace.wrapperStack.length - 1].content.push(milestoneOb)
+                } else {
+                    workspace.paraStack[workspace.paraStack.length - 1].content.push(milestoneOb);
+                }
+            },
+        },
+    ],
     startWrapper: [
         {
             description: 'Push to wrapperStack',
@@ -154,7 +196,7 @@ const actions = {
                 };
                 if (element.atts) {
                     for (const [k, v] of Object.entries(element.atts)) {
-                        wrapperOb[k] = v[0]
+                        wrapperOb[k] = v.join(",")
                     }
                 }
                 workspace.wrapperStack.push(wrapperOb);
