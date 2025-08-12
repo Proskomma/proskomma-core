@@ -12,6 +12,7 @@ const actions = {
             test: () => true,
             action: ({context, workspace, output}) => {
                 workspace.paraStack = [];
+                workspace.wrapperStack = [];
                 const docContext = context.document.metadata.document;
                 output.usj = {
                     type: "USJ",
@@ -28,7 +29,7 @@ const actions = {
                 for (let [key, value] of Object.entries(
                     context.document.metadata.document
                 ).filter(
-                    (kv) => !['tags', 'properties', 'bookCode', 'cl'].includes(kv[0])
+                    (kv) => !['id', 'tags', 'properties', 'bookCode', 'cl'].includes(kv[0])
                 )) {
                     let headerObject = {
                         type: "para",
@@ -45,7 +46,7 @@ const actions = {
     blockGraft: [
         {
             description: 'Follow block grafts',
-            test: ({context}) => true,
+            test: () => true,
             action: (environment) => {
                 let contextSequence = environment.context.sequences[0];
                 const target = contextSequence.block.target;
@@ -58,7 +59,7 @@ const actions = {
     startParagraph: [
         {
             description: 'Push to paraStack',
-            test: () => true,
+            test: ({context}) => !['f'].includes(context.sequences[0].block.subType.split(':')[1]),
             action: ({context, workspace}) => {
                 let tag = context.sequences[0].block.subType.split(':')[1];
                 let paraOb = {
@@ -73,7 +74,7 @@ const actions = {
     endParagraph: [
         {
             description: 'Merge paraStack one level down',
-            test: () => true,
+            test: ({context}) => !['f'].includes(context.sequences[0].block.subType.split(':')[1]),
             action: ({workspace, output}) => {
                 let topPara = workspace.paraStack.pop();
                 if (topPara.content.length === 0) {
@@ -105,7 +106,7 @@ const actions = {
                         environment.context.renderer.renderSequenceId(environment, target);
                         let topPara = environment.workspace.paraStack.pop();
                         if (element.subType === "note_caller") {
-                            environment.workspace.paraStack[environment.workspace.paraStack.length - 1].caller = topPara.content[0].content[0]
+                            environment.workspace.paraStack[environment.workspace.paraStack.length - 1].caller = topPara.content[0]
                         } else {
                             environment.workspace.paraStack[environment.workspace.paraStack.length - 1].content.push(topPara)
                         }
@@ -140,13 +141,52 @@ const actions = {
             },
         },
     ],
+    startWrapper: [
+        {
+            description: 'Push to wrapperStack',
+            test: () => true,
+            action: ({workspace, context}) => {
+                let element = context.sequences[0].element;
+                const wrapperOb = {
+                    type: "char",
+                    marker: oneifyTag(element.subType.split(':')[1]),
+                    content: []
+                };
+                if (element.atts) {
+                    for (const [k, v] of Object.entries(element.atts)) {
+                        wrapperOb[k] = v[0]
+                    }
+                }
+                workspace.wrapperStack.push(wrapperOb);
+            },
+        },
+    ],
+    endWrapper: [
+        {
+            description: 'Merge wrapperStack one level down',
+            test: () => true,
+            action: ({workspace}) => {
+                let topWrapper = workspace.wrapperStack.pop();
+                if (workspace.wrapperStack.length === 0) {
+                    workspace.paraStack[workspace.paraStack.length - 1].content.push(topWrapper);
+                } else {
+                    workspace.wrapperStack[workspace.wrapperStack.length - 1].content.push(topWrapper)
+                }
+
+            },
+        },
+    ],
     text: [
         {
             description: 'Output text',
             test: () => true,
             action: ({context, workspace}) => {
                 const text = context.sequences[0].element.text;
-                workspace.paraStack[workspace.paraStack.length - 1].content.push(text);
+                if (workspace.wrapperStack.length > 0) {
+                    workspace.wrapperStack[workspace.wrapperStack.length - 1].content.push(text)
+                } else {
+                    workspace.paraStack[workspace.paraStack.length - 1].content.push(text);
+                }
             },
         },
     ],

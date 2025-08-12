@@ -39,6 +39,16 @@ const pk5 = pkWithDoc('../test_data/usfm/xref.usfm', {
   abbr: 'ult',
 })[0];
 
+const pk6 = pkWithDoc('../test_data/usfm/en_ust_oba.usfm', {
+  lang: 'eng',
+  abbr: 'ult',
+})[0];
+
+const pk7 = pkWithDoc('../test_data/usfm/web_ecc.usfm', {
+  lang: 'eng',
+  abbr: 'ult',
+})[0];
+
 test(
   `DocSetId (${testGroup})`,
   async function (t) {
@@ -395,13 +405,17 @@ test(
     `usj (${testGroup})`,
     async function (t) {
       try {
-        t.plan(3);
+        t.plan(5);
         let query = '{ documents { usj } }';
         let result = await pk.gqlQuery(query);
         t.equal(result.errors, undefined);
         result = await pk4.gqlQuery(query);
         t.equal(result.errors, undefined);
         result = await pk5.gqlQuery(query);
+        t.equal(result.errors, undefined);
+        result = await pk6.gqlQuery(query);
+        t.equal(result.errors, undefined);
+        result = await pk7.gqlQuery(query);
         t.equal(result.errors, undefined);
         console.log(result.errors);
         console.log(JSON.stringify(JSON.parse(result.data.documents[0].usj), null, 2));
