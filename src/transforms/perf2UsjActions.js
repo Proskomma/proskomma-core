@@ -21,11 +21,14 @@ const actions = {
                         {
                             "type": "book",
                             "marker": "id",
-                            "code": docContext.bookCode,
-                            "content": [docContext.id.split(" ").slice(1).join(" ")]
+                            "code": docContext.bookCode
                         },
                     ]
                 };
+                const idContent = docContext.id.split(" ").slice(1).join(" ");
+                if (idContent.length > 0) {
+                    output.usj.content = [idContent];
+                }
                 for (let [key, value] of Object.entries(
                     context.document.metadata.document
                 ).filter(

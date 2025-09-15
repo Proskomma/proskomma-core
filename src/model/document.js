@@ -2,7 +2,7 @@ import {
     PerfRenderFromProskomma,
     SofriaRenderFromProskomma,
     render,
-    PipelineHandler,
+    PipelineHandler, PerfRenderFromJson,
 } from 'proskomma-json-tools';
 import utils from '../util';
 import {
@@ -10,10 +10,9 @@ import {
     parseUsx,
     parseTableToDocument,
     parseNodes,
+    parseUsj
 } from '../parser/lexers';
 import {Parser} from '../parser';
-import pipelines from '../pipelines/perf2x';
-import customTransforms from '../transforms';
 import {
     buildChapterVerseIndex,
     chapterVerseIndex,
@@ -30,11 +29,14 @@ import {succinctFilter} from './document_helpers/succinct_filter';
 import {serializeSuccinct} from './document_helpers/serialize_succinct';
 import {recordPreEnums, rerecordPreEnums} from './document_helpers/pre_enums';
 import perf2UsjActions from '../transforms/perf2UsjActions';
+import calculateUsfmChapterPositionsActions from '../transforms/calculateUsfmChapterPositionsActions';
+import perf2UsfmActions from '../transforms/perf2UsfmActions';
 
 const {addTag, removeTag, validateTags} = utils.tags;
 const parserConstantDef = utils.parserConstants;
-// const maybePrint = str => console.log(str);
-const maybePrint = (str) => str;
+const maybePrint = str => console.log(str);
+
+// const maybePrint = (str) => str;
 
 class Document {
     constructor(
@@ -69,6 +71,9 @@ class Document {
                     break;
                 case 'usx':
                     this.processUsx(contentString);
+                    break;
+                case 'usj':
+                    this.processUsj(contentString);
                     break;
                 case 'tsv':
                     this.processTSV(contentString);
@@ -117,6 +122,20 @@ class Document {
         this.postParseScripture(parser);
         maybePrint(
             `Total USX import time = ${Date.now() - t} msec (parse = ${
+                ((t2 - t) * 100) / (Date.now() - t)
+            }%)`
+        );
+    }
+
+    processUsj(usjString) {
+        const parser = this.makeParser();
+        const t = Date.now();
+        parseUsj(usjString, parser);
+        const t2 = Date.now();
+        maybePrint(`\nParse USJ in ${t2 - t} msec`);
+        this.postParseScripture(parser);
+        maybePrint(
+            `Total USJ import time = ${Date.now() - t} msec (parse = ${
                 ((t2 - t) * 100) / (Date.now() - t)
             }%)`
         );
@@ -333,22 +352,38 @@ class Document {
             : JSON.stringify(output.perf);
     }
 
-    async usfm() {
-        const perf = JSON.parse(this.perf());
+    usfm() {
+        const cl = new PerfRenderFromProskomma({
+            proskomma: this.processor,
+            actions: calculateUsfmChapterPositionsActions,
+        });
+        const output = {};
+
+        cl.renderDocument({
+            docId: this.id,
+            config: {},
+            output,
+        });
+        console.log(output.report)
+        const cl2 = new PerfRenderFromProskomma({
+            proskomma: this.processor,
+            actions: perf2UsfmActions,
+        });
+
+        const output2 = {};
+        const config2 = {report: output.report};
 
         try {
-            const pipelineHandler = new PipelineHandler({
-                pipelines: pipelines,
-                transforms: customTransforms,
-                proskomma: this.processor,
+            cl2.renderDocument({
+                docId: this.id,
+                config: config2,
+                output: output2,
             });
-            const output = await pipelineHandler.runPipeline('perf2usfmPipeline', {
-                perf,
-            });
-            return output.usfm;
         } catch (err) {
-            console.error('pipelineHandler Error :\n', err);
+            console.log(err);
+            throw err;
         }
+        return output2.usfm;
     }
 
     sofria(indent, chapter) {

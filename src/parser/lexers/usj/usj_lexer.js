@@ -1,23 +1,16 @@
 import xre from 'xregexp';
-
-import sax from 'sax';
-
 import { lexingRegexes, mainRegex } from '../lexingRegexes';
 import {
   preTokenObjectForFragment,
   constructorForFragment,
 } from '../object_for_fragment';
 
-class UsxLexer {
+class UsjLexer {
   constructor() {
-    this.sax = sax.parser(true);
-    this.sax.ontext = (text) => this.handleSaxText(text);
-    this.sax.onopentag = (ot) => this.handleSaxOpenTag(ot);
-    this.sax.onclosetag = (ct) => this.handleSaxCloseTag(ct);
     this.elementStack = [];
     this.currentText = '';
     this.openTagHandlers = {
-      usx: this.ignoreHandler,
+      USJ: this.ignoreHandler,
       book: this.handleBookOpen,
       chapter: this.handleChapter,
       verse: this.handleVerses,
@@ -35,7 +28,7 @@ class UsxLexer {
       ref: this.ignoreHandler, // this.handleRefOpen,
     };
     this.closeTagHandlers = {
-      usx: this.ignoreHandler,
+      USJ: this.ignoreHandler,
       book: this.handleBookClose,
       chapter: this.ignoreHandler,
       verse: this.ignoreHandler,
@@ -56,46 +49,65 @@ class UsxLexer {
 
   lexAndParse(str, parser) {
     this.parser = parser;
-    this.lexed = [];
     this.elementStack = [];
-    this.sax.write(str).close();
+    let usjJson;
+    try {
+      usjJson = JSON.parse(str);
+    } catch(err) {
+      throw new Error(`Error parsing USJ: ${err}`);
+    }
+    this.walkUsj(usjJson, parser);
   }
 
-  handleSaxText(text) {
-    this.currentText = this.replaceEntities(text);
+  walkUsj(usj, parser, path=[]) {
+
+    const printPath = () => `/${path.join("/")}`;
+
+    if (typeof usj !== "object" || Array.isArray(usj)) {
+      throw new Error(`USJ walker expected object at ${printPath()} but found '${JSON.stringify(usj).substring(0, 40) + "..."}'`);
+    }
+    const nodeType = usj["type"];
+    if (!nodeType) {
+      throw new Error(`USJ walker did not find type attribute at ${printPath()} in '${JSON.stringify(usj).substring(0, 40) + "..."}'`);
+    }
+    if (!this.openTagHandlers[nodeType]) {
+      throw new Error(`USJ walker found no openTag handler for ${nodeType} at ${printPath()}`);
+    }
+    if (!this.closeTagHandlers[nodeType]) {
+      throw new Error(`USJ walker found no closeTag handler for ${nodeType} at ${printPath()}`);
+    }
+    let atts = {...usj};
+    delete atts["type"];
+    delete atts["content"];
+    for (const [k, v] of Object.entries(atts)) {
+      if (typeof v === "object") {
+        throw new Error(`usjWalker expected string or number but found object or array '${JSON.stringify(usj).substring(0, 40) + "..."}' for attribute ${k} at ${printPath()}`);
+      }
+    }
+    this.openTagHandlers[nodeType](this, 'open', nodeType, atts);
+    for (const [n, child] of (usj["content"] || []).entries()) {
+      if (typeof child === "string") {
+        this.handleText(child);
+      } else if (typeof child !== "object" || Array.isArray(child)) {
+        throw new Error(`USJ walker expected child to be object at ${printPath()} but found '${JSON.stringify(child).substring(0, 40) + "..."}'`);
+      } else {
+        this.walkUsj(child, parser, [...path, nodeType, n]);
+      }
+    }
+    this.closeTagHandlers[nodeType](this, 'close', nodeType, atts);
+  }
+
+  handleText(text) {
+    this.currentText = text;
     xre
       .match(this.currentText, mainRegex, 'all')
       .map((f) => preTokenObjectForFragment(f, lexingRegexes))
       .forEach((t) => this.parser.parseItem(t));
   }
 
-  replaceEntities(text) {
-    return text
-      .replace('&lt;', '<')
-      .replace('&gt;', '>')
-      .replace('&apos;', "'")
-      .replace('&quot;', '"')
-      .replace('&amp;', '&');
-  }
-
-  handleSaxOpenTag(tagOb) {
-    const name = tagOb.name;
-    const atts = tagOb.attributes;
-
-    if (name in this.openTagHandlers) {
-      this.openTagHandlers[name](this, 'open', name, atts);
-    } else {
-      throw new Error(`Unexpected open element tag '${name}' in UsxParser`);
-    }
-  }
-
-  handleSaxCloseTag(name) {
-    this.closeTagHandlers[name](this, 'close', name);
-  }
-
   notHandledHandler(lexer, oOrC, tag) {
     console.error(
-      `WARNING: ${oOrC} element tag '${tag}' is not handled by UsxParser`
+      `WARNING: ${oOrC} element tag '${tag}' is not handled by UsjParser`
     );
   }
 
@@ -120,7 +132,7 @@ class UsxLexer {
 
   handleParaOpen(lexer, oOrC, name, atts) {
     lexer.currentText = '';
-    const [tagName, tagNo] = lexer.splitTagNumber(atts.style);
+    const [tagName, tagNo] = lexer.splitTagNumber(atts.marker);
 
     if (!['cp'].includes(tagName)) {
       lexer.parser.parseItem(
@@ -132,7 +144,7 @@ class UsxLexer {
 
   handleParaClose(lexer) {
     const sAtts = lexer.stackPop()[1];
-    const [tagName, tagNo] = lexer.splitTagNumber(sAtts.style);
+    const [tagName, tagNo] = lexer.splitTagNumber(sAtts.marker);
 
     if (['cp'].includes(tagName)) {
       lexer.parser.parseItem(
@@ -151,7 +163,7 @@ class UsxLexer {
   }
 
   handleCharOpen(lexer, oOrC, name, atts) {
-    const [tagName, tagNo] = lexer.splitTagNumber(atts.style);
+    const [tagName, tagNo] = lexer.splitTagNumber(atts.marker);
     lexer.parser.parseItem(
       constructorForFragment.tag('startTag', [null, null, `+${tagName}`, tagNo])
     );
@@ -183,7 +195,7 @@ class UsxLexer {
 
   handleCharClose(lexer) {
     const sAtts = lexer.stackPop()[1];
-    const [tagName, tagNo] = lexer.splitTagNumber(sAtts.style);
+    const [tagName, tagNo] = lexer.splitTagNumber(sAtts.marker);
     lexer.parser.parseItem(
       constructorForFragment.tag('endTag', [null, null, `+${tagName}`, tagNo])
     );
@@ -202,7 +214,7 @@ class UsxLexer {
   }
 
   handleRowOpen(lexer, oOrC, name, atts) {
-    const [tagName, tagNo] = lexer.splitTagNumber(atts.style);
+    const [tagName, tagNo] = lexer.splitTagNumber(atts.marker);
     lexer.parser.parseItem(
       constructorForFragment.tag('startTag', [null, null, tagName, tagNo])
     );
@@ -211,14 +223,14 @@ class UsxLexer {
 
   handleRowClose(lexer) {
     const sAtts = lexer.stackPop()[1];
-    const [tagName, tagNo] = lexer.splitTagNumber(sAtts.style);
+    const [tagName, tagNo] = lexer.splitTagNumber(sAtts.marker);
     lexer.parser.parseItem(
       constructorForFragment.tag('endTag', [null, null, tagName, tagNo])
     );
   }
 
   handleCellOpen(lexer, oOrC, name, atts) {
-    const [tagName, tagNo] = lexer.splitTagNumber(atts.style);
+    const [tagName, tagNo] = lexer.splitTagNumber(atts.marker);
     lexer.parser.parseItem(
       constructorForFragment.tag('startTag', [null, null, tagName, tagNo])
     );
@@ -227,7 +239,7 @@ class UsxLexer {
 
   handleCellClose(lexer) {
     const sAtts = lexer.stackPop()[1];
-    const [tagName, tagNo] = lexer.splitTagNumber(sAtts.style);
+    const [tagName, tagNo] = lexer.splitTagNumber(sAtts.marker);
     lexer.parser.parseItem(
       constructorForFragment.tag('endTag', [null, null, tagName, tagNo])
     );
@@ -317,7 +329,7 @@ class UsxLexer {
 
   handleNoteOpen(lexer, oOrC, name, atts) {
     lexer.parser.parseItem(
-      constructorForFragment.tag('startTag', [null, null, atts.style, ''])
+      constructorForFragment.tag('startTag', [null, null, atts.marker, ''])
     );
     lexer.parser.parseItem(
       constructorForFragment.printable('punctuation', [atts.caller])
@@ -328,7 +340,7 @@ class UsxLexer {
   handleNoteClose(lexer) {
     const sAtts = lexer.stackPop()[1];
     lexer.parser.parseItem(
-      constructorForFragment.tag('endTag', [null, null, sAtts.style, ''])
+      constructorForFragment.tag('endTag', [null, null, sAtts.marker, ''])
     );
   }
 
@@ -359,7 +371,7 @@ class UsxLexer {
   }
 
   handleMSOpen(lexer, oOrC, name, atts) {
-    let matchBits = xre.exec(atts.style, xre('(([a-z1-9]+)-([se]))'));
+    let matchBits = xre.exec(atts.marker, xre('(([a-z1-9]+)-([se]))'));
 
     if (matchBits) {
       const startMS = constructorForFragment.milestone('startMilestoneTag', [
@@ -398,7 +410,7 @@ class UsxLexer {
       const emptyMS = constructorForFragment.milestone('emptyMilestone', [
         null,
         null,
-        atts.style,
+        atts.marker,
         '',
       ]);
       lexer.parser.parseItem(emptyMS);
@@ -416,7 +428,7 @@ class UsxLexer {
     );
 
     for (const [attName, attValue] of Object.entries(atts)) {
-      if (attName === 'style') {
+      if (attName === 'marker') {
         continue;
       }
 
@@ -452,4 +464,4 @@ class UsxLexer {
   }
 }
 
-export { UsxLexer };
+export { UsjLexer };
