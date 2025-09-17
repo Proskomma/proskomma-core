@@ -27,7 +27,7 @@ const actions = {
                 };
                 const idContent = docContext.id.split(" ").slice(1).join(" ");
                 if (idContent.length > 0) {
-                    output.usj.content = [idContent];
+                    output.usj.content[0].content = [idContent];
                 }
                 for (let [key, value] of Object.entries(
                     context.document.metadata.document

@@ -405,10 +405,14 @@ test(
     `usj (${testGroup})`,
     async function (t) {
       try {
-        t.plan(5);
+        t.plan(7);
         let query = '{ documents { usj } }';
         let result = await pk.gqlQuery(query);
         t.equal(result.errors, undefined);
+        const usj = JSON.parse(result.data.documents[0].usj);
+        t.equal(usj["type"], "USJ");
+        const bookElement = usj.content[0];
+        t.equal(bookElement["type"], "book");
         result = await pk4.gqlQuery(query);
         t.equal(result.errors, undefined);
         result = await pk5.gqlQuery(query);
