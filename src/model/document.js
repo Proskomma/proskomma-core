@@ -34,9 +34,8 @@ import perf2UsfmActions from '../transforms/perf2UsfmActions';
 
 const {addTag, removeTag, validateTags} = utils.tags;
 const parserConstantDef = utils.parserConstants;
-const maybePrint = str => console.log(str);
-
-// const maybePrint = (str) => str;
+// const maybePrint = str => console.log(str);
+const maybePrint = (str) => str;
 
 class Document {
     constructor(
@@ -364,7 +363,6 @@ class Document {
             config: {},
             output,
         });
-        console.log(output.report)
         const cl2 = new PerfRenderFromProskomma({
             proskomma: this.processor,
             actions: perf2UsfmActions,

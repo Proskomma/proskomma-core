@@ -52,7 +52,7 @@
     "easy-crc32": "^0.0.2",
     "fs-extra": "^11.1.0",
     "graphql": "^v16.6.0",
-    "proskomma-json-tools": "^0.6.5",
+    "proskomma-json-tools": "^0.9.1",
     "pure-uuid": "^1.6.2",
     "sax": "^1.2.4",
     "stream": "0.0.2",
