@@ -209,6 +209,7 @@ class ByteArray {
 
   pushCountedString(s) {
     const sA = stringToUtf8ByteArray(s);
+    // String length is always 0-255 bytes (truncation in enum.js ensures this)
     this.pushByte(sA.length);
     this.pushBytes(sA);
   }
