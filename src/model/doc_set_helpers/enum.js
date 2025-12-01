@@ -35,20 +35,41 @@ const recordPreEnum = (docSet, category, value) => {
   }
 };
 
+const stringToUtf8ByteArray = (s) => {
+  const encoder = new TextEncoder();
+  return Array.from(encoder.encode(s));
+};
+
 const buildEnum = (docSet, category, preEnumOb) => {
   const sortedPreEnums = new Map([...preEnumOb.entries()]);
 
   for (const enumText of sortedPreEnums.keys()) {
-    if (enumText.length > 255) {
+    // Truncate string by UTF-8 byte length (max 255 bytes), not character length
+    // This is necessary for multi-byte scripts like Khmer/Myanmar to work correctly
+    let truncatedText = enumText;
+    const utf8Bytes = stringToUtf8ByteArray(enumText);
+    if (utf8Bytes.length > 255) {
       console.log(
         'enum text for',
         category,
-        'has length',
-        enumText.length,
-        'in buildEnum - truncating'
+        'has byte length',
+        utf8Bytes.length,
+        'in buildEnum - truncating to 255 bytes'
       );
+      // Find the maximum number of characters that fit in 255 UTF-8 bytes
+      let byteCount = 0;
+      let charCount = 0;
+      for (const char of enumText) {
+        const charBytes = stringToUtf8ByteArray(char).length;
+        if (byteCount + charBytes > 255) {
+          break;
+        }
+        byteCount += charBytes;
+        charCount++;
+      }
+      truncatedText = enumText.substring(0, charCount);
     }
-    docSet.enums[category].pushCountedString(enumText.substring(0, 255));
+    docSet.enums[category].pushCountedString(truncatedText);
   }
   docSet.enums[category].trim();
 };
@@ -71,7 +92,23 @@ const enumForCategoryValue = (docSet, category, value, addUnknown) => {
       enum: docSet.preEnums[category].size,
       frequency: 1,
     });
-    docSet.enums[category].pushCountedString(value);
+    // Truncate value to 255 UTF-8 bytes to prevent ByteArray overflow
+    let truncatedValue = value;
+    const utf8Bytes = stringToUtf8ByteArray(value);
+    if (utf8Bytes.length > 255) {
+      let byteCount = 0;
+      let charCount = 0;
+      for (const char of value) {
+        const charBytes = stringToUtf8ByteArray(char).length;
+        if (byteCount + charBytes > 255) {
+          break;
+        }
+        byteCount += charBytes;
+        charCount++;
+      }
+      truncatedValue = value.substring(0, charCount);
+    }
+    docSet.enums[category].pushCountedString(truncatedValue);
     docSet.buildEnumIndex(category);
     return docSet.preEnums[category].get(value).enum;
   } else {
