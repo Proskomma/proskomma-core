@@ -1,0 +1,7 @@
+\id GLO
+\c 1
+\q1 \w \+bd snakes\+bd*|lemma="snake"\w*
+\q1 \w \+lw snakes\+lw*|lemma="snake"\w*
+\q1 \k subtle \k* crafty, or smart; commonly used to describe \w \lw snakes \lw* |lemma="snake" \w*
+\q1 \w the \+bd snakes\+bd* hiss|lemma="snake" strong="H5175"\w* loudly
+\q1 \w snakes|lemma="snake"\w*
