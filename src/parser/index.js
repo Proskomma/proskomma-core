@@ -52,6 +52,8 @@ const Parser = class {
             baseSequenceType: 'main',
             inlineSequenceType: null,
             attributeContext: null,
+            spanAttributeContext: null,
+            milestoneAttributeContext: null,
         };
     }
 
@@ -560,12 +562,22 @@ const Parser = class {
         });
     }
 
+    // Milestones may sit inside spans with attributes (eg \w ... \zx-s |a="b"\* ... \zx-e\* |lemma="c"\w*),
+    // so keep separate contexts for each, with the milestone context taking priority while it is open
     setAttributeContext(label) {
-        this.current.attributeContext = label;
+        const contextKey = label.startsWith('milestone') ? 'milestoneAttributeContext' : 'spanAttributeContext';
+        this.current[contextKey] = label;
+        this.updateAttributeContext();
     }
 
-    clearAttributeContext() {
-        this.current.attributeContext = null;
+    clearAttributeContext(scopeType) {
+        const contextKey = scopeType === 'milestone' ? 'milestoneAttributeContext' : 'spanAttributeContext';
+        this.current[contextKey] = null;
+        this.updateAttributeContext();
+    }
+
+    updateAttributeContext() {
+        this.current.attributeContext = this.current.milestoneAttributeContext || this.current.spanAttributeContext || null;
     }
 };
 

@@ -465,32 +465,31 @@ const Block = class {
     }
 
     for (const swaStart of swaStarts) {
+      // Move the span's attribute start scopes to the start of the span, past any tokens and other scopes
+      // (eg milestones inside the span, before the attributes)
+      const spanLabel = this.items[swaStart - 1].payload;
+      const attPrefix = `attribute/${spanLabel}/`;
       let pos = swaStart;
-      let tokens = [];
+      let others = [];
       let scopes = [];
 
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        if (pos >= this.items.length) {
-          break;
-        }
-
+      while (pos < this.items.length) {
         const item = this.items[pos];
 
-        if (item.type === 'token') {
-          tokens.push(item);
+        if (item.type === 'scope' && item.payload === spanLabel) {
+          break;
         } else if (
           item.subType === 'start' &&
-          item.payload.startsWith('attribute/spanWithAtts')
+          item.payload.startsWith(attPrefix)
         ) {
           scopes.push(item);
         } else {
-          break;
+          others.push(item);
         }
         pos++;
       }
 
-      if (tokens.length !== 0 && scopes.length !== 0) {
+      if (others.length !== 0 && scopes.length !== 0) {
         let pos = swaStart;
 
         for (const s of scopes) {
@@ -498,8 +497,8 @@ const Block = class {
           pos++;
         }
 
-        for (const t of tokens) {
-          this.items[pos] = t;
+        for (const o of others) {
+          this.items[pos] = o;
           pos++;
         }
       }
