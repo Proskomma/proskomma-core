@@ -529,7 +529,7 @@ const specs = (pt) => [
     {
         // END MILESTONE - close scope, clear attribute context
         contexts: [['endMilestoneMarker']],
-        parser: {during: (parser) => parser.clearAttributeContext()},
+        parser: {during: (parser) => parser.clearAttributeContext('milestone')},
     },
     {
         // ATTRIBUTE - open scope based on attribute context
