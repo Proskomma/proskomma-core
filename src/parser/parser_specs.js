@@ -533,6 +533,7 @@ const specs = (pt) => [
                     w: 'lemma',
                     rb: 'gloss',
                     xt: 'link-href',
+                    jmp: 'link-href',
                 };
 
                 if (parser.current.attributeContext) {
