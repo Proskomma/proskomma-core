@@ -246,3 +246,33 @@ test(
     }
   },
 );
+
+const pk10 = pkWithDoc('../test_data/usfm/table_range_cell_then_plain_row_no_end_cells.usfm', {
+  lang: 'fra',
+  abbr: 'hello',
+})[0];
+
+test(
+  `USFM no cell end tags, range cell row then plain row (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(3);
+      const result = await pk10.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const rowScopes = rowCellScopes(result);
+      t.deepEqual(rowScopes[0], [
+        'start:table',
+        'start:cell/body/left/2', 'end:cell/body/left/2',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+      ]);
+      t.deepEqual(rowScopes[1], [
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'end:table',
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
