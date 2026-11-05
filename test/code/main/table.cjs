@@ -117,3 +117,132 @@ test(
     }
   },
 );
+
+const pk6 = pkWithDoc('../test_data/usfm/table_range_cell_no_end_cells.usfm', {
+  lang: 'fra',
+  abbr: 'hello',
+})[0];
+
+test(
+  `USFM no cell end tags, next row starts with range cell (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(3);
+      const result = await pk6.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const rowScopes = result.data.documents[0].mainSequence.blocks
+        .filter(b => b.bs.payload === 'blockTag/tr')
+        .map(b => b.items
+          .filter(i => i.type === 'scope' && /^(cell|table)/.test(i.payload))
+          .map(i => `${i.subType}:${i.payload}`));
+      t.deepEqual(rowScopes[0], [
+        'start:table',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+      ]);
+      t.deepEqual(rowScopes[1], [
+        'start:cell/body/left/2', 'end:cell/body/left/2',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'end:table',
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+const pk7 = pkWithDoc('../test_data/usfm/table_at_end_no_end_cells.usfm', {
+  lang: 'fra',
+  abbr: 'hello',
+})[0];
+
+test(
+  `USFM Table at End of Doc, no cell end tags (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(2);
+      const result = await pk7.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const lastRowScopes = result.data.documents[0].mainSequence.blocks
+        .filter(b => b.bs.payload === 'blockTag/tr')[1].items
+        .filter(i => i.type === 'scope' && /^(cell|table|span)/.test(i.payload))
+        .map(i => `${i.subType}:${i.payload}`);
+      t.deepEqual(lastRowScopes, [
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1',
+        'start:span/bd', 'end:span/bd',
+        'end:cell/body/left/1',
+        'end:table',
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+const rowCellScopes = (result) => result.data.documents[0].mainSequence.blocks
+  .filter(b => b.bs.payload === 'blockTag/tr')
+  .map(b => b.items
+    .filter(i => i.type === 'scope' && /^(cell|table)/.test(i.payload))
+    .map(i => `${i.subType}:${i.payload}`));
+
+const pk9 = pkWithDoc('../test_data/usfm/table_range_cell_last_no_end_cells.usfm', {
+  lang: 'fra',
+  abbr: 'hello',
+})[0];
+
+test(
+  `USFM no cell end tags, last row ends with range cell (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(3);
+      const result = await pk9.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const rowScopes = rowCellScopes(result);
+      t.deepEqual(rowScopes[0], [
+        'start:table',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+      ]);
+      t.deepEqual(rowScopes[1], [
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/2', 'end:cell/body/left/2',
+        'end:table',
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+const pk10 = pkWithDoc('../test_data/usfm/table_range_cell_then_plain_row_no_end_cells.usfm', {
+  lang: 'fra',
+  abbr: 'hello',
+})[0];
+
+test(
+  `USFM no cell end tags, range cell row then plain row (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(3);
+      const result = await pk10.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const rowScopes = rowCellScopes(result);
+      t.deepEqual(rowScopes[0], [
+        'start:table',
+        'start:cell/body/left/2', 'end:cell/body/left/2',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+      ]);
+      t.deepEqual(rowScopes[1], [
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'end:table',
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
