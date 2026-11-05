@@ -180,3 +180,69 @@ test(
     }
   },
 );
+
+const rowCellScopes = (result) => result.data.documents[0].mainSequence.blocks
+  .filter(b => b.bs.payload === 'blockTag/tr')
+  .map(b => b.items
+    .filter(i => i.type === 'scope' && /^(cell|table)/.test(i.payload))
+    .map(i => `${i.subType}:${i.payload}`));
+
+const pk8 = pkWithDoc('../test_data/usfm/table_range_cell_first_no_end_cells.usfm', {
+  lang: 'fra',
+  abbr: 'hello',
+})[0];
+
+test(
+  `USFM no cell end tags, first row starts with range cell (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(3);
+      const result = await pk8.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const rowScopes = rowCellScopes(result);
+      t.deepEqual(rowScopes[0], [
+        'start:table',
+        'start:cell/body/left/2', 'end:cell/body/left/2',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+      ]);
+      t.deepEqual(rowScopes[1], [
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'end:table',
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);
+
+const pk9 = pkWithDoc('../test_data/usfm/table_range_cell_last_no_end_cells.usfm', {
+  lang: 'fra',
+  abbr: 'hello',
+})[0];
+
+test(
+  `USFM no cell end tags, last row ends with range cell (${testGroup})`,
+  async function (t) {
+    try {
+      t.plan(3);
+      const result = await pk9.gqlQuery(query);
+      t.equal(result.errors, undefined);
+      const rowScopes = rowCellScopes(result);
+      t.deepEqual(rowScopes[0], [
+        'start:table',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+      ]);
+      t.deepEqual(rowScopes[1], [
+        'start:cell/body/left/1', 'end:cell/body/left/1',
+        'start:cell/body/left/2', 'end:cell/body/left/2',
+        'end:table',
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+);

@@ -480,22 +480,13 @@ const specs = (pt) => [
         // CELL - unpick tagName, add scope
         contexts: [['startTag', 'tagName', ['th', 'thr', 'tc', 'tcr']]],
         parser: {
+            // Cells don't nest, so any cell marker (any column number or range) ends an open cell
+            before: (parser) => parser.closeActiveScopes('startCell'),
             newScopes: [
                 {
                     label: (pt) => labelForScope('cell', [pt.fullTagName]),
                     endedBy: [
-                        'startTag/th',
-                        'startTag/thr',
-                        'startTag/tc',
-                        'startTag/tcr',
-                        'startTag/th2',
-                        'startTag/thr2',
-                        'startTag/tc2',
-                        'startTag/tcr2',
-                        'startTag/th3',
-                        'startTag/thr3',
-                        'startTag/tc3',
-                        'startTag/tcr3',
+                        'startCell',
                         'endBlock',
                         'endTag/$fullTagName$',
                     ],
