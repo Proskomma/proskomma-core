@@ -238,6 +238,8 @@ const specs = (pt) => [
         // ROW - Make new block
         contexts: [['startTag', 'tagName', ['tr']]],
         parser: {
+            // End open cells in the row they belong to, before the new row's block is created
+            before: (parser) => parser.closeActiveScopes('endBlock'),
             newBlock: true,
             newScopes: [],
         },

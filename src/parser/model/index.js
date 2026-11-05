@@ -83,6 +83,21 @@ const Sequence = class {
     this.activeScopes = [];
   }
 
+  closeCellScopes(parser) {
+    // Close a cell left open at the end of the sequence, and any scopes opened inside it,
+    // so that their end scopes come before the end of the table
+    const firstCellIndex = this.activeScopes.findIndex((sc) => sc.label.startsWith('cell/'));
+
+    if (firstCellIndex < 0) {
+      return;
+    }
+
+    for (const activeScope of this.activeScopes.slice(firstCellIndex).reverse()) {
+      this.closeActiveScope(parser, activeScope);
+    }
+    this.activeScopes = this.activeScopes.slice(0, firstCellIndex);
+  }
+
   closeActiveScope(parser, sc) {
     this.addItem({
       type: 'scope',

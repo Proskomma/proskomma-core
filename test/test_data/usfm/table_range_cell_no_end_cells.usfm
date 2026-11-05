@@ -1,0 +1,7 @@
+\id GEN
+\c 1
+\p
+\v 1 Text.
+\tr \tc1 a \tc2 b \tc3 c
+\tr \tc1-2 d e \tc3 f
+\p Done.

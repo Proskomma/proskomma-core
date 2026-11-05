@@ -170,6 +170,7 @@ const Parser = class {
             if (emptySequences) {
                 seq.removeGraftsToEmptySequences(emptySequences);
             }
+            seq.closeCellScopes(this);
             seq.addTableScopes();
             seq.close(this);
             this.substitutePubNumberScopes(seq);
